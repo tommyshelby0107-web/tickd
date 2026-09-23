@@ -79,7 +79,31 @@ $py = "C:\Users\Acer\.venvs\invoice-agent\Scripts\python.exe"
 & $py scripts\generate_invoices.py      # rebuild the sample PDFs
 ```
 
-## 7. Exercises (do these — this is how you learn the code)
+## 7. Days 2–4: what was added and why
+
+| Topic | What we did | Why (say this in the interview) |
+| --- | --- | --- |
+| Two LLM providers | Groq first (fast), Gemini as backup (also reads page images) | Free tiers get overloaded. We measured 13–113 s per invoice on free Gemini alone. Graceful degradation beats a stuck demo |
+| Model fallback chain | Each provider tries a list of models; a busy one (429/503) is skipped immediately | Waiting on an overloaded model wastes the user's time; the run records which model answered, so it's transparent |
+| Strict JSON schema | The same Pydantic model becomes Groq's strict schema (constrained decoding) and Gemini's response schema | The model *cannot* return malformed or extra fields, so there is no fragile JSON parsing |
+| Deterministic clean-up | If the model quotes "Your PO PO-4507" but leaves the PO field empty, code fills it from the quote | Code double-checks the AI. We found this with the accuracy checker (89/90 → 90/90) |
+| Accuracy checker | `check_extraction.py` scores each field against the answer key | You can't improve what you don't measure. It's your answer to "how accurate is it?" |
+| Live view (SSE) | Each stage writes an event to SQLite; the browser streams them with Server-Sent Events | Stored first, so a page reload replays the run. SSE is one-way server→browser, simpler than WebSockets, which we don't need |
+| Stage pause (0.4 s) | Small pause between rule stages, 0 in tests | Rules finish in milliseconds; people watching need to see each stage. It's a display setting, not fake work |
+| Cached mode | Known sample PDFs can reuse their saved extraction; the UI says "cached extraction (no LLM call)" | For UI work without burning quota, and an honest backup if the internet fails in the demo |
+| Escaping | Every value from a PDF is HTML-escaped before display | An invoice is untrusted input. A malicious PDF could otherwise inject script into the reviewer's browser |
+| UTC timestamps | Server stores UTC with offset; browser shows local time | A hosted server (UTC) and a viewer in India would otherwise disagree by 5.5 hours |
+
+## 8. Running the app
+
+```powershell
+cd "C:\Users\Acer\OneDrive\Desktop\zamp ai\invoice-agent"
+& "C:\Users\Acer\.venvs\invoice-agent\Scripts\python.exe" -m uvicorn app.main:app --port 8000
+# open http://127.0.0.1:8000
+# add  $env:EXTRACTION_MODE = "cached"  before the command to use saved extractions (no API calls)
+```
+
+## 9. Exercises (do these — this is how you learn the code)
 
 1. In `policy.yaml`, change `header_tolerance_abs` from `250.00` to `50.00`. Run `demo_offline.py`.
    HP-2 should flip from Approve to Review. Why? (Its +$96 variance now exceeds $50.) Change it back.
@@ -88,3 +112,8 @@ $py = "C:\Users\Acer\.venvs\invoice-agent\Scripts\python.exe"
 3. Open `app/rules.py`, find `M-03`. Explain in your own words, with EC-1B's numbers, why it fires.
 4. In `app/normalize.py`, what does `invoice_key("INV-0098")` return? Predict first, then check in Python.
 5. Explain to an imaginary CFO, in 30 seconds and with no technical words, what happens to EC-4.
+6. In the app: Reference data → Reset. Run HP-1, then EC-2. Open Reference data: why is PO-4501 now 100% billed,
+   and why did EC-2 get rejected even though its file and number format differ?
+7. Run EC-3. Resolve it with Approve and the reason "Confirmed PO-4504 with buyer Dana Whitfield".
+   Check Reference data: what changed for PO-4504, and what appeared in the invoice registry?
+8. Open `app/extract.py` and find `_groq`. Walk through what happens, line by line, if Groq returns 503.
