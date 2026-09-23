@@ -64,7 +64,8 @@ def run_invoice(pdf_path: Path, run_id: str | None = None, listener: Listener | 
             ext = extract_invoice(pdf_path, pages)
             invoice = ext.data
             result["extraction"] = {"model": ext.model, "seconds": ext.seconds, "input_tokens": ext.input_tokens,
-                                    "output_tokens": ext.output_tokens, "image_pages": ext.image_pages}
+                                    "output_tokens": ext.output_tokens, "image_pages": ext.image_pages,
+                                    "fallbacks": ext.fallbacks}
         else:
             invoice = extraction
             result["extraction"] = {"model": "provided (no LLM call)"}

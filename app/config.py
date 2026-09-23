@@ -14,9 +14,16 @@ STORAGE_DIR = Path(os.getenv("STORAGE_DIR", str(ROOT / "storage")))
 DB_PATH = STORAGE_DIR / "invoice_agent.db"
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-# Tried in order; a busy model is skipped for the next one (free-tier capacity varies by model and hour).
-GEMINI_MODELS = [m.strip() for m in os.getenv(
-    "GEMINI_MODELS", "gemini-3.6-flash,gemini-3.5-flash-lite,gemini-flash-lite-latest").split(",") if m.strip()]
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+
+
+def _models(name: str, default: str) -> list[str]:
+    """Model lists are tried in order; a busy model is skipped for the next (free-tier capacity varies)."""
+    return [m.strip() for m in os.getenv(name, default).split(",") if m.strip()]
+
+
+GROQ_MODELS = _models("GROQ_MODELS", "openai/gpt-oss-120b,openai/gpt-oss-20b")
+GEMINI_MODELS = _models("GEMINI_MODELS", "gemini-3.6-flash,gemini-3.5-flash-lite,gemini-flash-lite-latest")
 
 _WINDOWS_TESSERACT = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 TESSERACT_CMD = os.getenv("TESSERACT_CMD") or (_WINDOWS_TESSERACT if os.name == "nt" else "tesseract")

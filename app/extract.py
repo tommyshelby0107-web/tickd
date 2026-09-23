@@ -1,17 +1,20 @@
-"""Turn page text into structured invoice fields with an LLM (Gemini, free tier).
+"""Turn page text into structured invoice fields with an LLM.
 
+Providers are tried in order: Groq (fast, free tier) then Gemini (free tier, also reads page images).
 The LLM only reads. It never decides: every decision is made by the rules in rules.py.
 """
+import copy
 import re
 import time
 from dataclasses import dataclass
 from pathlib import Path
 
+import groq
 from google import genai
 from google.genai import errors, types
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
-from .config import GEMINI_API_KEY, GEMINI_MODELS, POLICY
+from .config import GEMINI_API_KEY, GEMINI_MODELS, GROQ_API_KEY, GROQ_MODELS, POLICY
 from .text import PageText, as_prompt_text, page_png
 
 
@@ -67,6 +70,9 @@ Rules:
 - source_quote: a short snippet copied character-for-character from the page text, e.g. "Invoice No. INV-2026-0457".
 - Page text may come from OCR and contain small errors. Read carefully and keep printed values as they are."""
 
+CALL_TIMEOUT_S = 45
+BUSY = (429, 500, 502, 503, 504)
+
 
 class ExtractionError(Exception):
     pass
@@ -80,17 +86,94 @@ class Extraction:
     input_tokens: int
     output_tokens: int
     image_pages: list[int]      # pages also sent as images because OCR confidence was low
+    fallbacks: list[str]        # providers/models skipped before one answered
 
 
 def extract_invoice(pdf_path: Path, pages: list[PageText]) -> Extraction:
-    if not GEMINI_API_KEY:
-        raise ExtractionError("GEMINI_API_KEY is not set in .env")
-    contents: list = [f"Extract the invoice fields from this document.\n\n{as_prompt_text(pages)}"]
+    prompt = f"Extract the invoice fields from this document.\n\n{as_prompt_text(pages)}"
     image_pages = [p.number for p in pages
                    if p.source == "ocr" and (p.ocr_confidence or 0) < POLICY["ocr_image_fallback_below"]]
-    for number in image_pages:
-        contents.append(types.Part.from_bytes(data=page_png(pdf_path, number, dpi=200), mime_type="image/png"))
+    providers = []
+    if GROQ_API_KEY and not image_pages:     # the Groq models we use read text only; image pages need Gemini
+        providers.append(_groq)
+    if GEMINI_API_KEY:
+        providers.append(_gemini)
+    if not providers:
+        raise ExtractionError("No LLM key configured: set GROQ_API_KEY or GEMINI_API_KEY in .env")
 
+    started, skipped = time.perf_counter(), []
+    for provider in providers:
+        try:
+            data, model, tokens_in, tokens_out = provider(prompt, pdf_path, image_pages, skipped)
+        except ExtractionError as exc:
+            skipped.append(str(exc))
+            continue
+        _recover_printed_po(data)
+        return Extraction(data, model, round(time.perf_counter() - started, 2), tokens_in, tokens_out,
+                          image_pages, skipped)
+    raise ExtractionError(" | ".join(skipped))
+
+
+# ---------------------------------------------------------------- Groq (primary)
+
+def _groq(prompt: str, pdf_path: Path, image_pages: list[int], skipped: list[str]):
+    client = groq.Groq(api_key=GROQ_API_KEY, timeout=CALL_TIMEOUT_S, max_retries=0)
+    for model in GROQ_MODELS:
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=[{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": prompt}],
+                response_format={"type": "json_schema",
+                                 "json_schema": {"name": "invoice", "strict": True, "schema": STRICT_SCHEMA}},
+                temperature=0,
+                reasoning_effort="low",
+            )
+            data = InvoiceData.model_validate_json(response.choices[0].message.content)
+        except groq.APIStatusError as exc:
+            if exc.status_code not in BUSY:
+                raise ExtractionError(f"Groq {model} failed ({exc.status_code}): {exc.message}") from exc
+            skipped.append(f"{model}: busy ({exc.status_code})")
+            continue
+        except (groq.APIConnectionError, ValidationError) as exc:     # timeouts, network, malformed output
+            skipped.append(f"{model}: {type(exc).__name__}")
+            continue
+        return data, model, response.usage.prompt_tokens, response.usage.completion_tokens
+    raise ExtractionError("All Groq models unavailable")
+
+
+def _strict_schema(model: type[BaseModel]) -> dict:
+    """Groq strict mode wants every object closed (additionalProperties false), every field required, no $refs."""
+    schema = model.model_json_schema()
+    defs = schema.pop("$defs", {})
+
+    def fix(node):
+        if isinstance(node, list):
+            return [fix(n) for n in node]
+        if not isinstance(node, dict):
+            return node
+        if "$ref" in node:
+            resolved = fix(copy.deepcopy(defs[node["$ref"].split("/")[-1]]))
+            if "description" in node:
+                resolved["description"] = node["description"]
+            return resolved
+        out = {k: (fix(v) if k != "properties" else {name: fix(p) for name, p in v.items()})
+               for k, v in node.items() if k not in ("title", "default")}
+        if out.get("type") == "object":
+            out["additionalProperties"] = False
+            out["required"] = list(out.get("properties", {}))
+        return out
+
+    return fix(schema)
+
+
+STRICT_SCHEMA = _strict_schema(InvoiceData)
+
+
+# ---------------------------------------------------------------- Gemini (backup; also reads page images)
+
+def _gemini(prompt: str, pdf_path: Path, image_pages: list[int], skipped: list[str]):
+    contents: list = [prompt] + [types.Part.from_bytes(data=page_png(pdf_path, n, dpi=200), mime_type="image/png")
+                                 for n in image_pages]
     config = types.GenerateContentConfig(
         system_instruction=SYSTEM_PROMPT,
         response_mime_type="application/json",
@@ -98,28 +181,30 @@ def extract_invoice(pdf_path: Path, pages: list[PageText]) -> Extraction:
         temperature=0,
         automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
     )
-    client = genai.Client(api_key=GEMINI_API_KEY,
-                          http_options=types.HttpOptions(timeout=CALL_TIMEOUT_MS, retry_options=types.HttpRetryOptions(attempts=1)))
-    started = time.perf_counter()
-    response, model = _generate_with_fallback(client, contents, config)
-    data = response.parsed if isinstance(response.parsed, InvoiceData) else InvoiceData.model_validate_json(response.text)
-    _recover_printed_po(data)
-    usage = response.usage_metadata
-    return Extraction(
-        data=data,
-        model=model,
-        seconds=round(time.perf_counter() - started, 2),
-        input_tokens=(usage.prompt_token_count or 0) if usage else 0,
-        output_tokens=(usage.candidates_token_count or 0) if usage else 0,
-        image_pages=image_pages,
-    )
+    client = genai.Client(api_key=GEMINI_API_KEY, http_options=types.HttpOptions(
+        timeout=CALL_TIMEOUT_S * 1000, retry_options=types.HttpRetryOptions(attempts=1)))
+    for model in GEMINI_MODELS:
+        try:
+            response = client.models.generate_content(model=model, contents=contents, config=config)
+        except errors.APIError as exc:
+            if exc.code not in BUSY:
+                raise ExtractionError(f"Gemini {model} failed ({exc.code}): {exc.message}") from exc
+            skipped.append(f"{model}: busy ({exc.code})")
+            continue
+        data = response.parsed if isinstance(response.parsed, InvoiceData) else InvoiceData.model_validate_json(response.text)
+        usage = response.usage_metadata
+        return (data, model, (usage.prompt_token_count or 0) if usage else 0,
+                (usage.candidates_token_count or 0) if usage else 0)
+    raise ExtractionError("All Gemini models busy")
 
+
+# ---------------------------------------------------------------- deterministic clean-up
 
 PRINTED_PO = re.compile(r"\bP\.?\s?O\.?\s*(?:number|no\.?|#)?\s*[:#-]?\s*((?:PO-?)?\d{3,})", re.IGNORECASE)
 
 
 def _recover_printed_po(data: InvoiceData) -> None:
-    """Deterministic clean-up: if the model quoted a printed PO number but left the value empty, use it."""
+    """If the model quoted a printed PO number but left the value empty, use it."""
     if data.po_number.value:
         return
     for text in (data.po_number.source_quote, data.po_hint):
@@ -128,24 +213,3 @@ def _recover_printed_po(data: InvoiceData) -> None:
             data.po_number.value = match.group(1)
             data.po_number.source_quote = data.po_number.source_quote or text
             return
-
-
-CALL_TIMEOUT_MS = 60_000
-BUSY = (429, 500, 503, 504)
-
-
-def _generate_with_fallback(client: genai.Client, contents: list, config: types.GenerateContentConfig):
-    """Try each model in GEMINI_MODELS in order. A busy model is skipped at once rather than waited on;
-    after one full pass, wait briefly and make a second pass before giving up."""
-    failures = []
-    for attempt in range(2):
-        for model in GEMINI_MODELS:
-            try:
-                return client.models.generate_content(model=model, contents=contents, config=config), model
-            except errors.APIError as exc:
-                failures.append(f"{model}: {exc.code}")
-                if exc.code not in BUSY:
-                    raise ExtractionError(f"Gemini call failed on {model} ({exc.code}): {exc.message}") from exc
-        if attempt == 0:
-            time.sleep(5)
-    raise ExtractionError("All Gemini models busy: " + ", ".join(failures))
