@@ -1,0 +1,20 @@
+po_number,line_no,sku,description,qty_ordered,unit_price,qty_received,qty_invoiced
+PO-4480,1,AF-SCR-8,"Wood screw #8 x 2in, box of 500",40,29.86,40,40
+PO-4481,1,CP-BOX-18,"Corrugated box 18x12x12, bundle of 25",88,41.00,88,88
+PO-4501,1,AF-HB-M10,"Hex bolt M10 x 50 zinc, box of 100",40,38.50,40,0
+PO-4501,2,AF-NUT-M10,"Hex nut M10 zinc, box of 200",25,22.00,25,0
+PO-4501,3,AF-WSH-M10,"Flat washer M10, box of 500",10,31.75,10,0
+PO-4502,1,CP-BOX-18,"Corrugated box 18x12x12, bundle of 25",80,41.00,80,0
+PO-4502,2,CP-TAPE-48,"Packing tape 48mm, case of 36",20,64.00,20,0
+PO-4502,3,CP-WRAP-20,"Stretch wrap 20in x 1500ft, case of 4",100,80.00,100,0
+PO-4503,1,SE-LED-24,"LED flat panel 2x4ft 50W",400,100.00,400,250
+PO-4504,1,NS-HLM-02,"Safety helmet, class E, white",120,18.50,120,0
+PO-4504,2,NS-GLV-L,"Cut-resistant gloves, size L (pair)",300,6.25,300,0
+PO-4504,3,NS-VST-XL,"Hi-vis vest, class 2, XL",150,9.80,150,0
+PO-4505,1,NS-EAR-32,"Foam ear plugs, box of 200",30,24.00,30,0
+PO-4505,2,NS-FAK-50,"First aid kit, 50-person",12,62.00,12,0
+PO-4506,1,BT-DRL-18V,"Cordless drill 18V kit",10,149.00,10,0
+PO-4506,2,BT-BIT-SET,"Drill bit set, 29-piece",20,34.50,20,0
+PO-4507,1,CP-BOX-24,"Corrugated box 24x18x18, bundle of 20",50,56.00,50,0
+PO-4508,1,AF-ANC-12,"Wedge anchor 1/2 x 4in, box of 25",60,42.00,60,0
+PO-4509,1,RL-SVC-01,"Forklift preventive maintenance visit",1,1850.00,1,0

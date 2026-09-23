@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+*.db
+*.db-journal
+node_modules/
+frontend/dist/
+storage/
+*.digital.pdf

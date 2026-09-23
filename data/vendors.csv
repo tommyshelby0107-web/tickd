@@ -1,0 +1,7 @@
+vendor_id,name,aliases,tax_id,status,address,phone_on_file,email,bank_name,bank_account,bank_routing,expected_tax_rate,payment_terms
+V001,Apex Fasteners Inc.,Apex Fasteners|Apex Fasteners Incorporated,74-3829105,Active,"1180 Foundry Road, Houston, TX 77029",(713) 555-0142,ar@apexfasteners.example,Lone Star Commerce Bank,582033194712,113004218,0.075,Net 30
+V002,Northline Safety Co.,Northline Safety|Northline Safety Company,41-2290418,Active,"45 Harbor Street, Duluth, MN 55802",(218) 555-0177,billing@northlinesafety.example,North Shore Savings Bank,771902458301,091017442,0.0,Net 30
+V003,Summit Electrical Supply LLC,Summit Electrical|Summit Electrical Supply,25-6617093,Active,"900 Ridge Avenue, Pittsburgh, PA 15212",(412) 555-0110,invoices@summitelectrical.example,Allegheny Trust Bank,640017723905,043318072,0.075,Net 45
+V004,Coastal Packaging Corp.,Coastal Packaging|Coastal Packaging Corporation,91-4471286,Active,"3300 Marine View Drive, Tacoma, WA 98422",(253) 555-0169,ar@coastalpack.example,Puget Mercantile Bank,219930067418,125008211,0.075,Net 30
+V005,Brightpath Tools & Supply,Brightpath Tools|Brightpath Tools and Supply,36-5528841,Active,"72 Lakeshore Drive, Milwaukee, WI 53202",(414) 555-0133,accounts@brightpathtools.example,Harbor Point Bank,331866200147,075911603,0.075,Net 30
+V006,Redline Industrial Services,Redline Industrial|Redline Industrial Services Inc.,58-2203317,Blocked,"510 Canal Street, Dayton, OH 45402",(937) 555-0158,billing@redlineindustrial.example,Miami Valley Bank,410028837165,042209871,0.075,Net 30

@@ -1,0 +1,12 @@
+po_number,vendor_id,status,created_date,buyer,description
+PO-4480,V001,Closed,2026-07-28,Dana Whitfield,Wood screws restock
+PO-4481,V004,Closed,2026-08-03,Marcus Lee,Corrugated boxes August
+PO-4501,V001,Open,2026-08-24,Dana Whitfield,Fasteners restock September
+PO-4502,V004,Open,2026-08-26,Marcus Lee,Packaging supplies Q3
+PO-4503,V003,Open,2026-08-20,Priya Raman,LED panel retrofit - warehouse B
+PO-4504,V002,Open,2026-08-27,Dana Whitfield,Q3 safety equipment order
+PO-4505,V002,Open,2026-09-02,Dana Whitfield,First aid and hearing protection
+PO-4506,V005,Open,2026-08-29,Priya Raman,Power tools for maintenance team
+PO-4507,V004,Open,2026-09-01,Marcus Lee,Large boxes for bulk orders
+PO-4508,V001,Open,2026-09-03,Dana Whitfield,Concrete anchors
+PO-4509,V006,Open,2026-07-15,Priya Raman,Forklift maintenance visit

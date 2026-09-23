@@ -1,0 +1,484 @@
+[
+  {
+    "scenario": "HP-1",
+    "title": "Happy path: clean digital invoice, exact PO match",
+    "file": "HP-1_apex_INV-2026-0457.pdf",
+    "type": "digital",
+    "vendor_id": "V001",
+    "layout": "classic",
+    "expected": {
+      "decision": "Approve",
+      "rules": [],
+      "note": "Run first in the demo; EC-2 depends on it."
+    },
+    "ground_truth": {
+      "vendor_name": "Apex Fasteners Inc.",
+      "invoice_number": "INV-2026-0457",
+      "invoice_number_as_printed": "INV-2026-0457",
+      "invoice_date": "2026-09-14",
+      "due_date": "2026-10-14",
+      "po_number": "PO-4501",
+      "po_hint": null,
+      "lines": [
+        {
+          "sku": "AF-HB-M10",
+          "description": "Hex bolt M10 x 50 zinc, box of 100",
+          "qty": 40,
+          "unit_price": "38.50",
+          "amount": "1540.00"
+        },
+        {
+          "sku": "AF-NUT-M10",
+          "description": "Hex nut M10 zinc, box of 200",
+          "qty": 25,
+          "unit_price": "22.00",
+          "amount": "550.00"
+        },
+        {
+          "sku": "AF-WSH-M10",
+          "description": "Flat washer M10, box of 500",
+          "qty": 10,
+          "unit_price": "31.75",
+          "amount": "317.50"
+        }
+      ],
+      "subtotal": "2407.50",
+      "tax_rate": "0.075",
+      "tax": "180.56",
+      "freight": "0",
+      "total": "2588.06",
+      "remit_bank": "Lone Star Commerce Bank",
+      "remit_routing": "113004218",
+      "remit_account": "582033194712"
+    }
+  },
+  {
+    "scenario": "HP-2",
+    "title": "Within tolerance: one price 1.2% above PO, small freight charge",
+    "file": "HP-2_coastal_CPK-88214.pdf",
+    "type": "digital",
+    "vendor_id": "V004",
+    "layout": "band",
+    "expected": {
+      "decision": "Approve",
+      "rules": [
+        "M-01",
+        "M-04",
+        "M-05"
+      ],
+      "note": "Approved with variance notes: +$96.00 (0.76%) on subtotal, $45 freight."
+    },
+    "ground_truth": {
+      "vendor_name": "Coastal Packaging Corp.",
+      "invoice_number": "CPK-88214",
+      "invoice_number_as_printed": "CPK-88214",
+      "invoice_date": "2026-09-16",
+      "due_date": "2026-10-16",
+      "po_number": "PO-4502",
+      "po_hint": null,
+      "lines": [
+        {
+          "sku": "CP-BOX-18",
+          "description": "Corrugated box 18x12x12, bundle of 25",
+          "qty": 80,
+          "unit_price": "41.00",
+          "amount": "3280.00"
+        },
+        {
+          "sku": "CP-TAPE-48",
+          "description": "Packing tape 48mm, case of 36",
+          "qty": 20,
+          "unit_price": "64.00",
+          "amount": "1280.00"
+        },
+        {
+          "sku": "CP-WRAP-20",
+          "description": "Stretch wrap 20in x 1500ft, case of 4",
+          "qty": 100,
+          "unit_price": "80.96",
+          "amount": "8096.00"
+        }
+      ],
+      "subtotal": "12656.00",
+      "tax_rate": "0.075",
+      "tax": "949.20",
+      "freight": "45.00",
+      "total": "13650.20",
+      "remit_bank": "Puget Mercantile Bank",
+      "remit_routing": "125008211",
+      "remit_account": "219930067418"
+    }
+  },
+  {
+    "scenario": "EC-1A",
+    "title": "Split invoicing, first invoice (already approved on 2026-09-08)",
+    "file": "EC-1A_summit_SUM-10388.pdf",
+    "type": "digital",
+    "vendor_id": "V003",
+    "layout": "compact",
+    "expected": {
+      "decision": "Reject",
+      "rules": [
+        "D-02"
+      ],
+      "note": "Already in invoice history; re-running it demonstrates duplicate detection."
+    },
+    "ground_truth": {
+      "vendor_name": "Summit Electrical Supply LLC",
+      "invoice_number": "SUM-10388",
+      "invoice_number_as_printed": "SUM-10388",
+      "invoice_date": "2026-09-05",
+      "due_date": "2026-10-20",
+      "po_number": "PO-4503",
+      "po_hint": null,
+      "lines": [
+        {
+          "sku": "SE-LED-24",
+          "description": "LED flat panel 2x4ft 50W",
+          "qty": 250,
+          "unit_price": "100.00",
+          "amount": "25000.00"
+        }
+      ],
+      "subtotal": "25000.00",
+      "tax_rate": "0.075",
+      "tax": "1875.00",
+      "freight": "0",
+      "total": "26875.00",
+      "remit_bank": "Allegheny Trust Bank",
+      "remit_routing": "043318072",
+      "remit_account": "640017723905"
+    }
+  },
+  {
+    "scenario": "EC-1B",
+    "title": "Split invoicing: second invoice pushes PO-4503 to 112.5%",
+    "file": "EC-1B_summit_SUM-10421.pdf",
+    "type": "digital",
+    "vendor_id": "V003",
+    "layout": "compact",
+    "expected": {
+      "decision": "Review",
+      "owner": "Buyer",
+      "rules": [
+        "M-02",
+        "M-03"
+      ],
+      "note": "250 of 400 units already invoiced; only 150 remain billable."
+    },
+    "ground_truth": {
+      "vendor_name": "Summit Electrical Supply LLC",
+      "invoice_number": "SUM-10421",
+      "invoice_number_as_printed": "SUM-10421",
+      "invoice_date": "2026-09-18",
+      "due_date": "2026-11-02",
+      "po_number": "PO-4503",
+      "po_hint": null,
+      "lines": [
+        {
+          "sku": "SE-LED-24",
+          "description": "LED flat panel 2x4ft 50W",
+          "qty": 200,
+          "unit_price": "100.00",
+          "amount": "20000.00"
+        }
+      ],
+      "subtotal": "20000.00",
+      "tax_rate": "0.075",
+      "tax": "1500.00",
+      "freight": "0",
+      "total": "21500.00",
+      "remit_bank": "Allegheny Trust Bank",
+      "remit_routing": "043318072",
+      "remit_account": "640017723905"
+    }
+  },
+  {
+    "scenario": "EC-2",
+    "title": "Duplicate resubmission: HP-1 re-sent as a scan with a reformatted number",
+    "file": "EC-2_apex_INV-2026-0457.pdf",
+    "type": "scanned",
+    "vendor_id": "V001",
+    "layout": "classic",
+    "expected": {
+      "decision": "Reject",
+      "rules": [
+        "D-02"
+      ],
+      "depends_on": "HP-1",
+      "note": "Different file hash and number format; normalised key matches HP-1."
+    },
+    "ground_truth": {
+      "vendor_name": "Apex Fasteners Inc.",
+      "invoice_number": "INV-2026-0457",
+      "invoice_number_as_printed": "INV 2026 0457",
+      "invoice_date": "2026-09-14",
+      "due_date": "2026-10-14",
+      "po_number": "PO-4501",
+      "po_hint": null,
+      "lines": [
+        {
+          "sku": "AF-HB-M10",
+          "description": "Hex bolt M10 x 50 zinc, box of 100",
+          "qty": 40,
+          "unit_price": "38.50",
+          "amount": "1540.00"
+        },
+        {
+          "sku": "AF-NUT-M10",
+          "description": "Hex nut M10 zinc, box of 200",
+          "qty": 25,
+          "unit_price": "22.00",
+          "amount": "550.00"
+        },
+        {
+          "sku": "AF-WSH-M10",
+          "description": "Flat washer M10, box of 500",
+          "qty": 10,
+          "unit_price": "31.75",
+          "amount": "317.50"
+        }
+      ],
+      "subtotal": "2407.50",
+      "tax_rate": "0.075",
+      "tax": "180.56",
+      "freight": "0",
+      "total": "2588.06",
+      "remit_bank": "Lone Star Commerce Bank",
+      "remit_routing": "113004218",
+      "remit_account": "582033194712"
+    }
+  },
+  {
+    "scenario": "EC-3",
+    "title": "Scanned invoice with no PO number, only a reference line",
+    "file": "EC-3_northline_NLS-7781.pdf",
+    "type": "scanned",
+    "vendor_id": "V002",
+    "layout": "letter",
+    "expected": {
+      "decision": "Review",
+      "owner": "AP",
+      "rules": [
+        "P-04"
+      ],
+      "suggested_po": "PO-4504",
+      "note": "PO inferred from vendor, lines and amount; never auto-approved."
+    },
+    "ground_truth": {
+      "vendor_name": "Northline Safety Co.",
+      "invoice_number": "NLS-7781",
+      "invoice_number_as_printed": "NLS-7781",
+      "invoice_date": "2026-09-15",
+      "due_date": "2026-10-15",
+      "po_number": null,
+      "po_hint": "Re: Q3 safety equipment order",
+      "lines": [
+        {
+          "sku": "NS-HLM-02",
+          "description": "Safety helmet - Class E, white",
+          "qty": 120,
+          "unit_price": "18.50",
+          "amount": "2220.00"
+        },
+        {
+          "sku": "NS-GLV-L",
+          "description": "Cut-resistant work gloves, large (pairs)",
+          "qty": 300,
+          "unit_price": "6.25",
+          "amount": "1875.00"
+        },
+        {
+          "sku": "NS-VST-XL",
+          "description": "High-visibility vest, Class 2, size XL",
+          "qty": 150,
+          "unit_price": "9.80",
+          "amount": "1470.00"
+        }
+      ],
+      "subtotal": "5565.00",
+      "tax_rate": "0",
+      "tax": "0.00",
+      "freight": "0",
+      "total": "5565.00",
+      "remit_bank": "North Shore Savings Bank",
+      "remit_routing": "091017442",
+      "remit_account": "771902458301"
+    }
+  },
+  {
+    "scenario": "EC-4",
+    "title": "Bank-detail change on an otherwise perfect invoice",
+    "file": "EC-4_brightpath_BTS-2291.pdf",
+    "type": "digital",
+    "vendor_id": "V005",
+    "layout": "grid",
+    "expected": {
+      "decision": "Review",
+      "owner": "AP lead",
+      "severity": "High",
+      "rules": [
+        "VM-03"
+      ],
+      "note": "Every commercial check passes; remit-to account differs from the vendor master."
+    },
+    "ground_truth": {
+      "vendor_name": "Brightpath Tools & Supply",
+      "invoice_number": "BTS-2291",
+      "invoice_number_as_printed": "BTS-2291",
+      "invoice_date": "2026-09-17",
+      "due_date": "2026-10-17",
+      "po_number": "PO-4506",
+      "po_hint": null,
+      "lines": [
+        {
+          "sku": "BT-DRL-18V",
+          "description": "Cordless drill 18V kit",
+          "qty": 10,
+          "unit_price": "149.00",
+          "amount": "1490.00"
+        },
+        {
+          "sku": "BT-BIT-SET",
+          "description": "Drill bit set, 29-piece",
+          "qty": 20,
+          "unit_price": "34.50",
+          "amount": "690.00"
+        }
+      ],
+      "subtotal": "2180.00",
+      "tax_rate": "0.075",
+      "tax": "163.50",
+      "freight": "0",
+      "total": "2343.50",
+      "remit_bank": "Crestline Federal Bank",
+      "remit_routing": "322274135",
+      "remit_account": "773001925561"
+    }
+  },
+  {
+    "scenario": "RV-1",
+    "title": "Missing invoice number and date",
+    "file": "RV-1_coastal_no-number.pdf",
+    "type": "digital",
+    "vendor_id": "V004",
+    "layout": "band",
+    "expected": {
+      "decision": "Return to vendor",
+      "rules": [
+        "V-01"
+      ],
+      "note": "Cannot be booked or de-duplicated without a number and date."
+    },
+    "ground_truth": {
+      "vendor_name": "Coastal Packaging Corp.",
+      "invoice_number": null,
+      "invoice_number_as_printed": null,
+      "invoice_date": null,
+      "due_date": null,
+      "po_number": "PO-4507",
+      "po_hint": null,
+      "lines": [
+        {
+          "sku": "CP-BOX-24",
+          "description": "Corrugated box 24x18x18, bundle of 20",
+          "qty": 50,
+          "unit_price": "56.00",
+          "amount": "2800.00"
+        }
+      ],
+      "subtotal": "2800.00",
+      "tax_rate": "0.075",
+      "tax": "210.00",
+      "freight": "0",
+      "total": "3010.00",
+      "remit_bank": "Puget Mercantile Bank",
+      "remit_routing": "125008211",
+      "remit_account": "219930067418"
+    }
+  },
+  {
+    "scenario": "X-1",
+    "title": "Invoice from a blocked vendor (scanned)",
+    "file": "X-1_redline_RIS-5520.pdf",
+    "type": "scanned",
+    "vendor_id": "V006",
+    "layout": "classic",
+    "expected": {
+      "decision": "Reject",
+      "rules": [
+        "VM-02"
+      ],
+      "note": "Vendor status is Blocked in the vendor master."
+    },
+    "ground_truth": {
+      "vendor_name": "Redline Industrial Services",
+      "invoice_number": "RIS-5520",
+      "invoice_number_as_printed": "RIS-5520",
+      "invoice_date": "2026-09-12",
+      "due_date": "2026-10-12",
+      "po_number": "PO-4509",
+      "po_hint": null,
+      "lines": [
+        {
+          "sku": "RL-SVC-01",
+          "description": "Forklift preventive maintenance visit",
+          "qty": 1,
+          "unit_price": "1850.00",
+          "amount": "1850.00"
+        }
+      ],
+      "subtotal": "1850.00",
+      "tax_rate": "0.075",
+      "tax": "138.75",
+      "freight": "0",
+      "total": "1988.75",
+      "remit_bank": "Miami Valley Bank",
+      "remit_routing": "042209871",
+      "remit_account": "410028837165"
+    }
+  },
+  {
+    "scenario": "X-2",
+    "title": "Price 6% above PO, outside tolerance",
+    "file": "X-2_apex_INV-2026-0463.pdf",
+    "type": "digital",
+    "vendor_id": "V001",
+    "layout": "classic",
+    "expected": {
+      "decision": "Review",
+      "owner": "Buyer",
+      "rules": [
+        "M-01",
+        "M-04"
+      ],
+      "note": "$2.52 per box over PO price on 60 boxes = $151.20 (6%)."
+    },
+    "ground_truth": {
+      "vendor_name": "Apex Fasteners Inc.",
+      "invoice_number": "INV-2026-0463",
+      "invoice_number_as_printed": "INV-2026-0463",
+      "invoice_date": "2026-09-19",
+      "due_date": "2026-10-19",
+      "po_number": "PO-4508",
+      "po_hint": null,
+      "lines": [
+        {
+          "sku": "AF-ANC-12",
+          "description": "Wedge anchor 1/2 x 4in, box of 25",
+          "qty": 60,
+          "unit_price": "44.52",
+          "amount": "2671.20"
+        }
+      ],
+      "subtotal": "2671.20",
+      "tax_rate": "0.075",
+      "tax": "200.34",
+      "freight": "0",
+      "total": "2871.54",
+      "remit_bank": "Lone Star Commerce Bank",
+      "remit_routing": "113004218",
+      "remit_account": "582033194712"
+    }
+  }
+]

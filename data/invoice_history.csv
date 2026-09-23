@@ -1,0 +1,4 @@
+vendor_id,invoice_number,invoice_date,subtotal,total,po_number,status,decided_at
+V001,INV-2026-0398,2026-08-14,1194.40,1283.98,PO-4480,Paid,2026-08-18
+V004,CPK-88120,2026-08-20,3608.00,3878.60,PO-4481,Paid,2026-08-24
+V003,SUM-10388,2026-09-05,25000.00,26875.00,PO-4503,Approved,2026-09-08
