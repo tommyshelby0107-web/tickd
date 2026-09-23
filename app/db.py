@@ -3,7 +3,7 @@ import csv
 import json
 import sqlite3
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 
 from . import config
 from .normalize import invoice_key
@@ -24,8 +24,8 @@ CREATE TABLE invoice_registry (
   run_id TEXT, file_hash TEXT);
 CREATE TABLE runs (
   run_id TEXT PRIMARY KEY, file_name TEXT, file_hash TEXT, status TEXT, decision TEXT, owner TEXT,
-  severity TEXT, vendor_name TEXT, invoice_number TEXT, total REAL, started_at TEXT, finished_at TEXT,
-  seconds REAL, result_json TEXT);
+  severity TEXT, vendor_name TEXT, invoice_number TEXT, total REAL, summary TEXT, started_at TEXT,
+  finished_at TEXT, seconds REAL, result_json TEXT);
 CREATE TABLE events (
   id INTEGER PRIMARY KEY AUTOINCREMENT, run_id TEXT, stage TEXT, status TEXT, summary TEXT, at TEXT,
   data_json TEXT);
@@ -38,7 +38,8 @@ CREATE TABLE review_actions (
 
 
 def now() -> str:
-    return datetime.now().isoformat(timespec="seconds")
+    """UTC with an explicit offset, so browsers in any timezone show the right local time."""
+    return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
 
 
 @contextmanager
@@ -159,9 +160,10 @@ def finish_run(run_id: str, result: dict) -> None:
     with connect() as conn:
         conn.execute(
             "UPDATE runs SET status = 'done', decision = ?, owner = ?, severity = ?, vendor_name = ?,"
-            " invoice_number = ?, total = ?, finished_at = ?, seconds = ?, result_json = ? WHERE run_id = ?",
+            " invoice_number = ?, total = ?, summary = ?, finished_at = ?, seconds = ?, result_json = ?"
+            " WHERE run_id = ?",
             (d["outcome"], d.get("owner"), d.get("severity"), inv.get("vendor_name"), inv.get("number"),
-             inv.get("total"), now(), result.get("seconds"), json.dumps(result), run_id))
+             inv.get("total"), d.get("summary"), now(), result.get("seconds"), json.dumps(result), run_id))
 
 
 def add_event(run_id: str, stage: str, status: str, summary: str, data: dict | None = None) -> dict:
@@ -185,13 +187,36 @@ def run(run_id: str) -> dict | None:
 def runs(limit: int = 200) -> list[dict]:
     with connect() as conn:
         rows = conn.execute("SELECT run_id, file_name, status, decision, owner, severity, vendor_name,"
-                            " invoice_number, total, started_at, seconds FROM runs ORDER BY started_at DESC LIMIT ?",
-                            (limit,)).fetchall()
+                            " invoice_number, total, summary, started_at, seconds FROM runs"
+                            " ORDER BY started_at DESC, rowid DESC"
+                            " LIMIT ?", (limit,)).fetchall()
     return [dict(r) for r in rows]
 
 
-def events(run_id: str) -> list[dict]:
+def results() -> list[dict]:
+    """Every finished run with its full result, for dashboard metrics."""
     with connect() as conn:
-        rows = conn.execute("SELECT * FROM events WHERE run_id = ? ORDER BY id", (run_id,)).fetchall()
-    return [{**{k: r[k] for k in ("run_id", "stage", "status", "summary", "at")}, "data": json.loads(r["data_json"])}
+        rows = conn.execute("SELECT run_id, status, decision, seconds, started_at, result_json FROM runs"
+                            " WHERE result_json IS NOT NULL").fetchall()
+    return [{**{k: r[k] for k in ("run_id", "status", "decision", "seconds", "started_at")},
+             "result": json.loads(r["result_json"])} for r in rows]
+
+
+def events(run_id: str, after_id: int = 0) -> list[dict]:
+    with connect() as conn:
+        rows = conn.execute("SELECT * FROM events WHERE run_id = ? AND id > ? ORDER BY id", (run_id, after_id)).fetchall()
+    return [{**{k: r[k] for k in ("id", "run_id", "stage", "status", "summary", "at")}, "data": json.loads(r["data_json"])}
             for r in rows]
+
+
+def record_review(run_id: str, action: str, reason: str, actor: str = "AP reviewer") -> None:
+    """A human resolved a held invoice. The run keeps its original automated decision in result_json."""
+    with connect() as conn:
+        conn.execute("INSERT INTO review_actions (run_id, action, reason, actor, at) VALUES (?,?,?,?,?)",
+                     (run_id, action, reason, actor, now()))
+        conn.execute("UPDATE runs SET status = 'resolved', decision = ? WHERE run_id = ?", (action, run_id))
+
+
+def review_actions(run_id: str) -> list[dict]:
+    with connect() as conn:
+        return [dict(r) for r in conn.execute("SELECT * FROM review_actions WHERE run_id = ? ORDER BY id", (run_id,))]

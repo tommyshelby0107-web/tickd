@@ -1,5 +1,6 @@
 """Run one invoice through the 8 stages, recording an event as each stage starts and finishes."""
 import hashlib
+import json
 import time
 import traceback
 import uuid
@@ -7,8 +8,8 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Callable
 
-from . import db
-from .config import POLICY
+from . import config, db
+from .config import POLICY, SAMPLES_DIR
 from .decide import decide
 from .extract import ExtractionError, InvoiceData, extract_invoice
 from .normalize import to_float
@@ -60,6 +61,10 @@ def run_invoice(pdf_path: Path, run_id: str | None = None, listener: Listener | 
         emit("intake", "pass", intake, result["document"])
 
         emit("extract", "running", "Reading invoice fields with the LLM")
+        if extraction is None and config.EXTRACTION_MODE == "cached":
+            extraction = cached_extraction(file_hash)
+            if extraction:
+                result["extraction"] = {"model": "cached extraction (no LLM call)"}
         if extraction is None:
             ext = extract_invoice(pdf_path, pages)
             invoice = ext.data
@@ -68,7 +73,7 @@ def run_invoice(pdf_path: Path, run_id: str | None = None, listener: Listener | 
                                     "fallbacks": ext.fallbacks}
         else:
             invoice = extraction
-            result["extraction"] = {"model": "provided (no LLM call)"}
+            result.setdefault("extraction", {"model": "provided (no LLM call)"})
         result["invoice"] = _invoice_summary(invoice)
         result["extracted"] = invoice.model_dump()
         emit("extract", "pass", f"{len(invoice.lines)} line(s), total {invoice.total.value or 'missing'} "
@@ -80,6 +85,7 @@ def run_invoice(pdf_path: Path, run_id: str | None = None, listener: Listener | 
             summary, found = check(ctx)
             result["findings"] += [asdict(f) for f in found]
             worst = max((f.outcome for f in found), key=SEVERITY.index, default=PASS)
+            time.sleep(config.STAGE_PAUSE_S)
             emit(key, worst, summary, {"findings": [asdict(f) for f in found]})
 
         emit("decide", "running", "Applying the decision matrix")
@@ -108,6 +114,23 @@ def run_invoice(pdf_path: Path, run_id: str | None = None, listener: Listener | 
     result["seconds"] = round(time.perf_counter() - started, 2)
     db.finish_run(run_id, result)
     return result
+
+
+def sample_files() -> list[dict]:
+    """The demo samples from the manifest, with their file hashes."""
+    manifest = json.loads((SAMPLES_DIR / "manifest.json").read_text(encoding="utf-8"))
+    for item in manifest:
+        item["path"] = SAMPLES_DIR / "invoices" / item["file"]
+        item["hash"] = hashlib.sha256(item["path"].read_bytes()).hexdigest()
+    return manifest
+
+
+def cached_extraction(file_hash: str) -> InvoiceData | None:
+    for item in sample_files():
+        cache = SAMPLES_DIR / "extracted" / f"{item['scenario']}.json"
+        if item["hash"] == file_hash and cache.exists():
+            return InvoiceData.model_validate(json.loads(cache.read_text(encoding="utf-8"))["data"])
+    return None
 
 
 def _manual_review(reason: str) -> dict:

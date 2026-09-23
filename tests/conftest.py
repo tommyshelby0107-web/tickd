@@ -19,6 +19,7 @@ def fresh_db(tmp_path, monkeypatch):
     """Every test starts from the seed data in its own throwaway database."""
     monkeypatch.setattr(config, "STORAGE_DIR", tmp_path)
     monkeypatch.setattr(config, "DB_PATH", tmp_path / "test.db")
+    monkeypatch.setattr(config, "STAGE_PAUSE_S", 0)
     db.reset()
 
 

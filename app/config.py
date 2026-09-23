@@ -28,4 +28,9 @@ GEMINI_MODELS = _models("GEMINI_MODELS", "gemini-3.6-flash,gemini-3.5-flash-lite
 _WINDOWS_TESSERACT = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 TESSERACT_CMD = os.getenv("TESSERACT_CMD") or (_WINDOWS_TESSERACT if os.name == "nt" else "tesseract")
 
+# Pause between rule stages so people watching the live view can follow it (0 in tests).
+STAGE_PAUSE_S = float(os.getenv("STAGE_PAUSE_S", "0.4"))
+# "live" calls the LLM; "cached" reuses samples/extracted/*.json for known sample files (clearly labelled).
+EXTRACTION_MODE = os.getenv("EXTRACTION_MODE", "live")
+
 POLICY: dict = yaml.safe_load((ROOT / "policy.yaml").read_text(encoding="utf-8"))

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Run · Invoice Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <aside id="sidebar"></aside>
+  <main>
+    <!-- Start a run -->
+    <div id="new-run" hidden>
+      <div class="page-head">
+        <div>
+          <div class="section-label">Process an invoice</div>
+          <h1>New run</h1>
+          <p>Upload a vendor invoice PDF, or run one of the prepared scenarios.</p>
+        </div>
+      </div>
+      <label class="dropzone" id="dropzone">
+        <div id="upload-icon"></div>
+        <div style="font-weight:600;margin-top:6px">Drop an invoice PDF here, or click to choose</div>
+        <div class="muted">Digital or scanned, up to 10 MB</div>
+        <input type="file" id="file" accept="application/pdf" hidden>
+      </label>
+      <h2 style="margin:26px 0 12px">Prepared scenarios</h2>
+      <div class="samples" id="samples"></div>
+    </div>
+
+    <!-- Watch a run -->
+    <div id="live" hidden>
+      <div class="page-head">
+        <div>
+          <div class="section-label" id="run-label">Run</div>
+          <h1 id="run-title">Processing…</h1>
+          <p id="run-sub">Starting</p>
+        </div>
+        <div class="actions" style="margin:0">
+          <a class="btn" id="pdf-link" target="_blank">Open PDF</a>
+          <a class="btn btn-primary" href="/run">New run</a>
+        </div>
+      </div>
+
+      <section class="card decision" id="decision"></section>
+
+      <div class="grid grid-run">
+        <section class="card">
+          <div class="card-head"><h2>Live run</h2><span class="muted mono" id="elapsed"></span></div>
+          <ol class="timeline" id="timeline"></ol>
+        </section>
+        <section class="card">
+          <div class="tabs">
+            <button class="tab active" data-tab="document">Document</button>
+            <button class="tab" data-tab="fields">Extracted fields</button>
+            <button class="tab" data-tab="lines">PO match</button>
+          </div>
+          <div id="tab-document"></div>
+          <div id="tab-fields" hidden><div class="empty">Available once the invoice has been read.</div></div>
+          <div id="tab-lines" hidden><div class="empty">Available once the PO has been matched.</div></div>
+        </section>
+      </div>
+    </div>
+  </main>
+  <script src="/static/app.js"></script>
+  <script src="/static/run.js"></script>
+</body>
+</html>

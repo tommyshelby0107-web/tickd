@@ -14,6 +14,7 @@ from app import config, db  # noqa: E402
 
 config.STORAGE_DIR = Path(tempfile.mkdtemp())
 config.DB_PATH = config.STORAGE_DIR / "offline.db"
+config.STAGE_PAUSE_S = 0
 db.reset()
 
 from conftest import sample  # noqa: E402
