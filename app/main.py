@@ -67,7 +67,7 @@ def app_config():
 
 @app.get("/api/samples")
 def samples():
-    return [{k: s[k] for k in ("scenario", "title", "file", "type", "layout", "vendor_id")} for s in sample_files()]
+    return [{k: s[k] for k in ("scenario", "title", "file", "type", "layout", "vendor_id", "set")} for s in sample_files()]
 
 
 @app.post("/api/runs")

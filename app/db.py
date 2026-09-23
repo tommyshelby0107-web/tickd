@@ -144,7 +144,8 @@ def record_approval(run_id: str, vendor_id: str, invoice: dict, po_number: str |
             conn.execute("UPDATE po_lines SET qty_invoiced = qty_invoiced + ? WHERE po_number = ? AND line_no = ?",
                          (m["qty"], po_number, m["po_line_no"]))
             conn.execute("INSERT INTO ledger_entries (run_id, po_number, line_no, qty, amount, at)"
-                         " VALUES (?,?,?,?,?,?)", (run_id, po_number, m["po_line_no"], m["qty"], m["amount"], at))
+                         " VALUES (?,?,?,?,?,?)", (run_id, po_number, m["po_line_no"], m["qty"],
+                                                    m.get("amount_net", m["amount"]), at))
 
 
 # ---------------------------------------------------------------- runs and events

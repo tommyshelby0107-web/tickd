@@ -116,20 +116,29 @@ def run_invoice(pdf_path: Path, run_id: str | None = None, listener: Listener | 
     return result
 
 
+SAMPLE_SETS = {"demo": SAMPLES_DIR, "holdout": SAMPLES_DIR / "holdout"}   # holdout = never used to tune the rules
+
+
 def sample_files() -> list[dict]:
-    """The demo samples from the manifest, with their file hashes."""
-    manifest = json.loads((SAMPLES_DIR / "manifest.json").read_text(encoding="utf-8"))
-    for item in manifest:
-        item["path"] = SAMPLES_DIR / "invoices" / item["file"]
-        item["hash"] = hashlib.sha256(item["path"].read_bytes()).hexdigest()
-    return manifest
+    """Every prepared sample (demo and held-out) with its path, file hash and extraction-cache path."""
+    items = []
+    for set_name, folder in SAMPLE_SETS.items():
+        manifest = folder / "manifest.json"
+        if not manifest.exists():
+            continue
+        for item in json.loads(manifest.read_text(encoding="utf-8")):
+            item["set"] = set_name
+            item["path"] = folder / "invoices" / item["file"]
+            item["cache"] = folder / "extracted" / f"{item['scenario']}.json"
+            item["hash"] = hashlib.sha256(item["path"].read_bytes()).hexdigest()
+            items.append(item)
+    return items
 
 
 def cached_extraction(file_hash: str) -> InvoiceData | None:
     for item in sample_files():
-        cache = SAMPLES_DIR / "extracted" / f"{item['scenario']}.json"
-        if item["hash"] == file_hash and cache.exists():
-            return InvoiceData.model_validate(json.loads(cache.read_text(encoding="utf-8"))["data"])
+        if item["hash"] == file_hash and item["cache"].exists():
+            return InvoiceData.model_validate(json.loads(item["cache"].read_text(encoding="utf-8"))["data"])
     return None
 
 

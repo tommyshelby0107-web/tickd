@@ -5,6 +5,7 @@ from .rules import NOTE, PASS, REJECT, RETURN, REVIEW, Context, Finding
 AP_EMAIL = "ap@meridian.example"
 
 NEXT_STEP = {
+    "V-06": "Do not pay. Apply the credit against the vendor's open invoices and file it with the original invoice.",
     "P-04": "Confirm the suggested PO is correct, then approve.",
     "P-01": "Find the right PO with the buyer, or route for non-PO approval.",
     "M-03": "Ask the vendor for a corrected invoice for the remaining quantity, or approve partially.",
@@ -21,9 +22,10 @@ NEXT_STEP = {
 }
 
 
-# When several issues fire, the one a reviewer should read first: fraud, duplicates, over-billing, price, quantity...
-LEAD_PRIORITY = ["VM-03", "VM-02", "D-01", "D-02", "D-03", "VM-01", "V-01", "M-03", "M-01", "M-04", "M-02", "M-05",
-                 "M-00", "P-01", "P-02", "P-03", "P-04", "V-02", "V-04", "V-05", "V-03"]
+# When several issues fire, the one a reviewer should read first: fraud and duplicates, then whether the document
+# can be trusted at all (not an invoice, missing data, its own maths wrong), then over-billing, price, quantity...
+LEAD_PRIORITY = ["VM-03", "VM-02", "D-01", "D-02", "V-06", "D-03", "VM-01", "V-01", "V-02", "M-03", "M-01", "M-04",
+                 "M-02", "M-05", "M-00", "P-01", "P-02", "P-03", "P-04", "V-04", "V-05", "V-03"]
 
 
 def _priority(f: Finding) -> int:

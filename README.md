@@ -36,3 +36,27 @@ C:\Users\Acer\.venvs\invoice-agent\Scripts\python.exe scripts\generate_invoices.
 | X-2 | Apex Fasteners (classic) | digital | Review (Buyer) | Price 6% over PO |
 
 Demo order matters for EC-2: run HP-1 first.
+
+### Held-out test set (`samples/holdout/`)
+
+Ten invoices from six new vendors in three new layouts, **never used to design or tune the rules**. They measure
+how the system copes with invoices it has not seen. Regenerate with `scripts\generate_holdout.py`.
+
+| Scenario | What it tests | Expected decision |
+| --- | --- | --- |
+| T-01 | Prices include sales tax | Approve (compared net of tax) |
+| T-02 | Two-page invoice, 28 lines | Approve |
+| T-03 | Lump-sum line instead of the PO's three lines | Review (Buyer) |
+| T-04 | Invoice against a closed, fully billed PO | Review (Buyer) |
+| T-05 | Billed for 300 pallets, 180 received | Review (Warehouse) |
+| T-06 | Line typed 609.00 instead of 690.00 | Review (AP), arithmetic |
+| T-07 | Same vendor and amount as a paid invoice 13 days earlier, new number | Review (AP), possible duplicate |
+| T-08 | Vendor not in the vendor master (scanned) | Review (Procurement) |
+| T-09 | Fax-grade scan of a clean invoice | Approve, or a low-confidence Review |
+| T-10 | Credit note | Review (AP): never paid as a bill |
+
+```powershell
+& $py scripts\evaluate.py holdout truth    # rules only, perfect extraction, no API calls
+& $py scripts\evaluate.py holdout live     # OCR + LLM + rules, the real test
+& $py scripts\evaluate.py demo cached      # regression check on saved extractions
+```

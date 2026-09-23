@@ -1,0 +1,68 @@
+{
+  "scenario": "T-03",
+  "model": "gemini-3.5-flash-lite",
+  "seconds": 43.68,
+  "input_tokens": 544,
+  "output_tokens": 611,
+  "image_pages": [],
+  "fallbacks": [
+    "gemini-3.6-flash: busy (503)"
+  ],
+  "data": {
+    "vendor_name": {
+      "value": "Crestview Facility Services",
+      "page": 1,
+      "source_quote": "Crestview Facility Services"
+    },
+    "vendor_tax_id": null,
+    "invoice_number": {
+      "value": "CFS-2026-118",
+      "page": 1,
+      "source_quote": "Customer Invoice No. CFS-2026-118"
+    },
+    "invoice_date": {
+      "value": "2026-09-12",
+      "page": 1,
+      "source_quote": "Invoice Date September 12, 2026"
+    },
+    "due_date": "2026-09-27",
+    "currency": "USD",
+    "po_number": {
+      "value": "PO-4512",
+      "page": 1,
+      "source_quote": "Work order / PO PO-4512"
+    },
+    "po_hint": null,
+    "lines": [
+      {
+        "sku": null,
+        "description": "Quarterly HVAC service - labour, filters and disposal (lump sum)",
+        "quantity": 1.0,
+        "unit_price": 2025.0,
+        "amount": 2025.0
+      }
+    ],
+    "subtotal": 2025.0,
+    "tax_amount": 151.88,
+    "tax_rate_pct": 7.5,
+    "tax_included_in_prices": false,
+    "freight": null,
+    "total": {
+      "value": "2176.88",
+      "page": 1,
+      "source_quote": "Amount due $2,176.88"
+    },
+    "remit_bank_name": "Buckeye Savings Bank",
+    "remit_routing_number": {
+      "value": "044072324",
+      "page": 1,
+      "source_quote": "Routing 044072324"
+    },
+    "remit_account_number": {
+      "value": "662004817390",
+      "page": 1,
+      "source_quote": "Account 662004817390"
+    },
+    "notes": "Thank you for trusting us with your facility."
+  }
+}

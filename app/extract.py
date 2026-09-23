@@ -35,6 +35,7 @@ class LineItem(BaseModel):
 
 
 class InvoiceData(BaseModel):
+    document_type: str = Field("invoice", description="invoice, credit_note, or other (statement, quote, reminder)")
     vendor_name: Sourced
     vendor_tax_id: str | None = Field(description="EIN / Fed Tax ID if printed")
     invoice_number: Sourced = Field(description="value exactly as printed, keeping spaces and hyphens")
@@ -66,7 +67,9 @@ Rules:
   put it in po_number.value. Never guess one. Put order reference wording without a number in po_hint.
 - invoice_number: exactly as printed, including spaces and hyphens.
 - Dates: value as YYYY-MM-DD; source_quote as printed.
-- Money: plain numbers with no currency symbols or thousands separators.
+- Money: plain numbers with no currency symbols or thousands separators. Keep minus signs as printed.
+- document_type: "credit_note" if the document is a credit note or credit memo, "other" if it is not a bill
+  (statement, quote, reminder), otherwise "invoice".
 - source_quote: a short snippet copied character-for-character from the page text, e.g. "Invoice No. INV-2026-0457".
 - Page text may come from OCR and contain small errors. Read carefully and keep printed values as they are."""
 

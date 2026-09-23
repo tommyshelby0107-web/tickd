@@ -18,3 +18,42 @@ PO-4506,2,BT-BIT-SET,"Drill bit set, 29-piece",20,34.50,20,0
 PO-4507,1,CP-BOX-24,"Corrugated box 24x18x18, bundle of 20",50,56.00,50,0
 PO-4508,1,AF-ANC-12,"Wedge anchor 1/2 x 4in, box of 25",60,42.00,60,0
 PO-4509,1,RL-SVC-01,"Forklift preventive maintenance visit",1,1850.00,1,0
+PO-4510,1,KT-IMP-12,"Impact wrench 1/2in drive, cordless",6,188.00,6,0
+PO-4510,2,KT-SOC-40,"Socket set metric, 40 piece",10,72.00,10,0
+PO-4511,1,HL-PAP-LTR,"Copy paper 8.5x11, case of 10 reams",30,42.50,30,0
+PO-4511,2,HL-PEN-BLK,"Ballpoint pens, black, box of 12",40,6.20,40,0
+PO-4511,3,HL-PEN-BLU,"Ballpoint pens, blue, box of 12",25,6.20,25,0
+PO-4511,4,HL-HLT-4,"Highlighters, assorted, pack of 4",30,5.10,30,0
+PO-4511,5,HL-STP-STD,"Staples, standard, box of 5000",20,3.40,20,0
+PO-4511,6,HL-STPL,"Desktop stapler, full strip",10,14.75,10,0
+PO-4511,7,HL-CLP-LG,"Binder clips, large, box of 12",25,4.60,25,0
+PO-4511,8,HL-NTE-3X3,"Sticky notes 3x3, pack of 12",30,9.80,30,0
+PO-4511,9,HL-FLD-LTR,"File folders, letter, box of 100",15,18.90,15,0
+PO-4511,10,HL-BND-1IN,"Ring binder 1in, white",60,3.95,60,0
+PO-4511,11,HL-BND-2IN,"Ring binder 2in, white",40,5.60,40,0
+PO-4511,12,HL-ENV-10,"Envelopes #10, box of 500",12,21.40,12,0
+PO-4511,13,HL-LBL-ADR,"Address labels, 30 per sheet, 100 sheets",10,24.30,10,0
+PO-4511,14,HL-TNR-26A,"Toner cartridge 26A, black",8,89.00,8,0
+PO-4511,15,HL-MRK-DRY,"Dry-erase markers, pack of 8",20,11.25,20,0
+PO-4511,16,HL-ERS-BRD,"Whiteboard eraser",10,4.20,10,0
+PO-4511,17,HL-CLP-PPR,"Paper clips, box of 1000",15,3.10,15,0
+PO-4511,18,HL-TAPE-INV,"Invisible tape with dispenser, 6 pack",20,12.40,20,0
+PO-4511,19,HL-SCS-8,"Scissors 8in, stainless",12,5.35,12,0
+PO-4511,20,HL-CAL-DSK,"Desktop calculator, 12 digit",6,16.80,6,0
+PO-4511,21,HL-PAD-LGL,"Legal pads, yellow, pack of 12",25,13.60,25,0
+PO-4511,22,HL-PNC-2,"Pencils #2, box of 24",20,4.90,20,0
+PO-4511,23,HL-SHR-OIL,"Shredder oil, 12 oz",6,7.25,6,0
+PO-4511,24,HL-CUP-12,"Paper cups 12 oz, sleeve of 50",30,4.75,30,0
+PO-4511,25,HL-TWL-PPR,"Paper towels, case of 12 rolls",18,26.40,18,0
+PO-4511,26,HL-SAN-GEL,"Hand sanitizer gel, 16 oz",24,4.95,24,0
+PO-4511,27,HL-BAT-AA,"Batteries AA, pack of 24",15,15.60,15,0
+PO-4511,28,HL-DSK-ORG,"Desk organizer, mesh",10,11.90,10,0
+PO-4512,1,CF-HVAC-LAB,"HVAC filter replacement - labour",1,1200.00,1,0
+PO-4512,2,CF-FLT-2025,"MERV-13 filter 20x25x2",40,18.50,40,0
+PO-4512,3,CF-DISP,"Waste disposal fee",1,85.00,1,0
+PO-4513,1,DP-PAL-4840,"Wooden pallet 48x40, heat treated",300,14.50,180,0
+PO-4514,1,EG-DEG-5,"Industrial degreaser, 5 gal pail",24,64.00,24,0
+PO-4514,2,EG-ABS-25,"Absorbent granules, 25 lb bag",40,17.25,40,0
+PO-4515,1,CP-BOX-18,"Corrugated box 18x12x12, bundle of 25",88,41.00,88,0
+PO-4516,1,LB-6205,"Deep groove ball bearing 6205-2RS",200,4.85,200,0
+PO-4516,2,LB-SEAL-35,"Oil seal 35x52x7 mm",150,2.40,150,0

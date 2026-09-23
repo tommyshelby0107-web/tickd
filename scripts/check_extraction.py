@@ -38,7 +38,10 @@ def score(data: dict, truth: dict) -> dict[str, bool]:
         "date": data["invoice_date"]["value"] == truth["invoice_date"],
         "po": data["po_number"]["value"] == truth["po_number"],
         "lines": lines_ok,
-        "subtotal": same_money(data["subtotal"], truth["subtotal"]),
+        # on a tax-inclusive invoice a net subtotal (lines minus tax) is an equally valid reading
+        "subtotal": same_money(data["subtotal"], truth["subtotal"]) or (
+            truth.get("tax_included", False)
+            and same_money(data["subtotal"], float(truth["subtotal"]) - float(truth["tax"]))),
         "tax": same_money(data["tax_amount"], truth["tax"]),
         "freight": same_money(data["freight"], truth["freight"]),
         "total": same_money(data["total"]["value"], truth["total"]),

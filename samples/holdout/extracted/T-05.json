@@ -1,0 +1,68 @@
+{
+  "scenario": "T-05",
+  "model": "gemini-3.5-flash-lite",
+  "seconds": 13.73,
+  "input_tokens": 502,
+  "output_tokens": 609,
+  "image_pages": [],
+  "fallbacks": [
+    "gemini-3.6-flash: busy (429)"
+  ],
+  "data": {
+    "vendor_name": {
+      "value": "Delta Pallet & Crate Co.",
+      "page": 1,
+      "source_quote": "Invoice Delta Pallet & Crate Co."
+    },
+    "vendor_tax_id": null,
+    "invoice_number": {
+      "value": "DPC-77120",
+      "page": 1,
+      "source_quote": "Invoice number DPC-77120"
+    },
+    "invoice_date": {
+      "value": "2026-09-17",
+      "page": 1,
+      "source_quote": "Date of issue Sep 17, 2026"
+    },
+    "due_date": "2026-10-17",
+    "currency": "USD",
+    "po_number": {
+      "value": "PO-4513",
+      "page": 1,
+      "source_quote": "Purchase order PO-4513"
+    },
+    "po_hint": null,
+    "lines": [
+      {
+        "sku": "DP-PAL-4840",
+        "description": "Wooden pallet 48x40, heat treated",
+        "quantity": 300.0,
+        "unit_price": 14.5,
+        "amount": 4350.0
+      }
+    ],
+    "subtotal": 4350.0,
+    "tax_amount": 326.25,
+    "tax_rate_pct": 7.5,
+    "tax_included_in_prices": false,
+    "freight": null,
+    "total": {
+      "value": "4676.25",
+      "page": 1,
+      "source_quote": "Amount due $4,676.25"
+    },
+    "remit_bank_name": "Mid-South Merchants Bank",
+    "remit_routing_number": {
+      "value": "084008191",
+      "page": 1,
+      "source_quote": "Routing 084008191"
+    },
+    "remit_account_number": {
+      "value": "330158892071",
+      "page": 1,
+      "source_quote": "Account 330158892071"
+    },
+    "notes": "Pay by ACH or wire"
+  }
+}

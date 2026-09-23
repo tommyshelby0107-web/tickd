@@ -1,0 +1,257 @@
+{
+  "scenario": "T-02",
+  "model": "gemini-3.5-flash-lite",
+  "seconds": 33.95,
+  "input_tokens": 1557,
+  "output_tokens": 2494,
+  "image_pages": [],
+  "fallbacks": [
+    "gemini-3.6-flash: busy (503)"
+  ],
+  "data": {
+    "vendor_name": {
+      "value": "HARBORLINE OFFICE PRODUCTS",
+      "page": 1,
+      "source_quote": "HARBORLINE OFFICE PRODUCTS"
+    },
+    "vendor_tax_id": "20-8834112",
+    "invoice_number": {
+      "value": "HOP-500931",
+      "page": 1,
+      "source_quote": "Invoice # HOP-500931"
+    },
+    "invoice_date": {
+      "value": "2026-09-10",
+      "page": 1,
+      "source_quote": "Date 10-Sep-2026"
+    },
+    "due_date": null,
+    "currency": "USD",
+    "po_number": {
+      "value": "PO-4511",
+      "page": 1,
+      "source_quote": "Customer PO PO-4511"
+    },
+    "po_hint": null,
+    "lines": [
+      {
+        "sku": "HL-PAP-LTR",
+        "description": "Copy paper 8.5x11, case of 10 reams",
+        "quantity": 30.0,
+        "unit_price": 42.5,
+        "amount": 1275.0
+      },
+      {
+        "sku": "HL-PEN-BLK",
+        "description": "Ballpoint pens, black, box of 12",
+        "quantity": 40.0,
+        "unit_price": 6.2,
+        "amount": 248.0
+      },
+      {
+        "sku": "HL-PEN-BLU",
+        "description": "Ballpoint pens, blue, box of 12",
+        "quantity": 25.0,
+        "unit_price": 6.2,
+        "amount": 155.0
+      },
+      {
+        "sku": "HL-HLT-4",
+        "description": "Highlighters, assorted, pack of 4",
+        "quantity": 30.0,
+        "unit_price": 5.1,
+        "amount": 153.0
+      },
+      {
+        "sku": "HL-STP-STD",
+        "description": "Staples, standard, box of 5000",
+        "quantity": 20.0,
+        "unit_price": 3.4,
+        "amount": 68.0
+      },
+      {
+        "sku": "HL-STPL",
+        "description": "Desktop stapler, full strip",
+        "quantity": 10.0,
+        "unit_price": 14.75,
+        "amount": 147.5
+      },
+      {
+        "sku": "HL-CLP-LG",
+        "description": "Binder clips, large, box of 12",
+        "quantity": 25.0,
+        "unit_price": 4.6,
+        "amount": 115.0
+      },
+      {
+        "sku": "HL-NTE-3X3",
+        "description": "Sticky notes 3x3, pack of 12",
+        "quantity": 30.0,
+        "unit_price": 9.8,
+        "amount": 294.0
+      },
+      {
+        "sku": "HL-FLD-LTR",
+        "description": "File folders, letter, box of 100",
+        "quantity": 15.0,
+        "unit_price": 18.9,
+        "amount": 283.5
+      },
+      {
+        "sku": "HL-BND-1IN",
+        "description": "Ring binder 1in, white",
+        "quantity": 60.0,
+        "unit_price": 3.95,
+        "amount": 237.0
+      },
+      {
+        "sku": "HL-BND-2IN",
+        "description": "Ring binder 2in, white",
+        "quantity": 40.0,
+        "unit_price": 5.6,
+        "amount": 224.0
+      },
+      {
+        "sku": "HL-ENV-10",
+        "description": "Envelopes #10, box of 500",
+        "quantity": 12.0,
+        "unit_price": 21.4,
+        "amount": 256.8
+      },
+      {
+        "sku": "HL-LBL-ADR",
+        "description": "Address labels, 30 per sheet, 100 sheets",
+        "quantity": 10.0,
+        "unit_price": 24.3,
+        "amount": 243.0
+      },
+      {
+        "sku": "HL-TNR-26A",
+        "description": "Toner cartridge 26A, black",
+        "quantity": 8.0,
+        "unit_price": 89.0,
+        "amount": 712.0
+      },
+      {
+        "sku": "HL-MRK-DRY",
+        "description": "Dry-erase markers, pack of 8",
+        "quantity": 20.0,
+        "unit_price": 11.25,
+        "amount": 225.0
+      },
+      {
+        "sku": "HL-ERS-BRD",
+        "description": "Whiteboard eraser",
+        "quantity": 10.0,
+        "unit_price": 4.2,
+        "amount": 42.0
+      },
+      {
+        "sku": "HL-CLP-PPR",
+        "description": "Paper clips, box of 1000",
+        "quantity": 15.0,
+        "unit_price": 3.1,
+        "amount": 46.5
+      },
+      {
+        "sku": "HL-TAPE-INV",
+        "description": "Invisible tape with dispenser, 6 pack",
+        "quantity": 20.0,
+        "unit_price": 12.4,
+        "amount": 248.0
+      },
+      {
+        "sku": "HL-SCS-8",
+        "description": "Scissors 8in, stainless",
+        "quantity": 12.0,
+        "unit_price": 5.35,
+        "amount": 64.2
+      },
+      {
+        "sku": "HL-CAL-DSK",
+        "description": "Desktop calculator, 12 digit",
+        "quantity": 6.0,
+        "unit_price": 16.8,
+        "amount": 100.8
+      },
+      {
+        "sku": "HL-PAD-LGL",
+        "description": "Legal pads, yellow, pack of 12",
+        "quantity": 25.0,
+        "unit_price": 13.6,
+        "amount": 340.0
+      },
+      {
+        "sku": "HL-PNC-2",
+        "description": "Pencils #2, box of 24",
+        "quantity": 20.0,
+        "unit_price": 4.9,
+        "amount": 98.0
+      },
+      {
+        "sku": "HL-SHR-OIL",
+        "description": "Shredder oil, 12 oz",
+        "quantity": 6.0,
+        "unit_price": 7.25,
+        "amount": 43.5
+      },
+      {
+        "sku": "HL-CUP-12",
+        "description": "Paper cups 12 oz, sleeve of 50",
+        "quantity": 30.0,
+        "unit_price": 4.75,
+        "amount": 142.5
+      },
+      {
+        "sku": "HL-TWL-PPR",
+        "description": "Paper towels, case of 12 rolls",
+        "quantity": 18.0,
+        "unit_price": 26.4,
+        "amount": 475.2
+      },
+      {
+        "sku": "HL-SAN-GEL",
+        "description": "Hand sanitizer gel, 16 oz",
+        "quantity": 24.0,
+        "unit_price": 4.95,
+        "amount": 118.8
+      },
+      {
+        "sku": "HL-BAT-AA",
+        "description": "Batteries AA, pack of 24",
+        "quantity": 15.0,
+        "unit_price": 15.6,
+        "amount": 234.0
+      },
+      {
+        "sku": "HL-DSK-ORG",
+        "description": "Desk organizer, mesh",
+        "quantity": 10.0,
+        "unit_price": 11.9,
+        "amount": 119.0
+      }
+    ],
+    "subtotal": 6709.3,
+    "tax_amount": 503.2,
+    "tax_rate_pct": 7.5,
+    "tax_included_in_prices": false,
+    "freight": null,
+    "total": {
+      "value": "7212.50",
+      "page": 2,
+      "source_quote": "INVOICE TOTAL $7,212.50"
+    },
+    "remit_bank_name": "Chesapeake Commerce Bank",
+    "remit_routing_number": {
+      "value": "052001633",
+      "page": 2,
+      "source_quote": "Routing 052001633"
+    },
+    "remit_account_number": {
+      "value": "507712098834",
+      "page": 2,
+      "source_quote": "Account 507712098834"
+    },
+    "notes": "Terms Net 30. Please quote the invoice number with payment."
+  }
+}

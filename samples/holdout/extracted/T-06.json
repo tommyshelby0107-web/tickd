@@ -1,0 +1,75 @@
+{
+  "scenario": "T-06",
+  "model": "gemini-3.5-flash-lite",
+  "seconds": 11.88,
+  "input_tokens": 564,
+  "output_tokens": 672,
+  "image_pages": [],
+  "fallbacks": [
+    "gemini-3.6-flash: busy (429)"
+  ],
+  "data": {
+    "vendor_name": {
+      "value": "EVERGREEN CHEMICAL SUPPLY",
+      "page": 1,
+      "source_quote": "EVERGREEN CHEMICAL SUPPLY INVOICE"
+    },
+    "vendor_tax_id": "93-4402781",
+    "invoice_number": {
+      "value": "ECS-40218",
+      "page": 1,
+      "source_quote": "Invoice # ECS-40218"
+    },
+    "invoice_date": {
+      "value": "2026-09-11",
+      "page": 1,
+      "source_quote": "Date 11-Sep-2026"
+    },
+    "due_date": null,
+    "currency": "USD",
+    "po_number": {
+      "value": "PO-4514",
+      "page": 1,
+      "source_quote": "Customer PO PO-4514"
+    },
+    "po_hint": null,
+    "lines": [
+      {
+        "sku": "EG-DEG-5",
+        "description": "Industrial degreaser, 5 gal pail",
+        "quantity": 24.0,
+        "unit_price": 64.0,
+        "amount": 1536.0
+      },
+      {
+        "sku": "EG-ABS-25",
+        "description": "Absorbent granules, 25 lb bag",
+        "quantity": 40.0,
+        "unit_price": 17.25,
+        "amount": 609.0
+      }
+    ],
+    "subtotal": 2145.0,
+    "tax_amount": 160.88,
+    "tax_rate_pct": 7.5,
+    "tax_included_in_prices": false,
+    "freight": null,
+    "total": {
+      "value": "2305.88",
+      "page": 1,
+      "source_quote": "INVOICE TOTAL $2,305.88"
+    },
+    "remit_bank_name": "Cascade Trust Bank",
+    "remit_routing_number": {
+      "value": "123006965",
+      "page": 1,
+      "source_quote": "Routing 123006965"
+    },
+    "remit_account_number": {
+      "value": "771430092258",
+      "page": 1,
+      "source_quote": "Account 771430092258"
+    },
+    "notes": "Terms Net 30. Please quote the invoice number with payment."
+  }
+}

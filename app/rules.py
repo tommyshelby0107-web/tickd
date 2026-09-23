@@ -3,6 +3,7 @@
 Every check returns a Finding - including passes - so the audit trail shows what was checked,
 not only what failed. Rule IDs match the rule catalogue in the design pack (section 04).
 """
+import re
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 
@@ -62,11 +63,16 @@ def validate(ctx: Context) -> tuple[str, list[Finding]]:
     line_sum = round(sum(l.amount for l in inv.lines), 2)
     subtotal = inv.subtotal if inv.subtotal is not None else line_sum
     total = to_float(inv.total.value)
-    tax = 0.0 if inv.tax_included_in_prices else (inv.tax_amount or 0.0)
-    expected_total = round(subtotal + tax + (inv.freight or 0.0), 2)
+    if inv.tax_included_in_prices:
+        # Lines already include tax. A "subtotal" may be printed gross (= lines) or net (= lines - tax); both are valid.
+        subtotal_ok = min(abs(line_sum - subtotal), abs(line_sum - (inv.tax_amount or 0.0) - subtotal)) <= tol
+        expected_total = round(line_sum + (inv.freight or 0.0), 2)
+    else:
+        subtotal_ok = abs(line_sum - subtotal) <= tol
+        expected_total = round(subtotal + (inv.tax_amount or 0.0) + (inv.freight or 0.0), 2)
     problems = [f"'{l.description}' amount {money(l.amount)} is not qty x price"
                 for l in inv.lines if abs(l.quantity * l.unit_price - l.amount) > tol]
-    if abs(line_sum - subtotal) > tol:
+    if not subtotal_ok:
         problems.append(f"lines add up to {money(line_sum)} but subtotal is {money(subtotal)}")
     if total is not None and abs(expected_total - total) > tol:
         problems.append(f"subtotal + tax + freight = {money(expected_total)} but total is {money(total)}")
@@ -86,9 +92,28 @@ def validate(ctx: Context) -> tuple[str, list[Finding]]:
     elif invoice_date:
         found.append(Finding("V-03", PASS, f"Invoice date {invoice_date} is plausible."))
 
+    found.append(check_document_type(ctx))
     found.append(check_evidence(ctx))
     ok = sum(f.outcome == PASS for f in found)
     return f"{ok} of {len(found)} checks passed", found
+
+
+CREDIT_WORDS = re.compile(r"\bcredit\s+(note|memo)\b", re.IGNORECASE)
+
+
+def check_document_type(ctx: Context) -> Finding:
+    """V-06: only real invoices can be paid. A credit note must be applied against the vendor balance instead.
+    The LLM's classification is backed by two deterministic signals: a negative total, or 'credit note' printed."""
+    inv = ctx.invoice
+    total = to_float(inv.total.value)
+    printed_credit = any(CREDIT_WORDS.search(p.text) for p in ctx.pages)
+    if inv.document_type == "credit_note" or printed_credit or (total is not None and total < 0):
+        return Finding("V-06", REVIEW, f"This is a credit note for {money(abs(total or 0))}, not a bill to pay. "
+                                       "Apply it against the vendor's open invoices instead.", owner="AP",
+                       details={"llm_type": inv.document_type, "printed_credit": printed_credit, "total": total})
+    if inv.document_type not in ("invoice", "", None):
+        return Finding("V-06", REVIEW, f"This document looks like a {inv.document_type}, not an invoice.", owner="AP")
+    return Finding("V-06", PASS, "Document is an invoice.")
 
 
 CRITICAL_FIELDS = [("invoice_number", "invoice number"), ("invoice_date", "invoice date"), ("total", "total"),
@@ -306,6 +331,14 @@ def line_match(ctx: Context) -> tuple[str, list[Finding]]:
     if not po:
         return "Skipped: no PO to match against", found
 
+    # PO prices are net of tax. If the invoice's prices include tax, compare them net of that tax.
+    tax_note = ""
+    net = 1.0
+    if inv.tax_included_in_prices:
+        rate = inv.tax_rate_pct if inv.tax_rate_pct is not None else ((ctx.vendor or {}).get("expected_tax_rate") or 0) * 100
+        net = 1 / (1 + rate / 100)
+        tax_note = f" (compared net of the {rate:g}% tax included in the prices)"
+
     unmatched = []
     for line in inv.lines:
         best = max(po["lines"], key=lambda pl: _line_similarity(line, pl))
@@ -315,6 +348,7 @@ def line_match(ctx: Context) -> tuple[str, list[Finding]]:
         ctx.line_matches.append({
             "description": line.description, "po_line_no": best["line_no"], "sku": best["sku"],
             "qty": line.quantity, "unit_price": line.unit_price, "amount": line.amount,
+            "unit_price_net": round(line.unit_price * net, 4), "amount_net": round(line.amount * net, 2),
             "po_unit_price": best["unit_price"], "qty_ordered": best["qty_ordered"],
             "qty_received": best["qty_received"], "qty_invoiced_before": best["qty_invoiced"],
         })
@@ -323,16 +357,16 @@ def line_match(ctx: Context) -> tuple[str, list[Finding]]:
                                              f"{'; '.join(unmatched)}.", owner="Buyer"))
 
     tol = POLICY["price_tolerance_pct"]
-    variances = [(m, (m["unit_price"] - m["po_unit_price"]) / m["po_unit_price"] * 100) for m in ctx.line_matches]
-    over = [f"{m['description']}: {money(m['unit_price'])} vs PO {money(m['po_unit_price'])} ({pct:+.1f}%)"
+    variances = [(m, (m["unit_price_net"] - m["po_unit_price"]) / m["po_unit_price"] * 100) for m in ctx.line_matches]
+    over = [f"{m['description']}: {money(m['unit_price_net'])} vs PO {money(m['po_unit_price'])} ({pct:+.1f}%)"
             for m, pct in variances if abs(pct) > tol]
-    small = [f"{m['description']} {pct:+.1f}%" for m, pct in variances if 0 < abs(pct) <= tol]
+    small = [f"{m['description']} {pct:+.1f}%" for m, pct in variances if 0.005 < abs(pct) <= tol]
     if over:
-        found.append(Finding("M-01", REVIEW, "Price above tolerance - " + "; ".join(over) + ".", owner="Buyer"))
+        found.append(Finding("M-01", REVIEW, "Price above tolerance - " + "; ".join(over) + tax_note + ".", owner="Buyer"))
     elif small:
-        found.append(Finding("M-01", NOTE, f"Price variance within {tol:g}% tolerance: " + "; ".join(small) + "."))
+        found.append(Finding("M-01", NOTE, f"Price variance within {tol:g}% tolerance: " + "; ".join(small) + tax_note + "."))
     else:
-        found.append(Finding("M-01", PASS, "All unit prices match the PO."))
+        found.append(Finding("M-01", PASS, "All unit prices match the PO" + tax_note + "."))
 
     short = []
     for m in ctx.line_matches:
@@ -360,7 +394,7 @@ def line_match(ctx: Context) -> tuple[str, list[Finding]]:
         found.append(Finding("M-03", PASS, f"{po['po_number']} will be {after / po_value * 100:.1f}% billed after this invoice."))
 
     expected = round(this_invoice, 2)
-    actual = round(sum(m["amount"] for m in ctx.line_matches), 2)
+    actual = round(sum(m["amount_net"] for m in ctx.line_matches), 2)
     variance = round(actual - expected, 2)
     allowed = min(expected * POLICY["header_tolerance_pct"] / 100, POLICY["header_tolerance_abs"])
     pct = variance / expected * 100 if expected else 0.0

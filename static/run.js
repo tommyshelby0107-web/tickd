@@ -16,13 +16,24 @@ async function showNewRun() {
   document.getElementById("new-run").hidden = false;
   document.getElementById("upload-icon").innerHTML = icon("upload", 28);
   const samples = await api("/api/samples");
-  document.getElementById("samples").innerHTML = samples.map((s) => `
+  const sets = [
+    ["demo", "Demo scenarios", "The happy paths and edge cases the rules were designed around."],
+    ["holdout", "Unseen test invoices", "Held out: new vendors and layouts that were never used to tune the rules."],
+  ];
+  const card = (s) => `
     <button class="sample" data-sample="${esc(s.scenario)}">
       <div class="top"><span class="chip">${esc(s.scenario)}</span>
-        <span class="pill plain ${s.type === "scanned" ? "review" : "info"}">${esc(s.type)}</span></div>
+        <span class="pill plain ${s.type === "digital" ? "info" : "review"}">${esc(s.type)}</span></div>
       <div class="title">${esc(s.title)}</div>
       <div class="muted" style="font-size:12.5px">${esc(s.file)}</div>
-    </button>`).join("");
+    </button>`;
+  document.getElementById("sample-sets").innerHTML = sets.map(([key, heading, blurb]) => {
+    const items = samples.filter((s) => s.set === key);
+    return items.length ? `
+      <h2 style="margin:26px 0 2px">${heading}</h2>
+      <p class="muted" style="margin:0 0 12px">${blurb}</p>
+      <div class="samples">${items.map(card).join("")}</div>` : "";
+  }).join("");
   document.querySelectorAll(".sample").forEach((b) =>
     b.addEventListener("click", () => start({ sample: b.dataset.sample })));
 
@@ -264,9 +275,11 @@ function renderLines(r) {
     <table><thead><tr><th>Line</th><th class="num">Qty</th><th class="num">Invoice price</th><th class="num">PO price</th>
       <th class="num">Variance</th><th class="num">Received</th><th class="num">Billed before</th></tr></thead>
     <tbody>${matches.map((m) => {
-      const pct = ((m.unit_price - m.po_unit_price) / m.po_unit_price) * 100;
+      const net = m.unit_price_net ?? m.unit_price;      // prices that include tax are compared net of it
+      const pct = ((net - m.po_unit_price) / m.po_unit_price) * 100;
+      const netNote = Math.abs(net - m.unit_price) > 0.001 ? `<div class="quote">${money(net)} net of tax</div>` : "";
       return `<tr><td>${esc(m.description)}<div class="quote mono">${esc(m.sku)} · PO line ${m.po_line_no}</div></td>
-        <td class="num">${m.qty}</td><td class="num">${money(m.unit_price)}</td><td class="num">${money(m.po_unit_price)}</td>
+        <td class="num">${m.qty}</td><td class="num">${money(m.unit_price)}${netNote}</td><td class="num">${money(m.po_unit_price)}</td>
         <td class="num" style="color:${Math.abs(pct) > 0.001 ? "var(--amber)" : "var(--muted)"}">${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%</td>
         <td class="num">${m.qty_received} / ${m.qty_ordered}</td><td class="num">${m.qty_invoiced_before}</td></tr>`;
     }).join("") || '<tr><td colspan="7" class="empty">No lines matched</td></tr>'}</tbody></table>`;

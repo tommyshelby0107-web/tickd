@@ -1,0 +1,75 @@
+{
+  "scenario": "T-08",
+  "model": "gemini-3.5-flash-lite",
+  "seconds": 22.13,
+  "input_tokens": 500,
+  "output_tokens": 633,
+  "image_pages": [],
+  "fallbacks": [
+    "gemini-3.6-flash: busy (429)"
+  ],
+  "data": {
+    "vendor_name": {
+      "value": "Pinnacle Office Supply",
+      "page": 1,
+      "source_quote": "Pinnacle Office Supply"
+    },
+    "vendor_tax_id": null,
+    "invoice_number": {
+      "value": "POS-3391",
+      "page": 1,
+      "source_quote": "Invoice number POS-3391"
+    },
+    "invoice_date": {
+      "value": "2026-09-18",
+      "page": 1,
+      "source_quote": "Date of issue Sep 18, 2026"
+    },
+    "due_date": "2026-10-18",
+    "currency": "USD",
+    "po_number": {
+      "value": null,
+      "page": null,
+      "source_quote": null
+    },
+    "po_hint": null,
+    "lines": [
+      {
+        "sku": "PN-CHR-M",
+        "description": "Ergonomic office chair, mesh",
+        "quantity": 4.0,
+        "unit_price": 219.0,
+        "amount": 876.0
+      },
+      {
+        "sku": "PN-ARM-2",
+        "description": "Monitor arm, dual",
+        "quantity": 4.0,
+        "unit_price": 64.5,
+        "amount": 258.0
+      }
+    ],
+    "subtotal": 1134.0,
+    "tax_amount": 85.05,
+    "tax_rate_pct": 7.5,
+    "tax_included_in_prices": false,
+    "freight": null,
+    "total": {
+      "value": "1219.05",
+      "page": 1,
+      "source_quote": "Amount due $1,219.05"
+    },
+    "remit_bank_name": "Gem City Bank",
+    "remit_routing_number": {
+      "value": "042000314",
+      "page": 1,
+      "source_quote": "Routing 042000314"
+    },
+    "remit_account_number": {
+      "value": "118830045529",
+      "page": 1,
+      "source_quote": "Account 118830045529"
+    },
+    "notes": "Pay by ACH or wire"
+  }
+}

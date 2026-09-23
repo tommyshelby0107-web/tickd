@@ -7,6 +7,7 @@ const RULE_NAMES = {
   "M-02": "Qty not received", "M-05": "Unplanned charges", "M-00": "Line not on PO",
   "P-01": "No PO found", "P-02": "PO of other vendor", "P-03": "PO closed", "P-04": "PO inferred",
   "V-01": "Missing data", "V-02": "Arithmetic", "V-03": "Date", "V-04": "Tax rate", "V-05": "Low confidence",
+  "V-06": "Credit note / not a bill",
   "X-00": "Could not process",
 };
 

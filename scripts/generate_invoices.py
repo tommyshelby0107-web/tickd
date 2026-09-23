@@ -41,7 +41,7 @@ def q2(x) -> Decimal:
 
 
 def money(x: Decimal) -> str:
-    return f"${x:,.2f}"
+    return f"-${abs(x):,.2f}" if x < 0 else f"${x:,.2f}"
 
 
 def load_csv(name: str) -> list[dict]:
@@ -55,14 +55,15 @@ PO_LINES = {(r["po_number"], r["sku"]): r for r in load_csv("po_lines.csv")}
 
 @dataclass
 class Line:
-    sku: str
+    sku: str | None
     description: str
     qty: int
     unit_price: Decimal
+    printed_amount: Decimal | None = None   # set to print a wrong amount (arithmetic-error scenario)
 
     @property
     def amount(self) -> Decimal:
-        return q2(self.qty * self.unit_price)
+        return self.printed_amount if self.printed_amount is not None else q2(self.qty * self.unit_price)
 
 
 def from_po(po: str, sku: str, qty: int | None = None, price: str | None = None,
@@ -94,12 +95,24 @@ class InvoiceSpec:
     note: str | None = None
     stamp: str | None = None
     scan: bool = False
+    scan_quality: str = "normal"       # "normal" or "poor"
     number_display: str | None = None  # how the number is printed, if different from the canonical one
+    vendor_info: dict | None = None    # a vendor that is NOT in the vendor master
+    doc_title: str = "INVOICE"
+    tax_included: bool = False         # line prices already include tax
+    credit: bool = False               # credit note: amounts are printed negative
     expected: dict = field(default_factory=dict)
 
     @property
     def vendor(self) -> dict:
-        return VENDORS[self.vendor_id]
+        return self.vendor_info or VENDORS[self.vendor_id]
+
+    @property
+    def sign(self) -> int:
+        return -1 if self.credit else 1
+
+    def line_amount(self, line: Line) -> Decimal:
+        return line.amount * self.sign
 
     @property
     def number_text(self) -> str | None:
@@ -114,15 +127,17 @@ class InvoiceSpec:
 
     @property
     def subtotal(self) -> Decimal:
-        return sum((l.amount for l in self.lines), Decimal("0"))
+        return sum((self.line_amount(l) for l in self.lines), Decimal("0"))
 
     @property
     def tax(self) -> Decimal:
+        if self.tax_included:   # the tax already inside the gross line prices
+            return q2(self.subtotal * self.tax_rate / (1 + self.tax_rate))
         return q2(self.subtotal * self.tax_rate)
 
     @property
     def total(self) -> Decimal:
-        return self.subtotal + self.tax + self.freight
+        return self.subtotal + self.freight + (0 if self.tax_included else self.tax)
 
     @property
     def bank(self) -> dict:
@@ -259,7 +274,7 @@ def layout_classic(c: canvas.Canvas, inv: InvoiceSpec) -> None:
         y -= 12
     c.setFont("Helvetica-Bold", 26)
     c.setFillColor(colors.HexColor("#555555"))
-    c.drawRightString(W - M, H - M - 10, "INVOICE")
+    c.drawRightString(W - M, H - M - 10, inv.doc_title)
     c.setFillColor(colors.black)
     my = H - M - 40
     for label, value in meta_rows([("Invoice No.", inv.number_text), ("Invoice Date", fmt(inv.invoice_date)),
@@ -279,7 +294,7 @@ def layout_classic(c: canvas.Canvas, inv: InvoiceSpec) -> None:
         c.drawString(M, y, line)
         y -= 12
     cols = [("SKU", 80, "l"), ("Description", 229, "l"), ("Qty", 45, "r"), ("Unit Price", 70, "r"), ("Amount", 80, "r")]
-    rows = [[l.sku, l.description, str(l.qty), money(l.unit_price), money(l.amount)] for l in inv.lines]
+    rows = [[l.sku, l.description, str(l.qty), money(l.unit_price), money(inv.line_amount(l))] for l in inv.lines]
     y = draw_table(c, M, y - 18, cols, rows, header_fill=colors.HexColor("#E5E7EB"))
     pct = f"{inv.tax_rate * 100:.1f}%"
     draw_totals(c, W - M - 90, W - M, y - 18, totals_items(inv, "Subtotal", f"Sales Tax ({pct})", "Total Due"))
@@ -508,24 +523,31 @@ LAYOUTS = {"classic": layout_classic, "band": layout_band, "compact": layout_com
 
 # ---------------------------------------------------------------- scan simulation
 
-def make_scanned(src: Path, dst: Path, *, seed: int, skew: float) -> None:
+SCAN_QUALITY = {  # dpi, noise blend, speckles, blur radius
+    "normal": (200, 0.07, 400, 0.6),
+    "poor": (110, 0.16, 2500, 1.1),   # a fax-grade copy: low resolution, grainy, soft
+}
+
+
+def make_scanned(src: Path, dst: Path, *, seed: int, skew: float, quality: str = "normal") -> None:
     """Rasterise a PDF and degrade it like an office scanner: grey, skewed, noisy, no text layer."""
+    dpi, noise, speckles, blur = SCAN_QUALITY[quality]
     rng = random.Random(seed)
     pages = []
     with pymupdf.open(src) as doc:
         for page in doc:
-            pix = page.get_pixmap(dpi=200, colorspace=pymupdf.csGRAY)
+            pix = page.get_pixmap(dpi=dpi, colorspace=pymupdf.csGRAY)
             img = Image.frombytes("L", (pix.width, pix.height), pix.samples)
             img = img.rotate(skew, resample=Image.BICUBIC, fillcolor=255)
-            img = Image.blend(img, Image.effect_noise(img.size, 60), 0.07)
+            img = Image.blend(img, Image.effect_noise(img.size, 60), noise)
             draw = ImageDraw.Draw(img)
-            for _ in range(400):
+            for _ in range(speckles):
                 x, y = rng.randrange(img.width), rng.randrange(img.height)
                 draw.point((x, y), fill=rng.randrange(40, 140))
             draw.rectangle((0, 0, 14, img.height), fill=200)  # scanner edge shadow
-            img = img.filter(ImageFilter.GaussianBlur(0.6))
+            img = img.filter(ImageFilter.GaussianBlur(blur))
             pages.append(img)
-    pages[0].save(dst, "PDF", resolution=200, save_all=True, append_images=pages[1:])
+    pages[0].save(dst, "PDF", resolution=dpi, save_all=True, append_images=pages[1:])
 
 
 # ---------------------------------------------------------------- scenarios
@@ -622,10 +644,12 @@ def ground_truth(inv: InvoiceSpec) -> dict:
         "due_date": inv.due_date.isoformat() if inv.due_date else None,
         "po_number": inv.po_ref,
         "po_hint": inv.po_hint,
+        "document_type": "credit_note" if inv.credit else "invoice",
         "lines": [{"sku": l.sku, "description": l.description, "qty": l.qty,
-                   "unit_price": str(l.unit_price), "amount": str(l.amount)} for l in inv.lines],
+                   "unit_price": str(l.unit_price), "amount": str(inv.line_amount(l))} for l in inv.lines],
         "subtotal": str(inv.subtotal),
         "tax_rate": str(inv.tax_rate),
+        "tax_included": inv.tax_included,
         "tax": str(inv.tax),
         "freight": str(inv.freight),
         "total": str(inv.total),
@@ -635,36 +659,44 @@ def ground_truth(inv: InvoiceSpec) -> dict:
     }
 
 
-def main() -> None:
-    OUT.mkdir(parents=True, exist_ok=True)
-    for old in OUT.glob("*.pdf"):
+def build(specs: list[InvoiceSpec], out_dir: Path, layouts: dict | None = None) -> list[dict]:
+    """Draw every spec to a PDF in out_dir (scans degraded) and return the manifest entries."""
+    layouts = {**LAYOUTS, **(layouts or {})}
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for old in out_dir.glob("*.pdf"):
         old.unlink()
     manifest = []
-    for i, inv in enumerate(build_specs()):
-        path = OUT / inv.file_name
+    for i, inv in enumerate(specs):
+        path = out_dir / inv.file_name
         target = path.with_suffix(".digital.pdf") if inv.scan else path
         c = canvas.Canvas(str(target), pagesize=LETTER)
-        c.setTitle(f"Invoice {inv.number_text or ''}".strip())
+        c.setTitle(f"{inv.doc_title.title()} {inv.number_text or ''}".strip())
         c.setAuthor(inv.vendor["name"])
-        LAYOUTS[inv.layout](c, inv)
+        layouts[inv.layout](c, inv)
         if inv.stamp:
             draw_stamp(c, inv.stamp)
         c.showPage()
         c.save()
         if inv.scan:
-            make_scanned(target, path, seed=i, skew=0.6 + 0.3 * (i % 3))
+            skew = 1.8 if inv.scan_quality == "poor" else 0.6 + 0.3 * (i % 3)
+            make_scanned(target, path, seed=i, skew=skew, quality=inv.scan_quality)
             target.unlink()
         manifest.append({
             "scenario": inv.scenario,
             "title": inv.title,
             "file": inv.file_name,
-            "type": "scanned" if inv.scan else "digital",
+            "type": ("poor scan" if inv.scan_quality == "poor" else "scanned") if inv.scan else "digital",
             "vendor_id": inv.vendor_id,
             "layout": inv.layout,
             "expected": inv.expected,
             "ground_truth": ground_truth(inv),
         })
         print(f"{inv.scenario:6} {'scan' if inv.scan else 'text':4}  {money(inv.total):>12}  {inv.file_name}")
+    return manifest
+
+
+def main() -> None:
+    manifest = build(build_specs(), OUT)
     (OUT.parent / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     print(f"\n{len(manifest)} invoices written to {OUT}")
 

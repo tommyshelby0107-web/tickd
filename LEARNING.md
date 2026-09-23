@@ -94,7 +94,28 @@ $py = "C:\Users\Acer\.venvs\invoice-agent\Scripts\python.exe"
 | Escaping | Every value from a PDF is HTML-escaped before display | An invoice is untrusted input. A malicious PDF could otherwise inject script into the reviewer's browser |
 | UTC timestamps | Server stores UTC with offset; browser shows local time | A hosted server (UTC) and a viewer in India would otherwise disagree by 5.5 hours |
 
-## 8. Running the app
+## 8. The held-out test set (your strongest interview story)
+
+**The idea:** the 10 demo invoices were used while *designing* the rules, so passing them proves little — like a
+student marking their own homework. So we built 10 more invoices from 6 new vendors in 3 new layouts and never
+looked at them while designing. Then we ran them **blind**, before changing any code.
+
+**What the blind run found (rules only, perfect data): 7 of 10.** Three real gaps:
+
+| Gap | Symptom | Fix |
+| --- | --- | --- |
+| Tax-included prices (T-01) | Held for a fake "+7.5% price variance" | When the invoice says tax is included, compare prices net of that tax |
+| Lead reason (T-06) | Arithmetic error routed to the Buyer as a "price variance" | If the invoice's own maths is wrong, that leads and goes to AP — nothing else on it can be trusted |
+| Credit notes (T-10) | Held only by luck; no concept of a credit note | New rule V-06. The LLM classifies the document **and** code checks two deterministic signals: a negative total or the words "credit note/memo" on the page |
+
+After the fixes: 10/10 held-out, 10/10 demo still passing, 39 tests.
+
+**How to say it:** "I split my test data into a design set and a held-out set. The held-out set caught three
+gaps a real AP team would hit — tax-inclusive vendors, arithmetic errors and credit notes. I fixed them and added
+regression tests so they can't come back. In production I'd keep doing this with real invoices: every human
+override becomes a new test case."
+
+## 9. Running the app
 
 ```powershell
 cd "C:\Users\Acer\OneDrive\Desktop\zamp ai\invoice-agent"
@@ -103,7 +124,7 @@ cd "C:\Users\Acer\OneDrive\Desktop\zamp ai\invoice-agent"
 # add  $env:EXTRACTION_MODE = "cached"  before the command to use saved extractions (no API calls)
 ```
 
-## 9. Exercises (do these — this is how you learn the code)
+## 10. Exercises (do these — this is how you learn the code)
 
 1. In `policy.yaml`, change `header_tolerance_abs` from `250.00` to `50.00`. Run `demo_offline.py`.
    HP-2 should flip from Approve to Review. Why? (Its +$96 variance now exceeds $50.) Change it back.
@@ -117,3 +138,5 @@ cd "C:\Users\Acer\OneDrive\Desktop\zamp ai\invoice-agent"
 7. Run EC-3. Resolve it with Approve and the reason "Confirmed PO-4504 with buyer Dana Whitfield".
    Check Reference data: what changed for PO-4504, and what appeared in the invoice registry?
 8. Open `app/extract.py` and find `_groq`. Walk through what happens, line by line, if Groq returns 503.
+9. Open `tests/test_holdout.py`, test `test_credit_note_is_never_approved_even_if_read_as_positive`. Explain why
+   we don't trust the LLM's `document_type` alone, and which two signals back it up.
