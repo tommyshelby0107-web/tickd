@@ -39,6 +39,7 @@ class Context:
     po_inferred: bool = False
     po_candidates: list[dict] = field(default_factory=list)
     line_matches: list[dict] = field(default_factory=list)
+    is_credit: bool = False         # a credit note: never paid, so payment matching does not apply
 
 
 def similarity(a: str | None, b: str | None) -> float:
@@ -49,6 +50,7 @@ def similarity(a: str | None, b: str | None) -> float:
 
 def validate(ctx: Context) -> tuple[str, list[Finding]]:
     inv, found = ctx.invoice, []
+    ctx.is_credit = is_credit_note(ctx)
 
     required = [("invoice number", inv.invoice_number), ("invoice date", inv.invoice_date),
                 ("vendor name", inv.vendor_name), ("total", inv.total)]
@@ -60,18 +62,19 @@ def validate(ctx: Context) -> tuple[str, list[Finding]]:
         found.append(Finding("V-01", PASS, "Invoice number, date, vendor and total are present."))
 
     tol = POLICY["arithmetic_tolerance"]
-    line_sum = round(sum(l.amount for l in inv.lines), 2)
-    subtotal = inv.subtotal if inv.subtotal is not None else line_sum
-    total = to_float(inv.total.value)
+    sign = abs if ctx.is_credit else (lambda x: x)     # credit notes print negative amounts; check the maths on size
+    line_sum = round(sum(sign(l.amount) for l in inv.lines), 2)
+    subtotal = sign(inv.subtotal) if inv.subtotal is not None else line_sum
+    total = sign(to_float(inv.total.value)) if to_float(inv.total.value) is not None else None
     if inv.tax_included_in_prices:
         # Lines already include tax. A "subtotal" may be printed gross (= lines) or net (= lines - tax); both are valid.
         subtotal_ok = min(abs(line_sum - subtotal), abs(line_sum - (inv.tax_amount or 0.0) - subtotal)) <= tol
         expected_total = round(line_sum + (inv.freight or 0.0), 2)
     else:
         subtotal_ok = abs(line_sum - subtotal) <= tol
-        expected_total = round(subtotal + (inv.tax_amount or 0.0) + (inv.freight or 0.0), 2)
+        expected_total = round(subtotal + sign(inv.tax_amount or 0.0) + (inv.freight or 0.0), 2)
     problems = [f"'{l.description}' amount {money(l.amount)} is not qty x price"
-                for l in inv.lines if abs(l.quantity * l.unit_price - l.amount) > tol]
+                for l in inv.lines if abs(abs(l.quantity * l.unit_price) - sign(l.amount)) > tol]
     if not subtotal_ok:
         problems.append(f"lines add up to {money(line_sum)} but subtotal is {money(subtotal)}")
     if total is not None and abs(expected_total - total) > tol:
@@ -101,16 +104,21 @@ def validate(ctx: Context) -> tuple[str, list[Finding]]:
 CREDIT_WORDS = re.compile(r"\bcredit\s+(note|memo)\b", re.IGNORECASE)
 
 
+def is_credit_note(ctx: Context) -> bool:
+    """The LLM's classification, backed by two deterministic signals: a negative total or 'credit note' printed."""
+    total = to_float(ctx.invoice.total.value)
+    return (ctx.invoice.document_type == "credit_note" or (total is not None and total < 0)
+            or any(CREDIT_WORDS.search(p.text) for p in ctx.pages))
+
+
 def check_document_type(ctx: Context) -> Finding:
-    """V-06: only real invoices can be paid. A credit note must be applied against the vendor balance instead.
-    The LLM's classification is backed by two deterministic signals: a negative total, or 'credit note' printed."""
+    """V-06: only real invoices can be paid. A credit note must be applied against the vendor balance instead."""
     inv = ctx.invoice
     total = to_float(inv.total.value)
-    printed_credit = any(CREDIT_WORDS.search(p.text) for p in ctx.pages)
-    if inv.document_type == "credit_note" or printed_credit or (total is not None and total < 0):
+    if ctx.is_credit:
         return Finding("V-06", REVIEW, f"This is a credit note for {money(abs(total or 0))}, not a bill to pay. "
                                        "Apply it against the vendor's open invoices instead.", owner="AP",
-                       details={"llm_type": inv.document_type, "printed_credit": printed_credit, "total": total})
+                       details={"llm_type": inv.document_type, "total": total})
     if inv.document_type not in ("invoice", "", None):
         return Finding("V-06", REVIEW, f"This document looks like a {inv.document_type}, not an invoice.", owner="AP")
     return Finding("V-06", PASS, "Document is an invoice.")
@@ -328,6 +336,8 @@ def _line_similarity(line: LineItem, po_line: dict) -> float:
 
 def line_match(ctx: Context) -> tuple[str, list[Finding]]:
     inv, po, found = ctx.invoice, ctx.po, []
+    if ctx.is_credit:
+        return "Skipped: a credit note is applied to the balance, not matched for payment", found
     if not po:
         return "Skipped: no PO to match against", found
 

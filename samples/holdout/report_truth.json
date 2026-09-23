@@ -1,8 +1,8 @@
 {
   "set": "holdout",
   "mode": "truth",
-  "at": "2026-09-23T17:24:59+00:00",
-  "decisions_correct": 7,
+  "at": "2026-09-23T17:34:02+00:00",
+  "decisions_correct": 10,
   "total": 10,
   "field_accuracy": {},
   "field_runs": 0,
@@ -11,18 +11,15 @@
       "scenario": "T-01",
       "title": "Prices include sales tax (tax-inclusive invoice)",
       "expected": "Approve",
-      "got": "Review",
-      "owner": "Buyer",
-      "reasons": [
-        "M-01",
-        "M-04"
-      ],
-      "correct": false,
-      "why": "expected Approve, got Review",
+      "got": "Approve",
+      "owner": null,
+      "reasons": [],
+      "correct": true,
+      "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.2,
-      "summary": "Held for Buyer review. Price above tolerance - Impact wrench 1/2in drive, cordless: $202.10 vs PO $188.00 (+7.5%); Socket set metric, 40 piece: $77.40 vs PO $72.00 (+7.5%). Plus 1 other issue(s)."
+      "seconds": 0.19,
+      "summary": "Approved. Keystone Industrial Tools Inc. invoice KIT-22817 for $1,986.60 passed every check against PO-4510. 1 variance note(s) within tolerance."
     },
     {
       "scenario": "T-02",
@@ -35,7 +32,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.22,
+      "seconds": 0.26,
       "summary": "Approved. Harborline Office Products invoice HOP-500931 for $7,212.50 passed every check against PO-4511."
     },
     {
@@ -69,7 +66,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.14,
+      "seconds": 0.12,
       "summary": "Held for Buyer review. PO-4480 would be billed $2,388.80 of $1,194.40 (200.0%). Only $0.00 remains billable. Plus 2 other issue(s)."
     },
     {
@@ -85,7 +82,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.12,
+      "seconds": 0.15,
       "summary": "Held for Warehouse review. Wooden pallet 48x40, heat treated: invoiced 300, but only 180 received and not yet billed (0 of 300 already invoiced)."
     },
     {
@@ -93,17 +90,17 @@
       "title": "Arithmetic error on a line (typed 609.00 instead of 690.00)",
       "expected": "Review",
       "got": "Review",
-      "owner": "Buyer",
+      "owner": "AP",
       "reasons": [
-        "M-04",
-        "V-02"
+        "V-02",
+        "M-04"
       ],
-      "correct": false,
-      "why": "owner Buyer, expected AP",
+      "correct": true,
+      "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.14,
-      "summary": "Held for Buyer review. Subtotal $2,145.00 is $-81.00 (-3.64%) away from PO pricing of $2,226.00; tolerance is $44.52. Plus 1 other issue(s)."
+      "seconds": 0.13,
+      "summary": "Held for AP review. Arithmetic does not reconcile: 'Absorbent granules, 25 lb bag' amount $609.00 is not qty x price. Plus 1 other issue(s)."
     },
     {
       "scenario": "T-07",
@@ -118,7 +115,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.15,
+      "seconds": 0.12,
       "summary": "Held for AP review. Possible duplicate: invoice CPK-88120 for $3,878.60 dated 2026-08-20 has a different number but the same amount."
     },
     {
@@ -135,7 +132,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 1.47,
+      "seconds": 1.39,
       "summary": "Held for Procurement review. Vendor 'Pinnacle Office Supply' is not in the vendor master. Plus 1 other issue(s)."
     },
     {
@@ -151,7 +148,7 @@
       "why": "safe alternative",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 1.13,
+      "seconds": 0.9,
       "summary": "Held for AP review. Could not verify against the document: invoice number (quote not found in page text); invoice date (quote not found in page text); PO number (OCR confidence 68); bank account (OCR confidence 71)."
     },
     {
@@ -159,17 +156,16 @@
       "title": "Credit note for returned goods",
       "expected": "Review",
       "got": "Review",
-      "owner": "Buyer",
+      "owner": "AP",
       "reasons": [
-        "M-04",
-        "V-02"
+        "V-06"
       ],
-      "correct": false,
-      "why": "missing rule(s) ['V-06']",
+      "correct": true,
+      "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.3,
-      "summary": "Held for Buyer review. Subtotal $-192.50 is $-385.00 (-200.00%) away from PO pricing of $192.50; tolerance is $3.85. Plus 1 other issue(s)."
+      "seconds": 0.2,
+      "summary": "Held for AP review. This is a credit note for $206.94, not a bill to pay. Apply it against the vendor's open invoices instead."
     }
   ]
 }

@@ -40,7 +40,9 @@ def parse_date(value: str | None) -> date | None:
 
 
 def money(value: float | None) -> str:
-    return "n/a" if value is None else f"${value:,.2f}"
+    if value is None:
+        return "n/a"
+    return f"-${abs(value):,.2f}" if value < 0 else f"${value:,.2f}"
 
 
 def squash(text: str | None) -> str:
