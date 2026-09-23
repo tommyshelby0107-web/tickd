@@ -70,7 +70,7 @@ def main(selected: list[str]) -> None:
             totals[name] = totals.get(name, 0) + ok
         misses = [name for name, ok in checks.items() if not ok]
         status = "OK  " if not misses else "MISS"
-        print(f"{status} {item['scenario']:6} {pages[0].source:10} {result.seconds:5.1f}s "
+        print(f"{status} {item['scenario']:6} {pages[0].source:10} {result.model:24} {result.seconds:5.1f}s "
               f"{result.input_tokens:5}+{result.output_tokens:<5} tok  {', '.join(misses)}")
     if runs:
         print("\nField accuracy: " + "  ".join(f"{k} {v}/{runs}" for k, v in totals.items()))

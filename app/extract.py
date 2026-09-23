@@ -2,6 +2,7 @@
 
 The LLM only reads. It never decides: every decision is made by the rules in rules.py.
 """
+import re
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -10,7 +11,7 @@ from google import genai
 from google.genai import errors, types
 from pydantic import BaseModel, Field
 
-from .config import GEMINI_API_KEY, GEMINI_MODEL, POLICY
+from .config import GEMINI_API_KEY, GEMINI_MODELS, POLICY
 from .text import PageText, as_prompt_text, page_png
 
 
@@ -58,7 +59,8 @@ SYSTEM_PROMPT = """You extract data from vendor invoices for an accounts payable
 Rules:
 - Use only what is printed in the page text. Never invent, infer or calculate a value that is not printed.
 - If a field is not printed, return null for it.
-- Never guess a purchase order number. Put any order reference wording in po_hint instead.
+- If a purchase order number is printed (labels such as PO, P.O. #, Your PO, Customer PO, Purchase Order),
+  put it in po_number.value. Never guess one. Put order reference wording without a number in po_hint.
 - invoice_number: exactly as printed, including spaces and hyphens.
 - Dates: value as YYYY-MM-DD; source_quote as printed.
 - Money: plain numbers with no currency symbols or thousands separators.
@@ -94,15 +96,18 @@ def extract_invoice(pdf_path: Path, pages: list[PageText]) -> Extraction:
         response_mime_type="application/json",
         response_schema=InvoiceData,
         temperature=0,
+        automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
     )
-    client = genai.Client(api_key=GEMINI_API_KEY)
+    client = genai.Client(api_key=GEMINI_API_KEY,
+                          http_options=types.HttpOptions(timeout=CALL_TIMEOUT_MS, retry_options=types.HttpRetryOptions(attempts=1)))
     started = time.perf_counter()
-    response = _generate_with_retry(client, contents, config)
+    response, model = _generate_with_fallback(client, contents, config)
     data = response.parsed if isinstance(response.parsed, InvoiceData) else InvoiceData.model_validate_json(response.text)
+    _recover_printed_po(data)
     usage = response.usage_metadata
     return Extraction(
         data=data,
-        model=GEMINI_MODEL,
+        model=model,
         seconds=round(time.perf_counter() - started, 2),
         input_tokens=(usage.prompt_token_count or 0) if usage else 0,
         output_tokens=(usage.candidates_token_count or 0) if usage else 0,
@@ -110,12 +115,37 @@ def extract_invoice(pdf_path: Path, pages: list[PageText]) -> Extraction:
     )
 
 
-def _generate_with_retry(client: genai.Client, contents: list, config: types.GenerateContentConfig, attempts: int = 3):
-    """Retry rate limits and server errors with a short back-off; fail fast on anything else."""
-    for attempt in range(1, attempts + 1):
-        try:
-            return client.models.generate_content(model=GEMINI_MODEL, contents=contents, config=config)
-        except errors.APIError as exc:
-            if attempt == attempts or exc.code not in (429, 500, 503):
-                raise ExtractionError(f"Gemini call failed ({exc.code}): {exc.message}") from exc
-            time.sleep(3 * attempt)
+PRINTED_PO = re.compile(r"\bP\.?\s?O\.?\s*(?:number|no\.?|#)?\s*[:#-]?\s*((?:PO-?)?\d{3,})", re.IGNORECASE)
+
+
+def _recover_printed_po(data: InvoiceData) -> None:
+    """Deterministic clean-up: if the model quoted a printed PO number but left the value empty, use it."""
+    if data.po_number.value:
+        return
+    for text in (data.po_number.source_quote, data.po_hint):
+        match = PRINTED_PO.search(text or "")
+        if match:
+            data.po_number.value = match.group(1)
+            data.po_number.source_quote = data.po_number.source_quote or text
+            return
+
+
+CALL_TIMEOUT_MS = 60_000
+BUSY = (429, 500, 503, 504)
+
+
+def _generate_with_fallback(client: genai.Client, contents: list, config: types.GenerateContentConfig):
+    """Try each model in GEMINI_MODELS in order. A busy model is skipped at once rather than waited on;
+    after one full pass, wait briefly and make a second pass before giving up."""
+    failures = []
+    for attempt in range(2):
+        for model in GEMINI_MODELS:
+            try:
+                return client.models.generate_content(model=model, contents=contents, config=config), model
+            except errors.APIError as exc:
+                failures.append(f"{model}: {exc.code}")
+                if exc.code not in BUSY:
+                    raise ExtractionError(f"Gemini call failed on {model} ({exc.code}): {exc.message}") from exc
+        if attempt == 0:
+            time.sleep(5)
+    raise ExtractionError("All Gemini models busy: " + ", ".join(failures))

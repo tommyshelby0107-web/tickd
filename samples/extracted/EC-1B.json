@@ -1,0 +1,71 @@
+{
+  "scenario": "EC-1B",
+  "model": "gemini-3.5-flash-lite",
+  "seconds": 49.0,
+  "input_tokens": 486,
+  "output_tokens": 630,
+  "pages": [
+    {
+      "number": 1,
+      "source": "text-layer",
+      "ocr_confidence": null
+    }
+  ],
+  "data": {
+    "vendor_name": {
+      "value": "SUMMIT ELECTRICAL SUPPLY LLC",
+      "page": 1,
+      "source_quote": "SUMMIT ELECTRICAL SUPPLY LLC"
+    },
+    "vendor_tax_id": "25-6617093",
+    "invoice_number": {
+      "value": "SUM-10421",
+      "page": 1,
+      "source_quote": "Invoice #: SUM-10421"
+    },
+    "invoice_date": {
+      "value": "2026-09-18",
+      "page": 1,
+      "source_quote": "Issued: 2026-09-18"
+    },
+    "due_date": "2026-11-02",
+    "currency": "USD",
+    "po_number": {
+      "value": "PO-4503",
+      "page": 1,
+      "source_quote": "Customer PO: PO-4503"
+    },
+    "po_hint": null,
+    "lines": [
+      {
+        "sku": "SE-LED-24",
+        "description": "LED flat panel 2x4ft 50W",
+        "quantity": 200.0,
+        "unit_price": 100.0,
+        "amount": 20000.0
+      }
+    ],
+    "subtotal": 20000.0,
+    "tax_amount": 1500.0,
+    "tax_rate_pct": 7.5,
+    "tax_included_in_prices": false,
+    "freight": null,
+    "total": {
+      "value": "21,500.00",
+      "page": 1,
+      "source_quote": "AMOUNT DUE (USD) $21,500.00"
+    },
+    "remit_bank_name": "Allegheny Trust Bank",
+    "remit_routing_number": {
+      "value": "043318072",
+      "page": 1,
+      "source_quote": "ABA 043318072"
+    },
+    "remit_account_number": {
+      "value": "640017723905",
+      "page": 1,
+      "source_quote": "Acct 640017723905"
+    },
+    "notes": "Please reference the invoice number with your payment."
+  }
+}

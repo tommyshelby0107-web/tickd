@@ -14,7 +14,9 @@ STORAGE_DIR = Path(os.getenv("STORAGE_DIR", str(ROOT / "storage")))
 DB_PATH = STORAGE_DIR / "invoice_agent.db"
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+# Tried in order; a busy model is skipped for the next one (free-tier capacity varies by model and hour).
+GEMINI_MODELS = [m.strip() for m in os.getenv(
+    "GEMINI_MODELS", "gemini-3.6-flash,gemini-3.5-flash-lite,gemini-flash-lite-latest").split(",") if m.strip()]
 
 _WINDOWS_TESSERACT = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 TESSERACT_CMD = os.getenv("TESSERACT_CMD") or (_WINDOWS_TESSERACT if os.name == "nt" else "tesseract")

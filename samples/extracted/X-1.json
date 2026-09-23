@@ -1,0 +1,71 @@
+{
+  "scenario": "X-1",
+  "model": "gemini-3.5-flash-lite",
+  "seconds": 35.09,
+  "input_tokens": 470,
+  "output_tokens": 641,
+  "pages": [
+    {
+      "number": 1,
+      "source": "ocr",
+      "ocr_confidence": 93.4
+    }
+  ],
+  "data": {
+    "vendor_name": {
+      "value": "Redline Industrial Services",
+      "page": 1,
+      "source_quote": "Redline Industrial Services"
+    },
+    "vendor_tax_id": "58-2203317",
+    "invoice_number": {
+      "value": "RIS-5520",
+      "page": 1,
+      "source_quote": "Invoice No. RIS-5520"
+    },
+    "invoice_date": {
+      "value": "2026-09-12",
+      "page": 1,
+      "source_quote": "Invoice Date September 12, 2026"
+    },
+    "due_date": "2026-10-12",
+    "currency": "USD",
+    "po_number": {
+      "value": "PO-4509",
+      "page": 1,
+      "source_quote": "PO Number PO-4509"
+    },
+    "po_hint": null,
+    "lines": [
+      {
+        "sku": "RL-SVC-01",
+        "description": "Forklift preventive maintenance visit",
+        "quantity": 1.0,
+        "unit_price": 1850.0,
+        "amount": 1850.0
+      }
+    ],
+    "subtotal": 1850.0,
+    "tax_amount": 138.75,
+    "tax_rate_pct": 7.5,
+    "tax_included_in_prices": false,
+    "freight": null,
+    "total": {
+      "value": "1988.75",
+      "page": 1,
+      "source_quote": "Total Due $1,988.75"
+    },
+    "remit_bank_name": "Miami Valley Bank",
+    "remit_routing_number": {
+      "value": "042209871",
+      "page": 1,
+      "source_quote": "ABA Routing 042209871"
+    },
+    "remit_account_number": {
+      "value": "410028837165",
+      "page": 1,
+      "source_quote": "Account 410028837165"
+    },
+    "notes": "Remit payment by ACH to:\nMiami Valley Bank ABA Routing 042209871 Account 410028837165\nThank you for your business."
+  }
+}

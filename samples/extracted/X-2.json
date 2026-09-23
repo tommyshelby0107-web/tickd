@@ -1,0 +1,71 @@
+{
+  "scenario": "X-2",
+  "model": "gemini-3.5-flash-lite",
+  "seconds": 72.93,
+  "input_tokens": 488,
+  "output_tokens": 624,
+  "pages": [
+    {
+      "number": 1,
+      "source": "text-layer",
+      "ocr_confidence": null
+    }
+  ],
+  "data": {
+    "vendor_name": {
+      "value": "Apex Fasteners Inc.",
+      "page": 1,
+      "source_quote": "Apex Fasteners Inc."
+    },
+    "vendor_tax_id": "74-3829105",
+    "invoice_number": {
+      "value": "INV-2026-0463",
+      "page": 1,
+      "source_quote": "Invoice No. INV-2026-0463"
+    },
+    "invoice_date": {
+      "value": "2026-09-19",
+      "page": 1,
+      "source_quote": "Invoice Date September 19, 2026"
+    },
+    "due_date": "2026-10-19",
+    "currency": "USD",
+    "po_number": {
+      "value": "PO-4508",
+      "page": 1,
+      "source_quote": "PO Number PO-4508"
+    },
+    "po_hint": null,
+    "lines": [
+      {
+        "sku": "AF-ANC-12",
+        "description": "Wedge anchor 1/2 x 4in, box of 25",
+        "quantity": 60.0,
+        "unit_price": 44.52,
+        "amount": 2671.2
+      }
+    ],
+    "subtotal": 2671.2,
+    "tax_amount": 200.34,
+    "tax_rate_pct": 7.5,
+    "tax_included_in_prices": false,
+    "freight": null,
+    "total": {
+      "value": "2871.54",
+      "page": 1,
+      "source_quote": "Total Due $2,871.54"
+    },
+    "remit_bank_name": "Lone Star Commerce Bank",
+    "remit_routing_number": {
+      "value": "113004218",
+      "page": 1,
+      "source_quote": "ABA Routing 113004218"
+    },
+    "remit_account_number": {
+      "value": "582033194712",
+      "page": 1,
+      "source_quote": "Account 582033194712"
+    },
+    "notes": "Thank you for your business."
+  }
+}

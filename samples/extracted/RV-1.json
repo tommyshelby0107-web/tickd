@@ -1,0 +1,71 @@
+{
+  "scenario": "RV-1",
+  "model": "gemini-3.6-flash",
+  "seconds": 19.26,
+  "input_tokens": 500,
+  "output_tokens": 578,
+  "pages": [
+    {
+      "number": 1,
+      "source": "text-layer",
+      "ocr_confidence": null
+    }
+  ],
+  "data": {
+    "vendor_name": {
+      "value": "Coastal Packaging Corp.",
+      "page": 1,
+      "source_quote": "Coastal Packaging Corp."
+    },
+    "vendor_tax_id": null,
+    "invoice_number": {
+      "value": null,
+      "page": null,
+      "source_quote": null
+    },
+    "invoice_date": {
+      "value": null,
+      "page": null,
+      "source_quote": null
+    },
+    "due_date": null,
+    "currency": "USD",
+    "po_number": {
+      "value": "PO-4507",
+      "page": 1,
+      "source_quote": "Your PO PO-4507"
+    },
+    "po_hint": null,
+    "lines": [
+      {
+        "sku": "CP-BOX-24",
+        "description": "Corrugated box 24x18x18, bundle of 20",
+        "quantity": 50.0,
+        "unit_price": 56.0,
+        "amount": 2800.0
+      }
+    ],
+    "subtotal": 2800.0,
+    "tax_amount": 210.0,
+    "tax_rate_pct": 7.5,
+    "tax_included_in_prices": false,
+    "freight": null,
+    "total": {
+      "value": "3010.00",
+      "page": 1,
+      "source_quote": "Balance Due $3,010.00"
+    },
+    "remit_bank_name": "Puget Mercantile Bank",
+    "remit_routing_number": {
+      "value": "125008211",
+      "page": 1,
+      "source_quote": "Routing 125008211"
+    },
+    "remit_account_number": {
+      "value": "219930067418",
+      "page": 1,
+      "source_quote": "Account 219930067418"
+    },
+    "notes": "Payment by wire or ACH: Puget Mercantile Bank | Routing 125008211 | Account 219930067418"
+  }
+}

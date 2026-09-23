@@ -1,0 +1,85 @@
+{
+  "scenario": "HP-2",
+  "model": "gemini-3.6-flash",
+  "seconds": 12.8,
+  "input_tokens": 578,
+  "output_tokens": 768,
+  "pages": [
+    {
+      "number": 1,
+      "source": "text-layer",
+      "ocr_confidence": null
+    }
+  ],
+  "data": {
+    "vendor_name": {
+      "value": "Coastal Packaging Corp.",
+      "page": 1,
+      "source_quote": "Coastal Packaging Corp."
+    },
+    "vendor_tax_id": null,
+    "invoice_number": {
+      "value": "CPK-88214",
+      "page": 1,
+      "source_quote": "Bill Number CPK-88214"
+    },
+    "invoice_date": {
+      "value": "2026-09-16",
+      "page": 1,
+      "source_quote": "Date 09/16/2026"
+    },
+    "due_date": null,
+    "currency": "USD",
+    "po_number": {
+      "value": "PO-4502",
+      "page": 1,
+      "source_quote": "Your PO PO-4502"
+    },
+    "po_hint": null,
+    "lines": [
+      {
+        "sku": "CP-BOX-18",
+        "description": "Corrugated box 18x12x12, bundle of 25",
+        "quantity": 80.0,
+        "unit_price": 41.0,
+        "amount": 3280.0
+      },
+      {
+        "sku": "CP-TAPE-48",
+        "description": "Packing tape 48mm, case of 36",
+        "quantity": 20.0,
+        "unit_price": 64.0,
+        "amount": 1280.0
+      },
+      {
+        "sku": "CP-WRAP-20",
+        "description": "Stretch wrap 20in x 1500ft, case of 4",
+        "quantity": 100.0,
+        "unit_price": 80.96,
+        "amount": 8096.0
+      }
+    ],
+    "subtotal": 12656.0,
+    "tax_amount": 949.2,
+    "tax_rate_pct": 7.5,
+    "tax_included_in_prices": false,
+    "freight": 45.0,
+    "total": {
+      "value": "13650.20",
+      "page": 1,
+      "source_quote": "Balance Due $13,650.20"
+    },
+    "remit_bank_name": "Puget Mercantile Bank",
+    "remit_routing_number": {
+      "value": "125008211",
+      "page": 1,
+      "source_quote": "Routing 125008211"
+    },
+    "remit_account_number": {
+      "value": "219930067418",
+      "page": 1,
+      "source_quote": "Account 219930067418"
+    },
+    "notes": "Payment by wire or ACH: Puget Mercantile Bank | Routing 125008211 | Account 219930067418"
+  }
+}
