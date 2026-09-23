@@ -5,6 +5,7 @@ Every scenario runs on a fresh copy of the seed data, so the order of scenarios 
   python scripts/evaluate.py holdout truth    # rules only: perfect extraction from ground truth, no API calls
   python scripts/evaluate.py holdout live     # the real thing: text/OCR + LLM + rules (saves extractions)
   python scripts/evaluate.py demo cached      # reuse saved LLM extractions, no API calls
+  python scripts/evaluate.py holdout live T-11   # just one scenario
 """
 import json
 import sys
@@ -43,8 +44,8 @@ def run_item(item: dict, mode: str, by_id: dict) -> dict:
     return result
 
 
-def main(set_name: str, mode: str) -> None:
-    items = [i for i in sample_files() if i["set"] == set_name]
+def main(set_name: str, mode: str, only: list[str]) -> None:
+    items = [i for i in sample_files() if i["set"] == set_name and (not only or i["scenario"] in only)]
     by_id = {i["scenario"]: i for i in sample_files()}
     config.STAGE_PAUSE_S = 0
     rows, field_totals, field_runs = [], {}, 0
@@ -77,9 +78,10 @@ def main(set_name: str, mode: str) -> None:
     report = {"set": set_name, "mode": mode, "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
               "decisions_correct": correct, "total": len(rows), "field_accuracy": field_totals,
               "field_runs": field_runs, "rows": rows}
-    out = sample_files()[0]["path"].parents[1] if set_name == "demo" else ROOT / "samples" / "holdout"
-    (out / f"report_{mode}.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+    if not only:    # partial runs are for spot checks; only full runs replace the saved report
+        out = ROOT / "samples" / ("holdout" if set_name == "holdout" else "")
+        (out / f"report_{mode}.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else "holdout", sys.argv[2] if len(sys.argv) > 2 else "truth")
+    main(sys.argv[1] if len(sys.argv) > 1 else "holdout", sys.argv[2] if len(sys.argv) > 2 else "truth", sys.argv[3:])

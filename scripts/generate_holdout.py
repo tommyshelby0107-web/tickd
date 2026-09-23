@@ -3,7 +3,8 @@
 The demo set (samples/invoices) was used while building the rules. This set is only for testing, so its
 results show how the system copes with invoices it has not seen - the question an interviewer will ask.
 
-Run:  python scripts/generate_holdout.py
+Run:  python scripts/generate_holdout.py          (rebuild all)
+      python scripts/generate_holdout.py T-11     (add or replace one scenario, keep the others as they are)
 """
 import json
 import sys
@@ -18,6 +19,13 @@ import generate_invoices as g  # noqa: E402  (reuse data model, drawing helpers 
 from generate_invoices import BILL_TO, H, M, SHIP_TO, W, InvoiceSpec, Line, from_po, money  # noqa: E402
 
 OUT = g.ROOT / "samples" / "holdout" / "invoices"
+
+NORTHGATE = {  # not in the vendor master on purpose - and nothing else on its invoice is either
+    "vendor_id": None, "name": "Northgate Industrial Solutions LLC", "address": "455 Industrial Blvd, Newark, NJ 07105",
+    "phone_on_file": "(973) 555-0164", "email": "ar@northgateis.example", "tax_id": "47-8812053",
+    "payment_terms": "Net 15", "bank_name": "Liberty Harbor Bank", "bank_routing": "021214891",
+    "bank_account": "440187723309",
+}
 
 PINNACLE = {  # not in the vendor master on purpose
     "vendor_id": None, "name": "Pinnacle Office Supply", "address": "77 Commerce Street, Dayton, OH 45402",
@@ -286,16 +294,33 @@ def holdout_specs() -> list[InvoiceSpec]:
             expected={"decision": "Review", "owner": "AP", "rules": ["V-06"],
                       "note": "A credit note is not a bill to pay; it must be applied against the vendor balance."},
         ),
+        InvoiceSpec(
+            scenario="T-11", title="No master data at all: unknown vendor, unknown PO, unknown items",
+            vendor_id="", vendor_info=NORTHGATE, layout="ledger", invoice_number="NIS-24071",
+            invoice_date=date(2026, 9, 21), po_ref="PO-9981",
+            lines=[Line("NG-GLV-NTR", "Nitrile gloves, box of 100", 50, Decimal("11.80")),
+                   Line("NG-TAPE-FL", "Floor marking tape, yellow, 3in", 24, Decimal("18.40")),
+                   Line("NG-CONE-28", "Traffic cone, 28in", 12, Decimal("21.75"))],
+            expected={"decision": "Review", "owner": "Procurement", "rules": ["VM-01", "P-01"],
+                      "note": "Vendor, PO and items are all absent from master data: nothing can be verified, so it "
+                              "must not be paid until procurement confirms the vendor and the order."},
+        ),
     ]
 
 
-def main() -> None:
-    manifest = g.build(holdout_specs(), OUT, HOLDOUT_LAYOUTS)
-    for item in manifest:
+def main(only: list[str]) -> None:
+    """No arguments: rebuild the whole set. With scenario ids: add or replace just those, leave the rest untouched."""
+    manifest_path = OUT.parent / "manifest.json"
+    specs = [s for s in holdout_specs() if not only or s.scenario in only]
+    built = g.build(specs, OUT, HOLDOUT_LAYOUTS, clean=not only)
+    for item in built:
         item["set"] = "holdout"
-    (OUT.parent / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-    print(f"\n{len(manifest)} held-out invoices written to {OUT}")
+    if only and manifest_path.exists():
+        kept = [m for m in json.loads(manifest_path.read_text(encoding="utf-8")) if m["scenario"] not in only]
+        built = sorted(kept + built, key=lambda m: m["scenario"])
+    manifest_path.write_text(json.dumps(built, indent=2), encoding="utf-8")
+    print(f"\n{len(built)} held-out invoices in {OUT}")
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

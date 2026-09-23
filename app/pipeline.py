@@ -84,7 +84,8 @@ def run_invoice(pdf_path: Path, run_id: str | None = None, listener: Listener | 
             emit(key, "running", "Checking")
             summary, found = check(ctx)
             result["findings"] += [asdict(f) for f in found]
-            worst = max((f.outcome for f in found), key=SEVERITY.index, default=PASS)
+            # a stage with no findings did not run its checks (e.g. no PO to match): show it as skipped, not passed
+            worst = max((f.outcome for f in found), key=SEVERITY.index) if found else "skipped"
             time.sleep(config.STAGE_PAUSE_S)
             emit(key, worst, summary, {"findings": [asdict(f) for f in found]})
 

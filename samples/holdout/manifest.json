@@ -662,5 +662,65 @@
       "remit_account": "582033194712"
     },
     "set": "holdout"
+  },
+  {
+    "scenario": "T-11",
+    "title": "No master data at all: unknown vendor, unknown PO, unknown items",
+    "file": "T-11_northgate_NIS-24071.pdf",
+    "type": "digital",
+    "vendor_id": "",
+    "layout": "ledger",
+    "expected": {
+      "decision": "Review",
+      "owner": "Procurement",
+      "rules": [
+        "VM-01",
+        "P-01"
+      ],
+      "note": "Vendor, PO and items are all absent from master data: nothing can be verified, so it must not be paid until procurement confirms the vendor and the order."
+    },
+    "ground_truth": {
+      "vendor_name": "Northgate Industrial Solutions LLC",
+      "invoice_number": "NIS-24071",
+      "invoice_number_as_printed": "NIS-24071",
+      "invoice_date": "2026-09-21",
+      "due_date": "2026-10-06",
+      "po_number": "PO-9981",
+      "po_hint": null,
+      "document_type": "invoice",
+      "lines": [
+        {
+          "sku": "NG-GLV-NTR",
+          "description": "Nitrile gloves, box of 100",
+          "qty": 50,
+          "unit_price": "11.80",
+          "amount": "590.00"
+        },
+        {
+          "sku": "NG-TAPE-FL",
+          "description": "Floor marking tape, yellow, 3in",
+          "qty": 24,
+          "unit_price": "18.40",
+          "amount": "441.60"
+        },
+        {
+          "sku": "NG-CONE-28",
+          "description": "Traffic cone, 28in",
+          "qty": 12,
+          "unit_price": "21.75",
+          "amount": "261.00"
+        }
+      ],
+      "subtotal": "1292.60",
+      "tax_rate": "0.075",
+      "tax_included": false,
+      "tax": "96.95",
+      "freight": "0",
+      "total": "1389.55",
+      "remit_bank": "Liberty Harbor Bank",
+      "remit_routing": "021214891",
+      "remit_account": "440187723309"
+    },
+    "set": "holdout"
   }
 ]

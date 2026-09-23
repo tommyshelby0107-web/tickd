@@ -659,12 +659,14 @@ def ground_truth(inv: InvoiceSpec) -> dict:
     }
 
 
-def build(specs: list[InvoiceSpec], out_dir: Path, layouts: dict | None = None) -> list[dict]:
-    """Draw every spec to a PDF in out_dir (scans degraded) and return the manifest entries."""
+def build(specs: list[InvoiceSpec], out_dir: Path, layouts: dict | None = None, clean: bool = True) -> list[dict]:
+    """Draw every spec to a PDF in out_dir (scans degraded) and return the manifest entries.
+    clean=False leaves other PDFs in out_dir untouched (used to add one scenario to an existing set)."""
     layouts = {**LAYOUTS, **(layouts or {})}
     out_dir.mkdir(parents=True, exist_ok=True)
-    for old in out_dir.glob("*.pdf"):
-        old.unlink()
+    if clean:
+        for old in out_dir.glob("*.pdf"):
+            old.unlink()
     manifest = []
     for i, inv in enumerate(specs):
         path = out_dir / inv.file_name

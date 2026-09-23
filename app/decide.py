@@ -5,6 +5,9 @@ from .rules import NOTE, PASS, REJECT, RETURN, REVIEW, Context, Finding
 AP_EMAIL = "ap@meridian.example"
 
 NEXT_STEP = {
+    "VM-03": "Do not pay. The AP lead must call the vendor on the number on file and log the result before release.",
+    "P-02": "Do not pay. Ask the PO's real vendor, on the number on file, whether they sent this invoice. If not, "
+            "reject it and alert IT security.",
     "V-06": "Do not pay. Apply the credit against the vendor's open invoices and file it with the original invoice.",
     "P-04": "Confirm the suggested PO is correct, then approve.",
     "P-01": "Find the right PO with the buyer, or route for non-PO approval.",
@@ -58,8 +61,7 @@ def decide(findings: list[Finding], ctx: Context) -> dict:
         outcome, owner, severity = "Review", first.owner or "AP", "high" if high else "normal"
         others = len(by[REVIEW]) - 1
         summary = f"Held for {owner} review. {first.message}" + (f" Plus {others} other issue(s)." if others else "")
-        next_action = ("Do not pay. The AP lead must call the vendor on the number on file and log the result before "
-                       "release." if high else NEXT_STEP.get(first.rule, "Review the findings and decide."))
+        next_action = NEXT_STEP.get(first.rule, "Review the findings and decide.")
         message = _review_message(by[REVIEW], owner, vendor, number)
     else:
         outcome, owner, severity = "Approve", None, "normal"

@@ -279,9 +279,18 @@ def po_match(ctx: Context) -> tuple[str, list[Finding]]:
             return f"{ref} not found", found
         ctx.po = po
         found.append(Finding("P-01", PASS, f"{ref} found in the PO register."))
-        if ctx.vendor and po["vendor_id"] != ctx.vendor["vendor_id"]:
-            found.append(Finding("P-02", REVIEW, f"{ref} belongs to vendor {po['vendor_id']}, not "
-                                                 f"{ctx.vendor['vendor_id']}.", owner="AP"))
+        owner_vendor = next(v for v in db.vendors() if v["vendor_id"] == po["vendor_id"])
+        if not ctx.vendor:
+            # An unknown company quoting one of OUR real PO numbers is how impersonation fraud starts.
+            found.append(Finding(
+                "P-02", REVIEW,
+                f"{ref} belongs to {owner_vendor['name']}, but this invoice is from '{inv.vendor_name.value}', who is not "
+                f"in the vendor master. Possible impersonation: confirm with {owner_vendor['name']} on "
+                f"{owner_vendor['phone_on_file']} (number on file) before anything is paid.",
+                owner="AP lead", severity="high", details={"po_vendor": owner_vendor["vendor_id"]}))
+        elif po["vendor_id"] != ctx.vendor["vendor_id"]:
+            found.append(Finding("P-02", REVIEW, f"{ref} belongs to {owner_vendor['name']}, not "
+                                                 f"{ctx.vendor['name']}.", owner="AP"))
         else:
             found.append(Finding("P-02", PASS, "PO belongs to this vendor."))
         if po["status"] != "Open":
@@ -365,6 +374,8 @@ def line_match(ctx: Context) -> tuple[str, list[Finding]]:
     if unmatched:
         found.append(Finding("M-00", REVIEW, f"{len(unmatched)} line(s) are not on {po['po_number']}: "
                                              f"{'; '.join(unmatched)}.", owner="Buyer"))
+    if not ctx.line_matches:    # nothing to compare: say so, rather than report prices and quantities as "passed"
+        return f"0 of {len(inv.lines)} lines match {po['po_number']}; price and quantity checks not applicable", found
 
     tol = POLICY["price_tolerance_pct"]
     variances = [(m, (m["unit_price_net"] - m["po_unit_price"]) / m["po_unit_price"] * 100) for m in ctx.line_matches]

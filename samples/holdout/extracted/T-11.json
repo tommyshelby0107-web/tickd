@@ -1,0 +1,84 @@
+{
+  "scenario": "T-11",
+  "model": "gemini-flash-lite-latest",
+  "seconds": 64.66,
+  "input_tokens": 647,
+  "output_tokens": 761,
+  "image_pages": [],
+  "fallbacks": [
+    "gemini-3.6-flash: busy (429)",
+    "gemini-3.5-flash-lite: busy (504)"
+  ],
+  "data": {
+    "document_type": "invoice",
+    "vendor_name": {
+      "value": "NORTHGATE INDUSTRIAL SOLUTIONS LLC",
+      "page": 1,
+      "source_quote": "NORTHGATE INDUSTRIAL SOLUTIONS LLC INVOICE"
+    },
+    "vendor_tax_id": "47-8812053",
+    "invoice_number": {
+      "value": "NIS-24071",
+      "page": 1,
+      "source_quote": "Invoice # NIS-24071"
+    },
+    "invoice_date": {
+      "value": "2026-09-21",
+      "page": 1,
+      "source_quote": "21-Sep-2026"
+    },
+    "due_date": "2026-10-06",
+    "currency": "USD",
+    "po_number": {
+      "value": "PO-9981",
+      "page": 1,
+      "source_quote": "Customer PO PO-9981"
+    },
+    "po_hint": null,
+    "lines": [
+      {
+        "sku": "NG-GLV-NTR",
+        "description": "Nitrile gloves, box of 100",
+        "quantity": 50.0,
+        "unit_price": 11.8,
+        "amount": 590.0
+      },
+      {
+        "sku": "NG-TAPE-FL",
+        "description": "Floor marking tape, yellow, 3in",
+        "quantity": 24.0,
+        "unit_price": 18.4,
+        "amount": 441.6
+      },
+      {
+        "sku": "NG-CONE-28",
+        "description": "Traffic cone, 28in",
+        "quantity": 12.0,
+        "unit_price": 21.75,
+        "amount": 261.0
+      }
+    ],
+    "subtotal": 1292.6,
+    "tax_amount": 96.95,
+    "tax_rate_pct": 7.5,
+    "tax_included_in_prices": false,
+    "freight": null,
+    "total": {
+      "value": "1389.55",
+      "page": 1,
+      "source_quote": "INVOICE TOTAL $1,389.55"
+    },
+    "remit_bank_name": "Liberty Harbor Bank",
+    "remit_routing_number": {
+      "value": "021214891",
+      "page": 1,
+      "source_quote": "Routing 021214891"
+    },
+    "remit_account_number": {
+      "value": "440187723309",
+      "page": 1,
+      "source_quote": "Account 440187723309"
+    },
+    "notes": "Please quote the invoice number with payment."
+  }
+}

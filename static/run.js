@@ -174,15 +174,19 @@ function renderDecision(run) {
       <div class="message-box" id="draft">Subject: ${esc(d.message.subject)}\n\n${esc(d.message.body)}</div>
       <button class="btn btn-sm" style="margin-top:8px" onclick="copyDraft()">Copy</button>
     </details>` : "";
+  // Approval needs a known vendor and a matched PO; without them the only safe choices are return or reject.
+  const canApprove = Boolean(r.vendor && r.po);
   const reviewForm = held ? `
     <div style="margin-top:16px">
       <div style="font-weight:600;margin-bottom:6px">Resolve this invoice</div>
       <textarea id="reason" placeholder="Reason (required) — e.g. Confirmed PO-4504 with buyer Dana Whitfield"></textarea>
       <div class="actions">
-        <button class="btn btn-primary" onclick="review('approve')">${icon("check", 16)} Approve</button>
+        <button class="btn btn-primary" onclick="review('approve')" ${canApprove ? "" : "disabled"}
+          title="${canApprove ? "" : "Needs a known vendor and a matched PO: onboard the vendor or fix the PO first"}">${icon("check", 16)} Approve</button>
         <button class="btn" onclick="review('return')">Return to vendor</button>
         <button class="btn btn-danger" onclick="review('reject')">${icon("x", 16)} Reject</button>
       </div>
+      ${canApprove ? "" : '<div class="muted" style="font-size:12.5px;margin-top:6px">Approve is unavailable: there is no known vendor and matched PO to approve against.</div>'}
     </div>` : "";
   const resolved = run.review_actions.length ? `
     <div class="callout" style="margin-top:12px">${run.review_actions.map((a) =>

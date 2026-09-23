@@ -54,6 +54,7 @@ how the system copes with invoices it has not seen. Regenerate with `scripts\gen
 | T-08 | Vendor not in the vendor master (scanned) | Review (Procurement) |
 | T-09 | Fax-grade scan of a clean invoice | Approve, or a low-confidence Review |
 | T-10 | Credit note | Review (AP): never paid as a bill |
+| T-11 | No master data at all: unknown vendor, PO-9981 not in the register, unknown items | Review (Procurement); Approve disabled |
 
 ```powershell
 & $py scripts\evaluate.py holdout truth    # rules only, perfect extraction, no API calls
