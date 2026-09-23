@@ -1,0 +1,26 @@
+# Approval policy. Business-owned thresholds; change here, not in code.
+version: 1
+
+# Matching tolerances
+price_tolerance_pct: 2.0        # M-01: each line's unit price vs PO price
+header_tolerance_pct: 2.0       # M-04: invoice subtotal vs PO value of what was billed
+header_tolerance_abs: 250.00    # M-04 / M-03: absolute cap on any variance
+unplanned_charges_max: 75.00    # M-05: freight or fees not on the PO
+
+# Validation
+arithmetic_tolerance: 0.01      # V-02: lines vs subtotal, subtotal + tax + freight vs total
+tax_rate_tolerance_pp: 0.25     # V-04: percentage points from the vendor's expected rate
+max_invoice_age_days: 365       # V-03
+
+# Reading confidence
+ocr_confidence_min: 80          # V-05: OCR confidence needed on critical fields
+ocr_image_fallback_below: 70    # pages below this also go to the LLM as an image
+
+# Vendor and duplicate matching
+vendor_name_match_min: 90       # VM-01: fuzzy name score 0-100
+near_duplicate_amount: 1.00     # D-03: totals within this many dollars
+near_duplicate_days: 14         # D-03: invoice dates within this many days
+
+# PO inference (invoice has no PO number)
+po_inference_min_score: 0.80    # P-04: best candidate must score at least this
+po_inference_min_gap: 0.15      # ...and beat the runner-up by this much
