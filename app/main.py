@@ -284,6 +284,9 @@ def review_run(run_id: str, body: ReviewAction):
     if body.action == "approve":
         if not (result.get("vendor") and result.get("po")):
             raise HTTPException(409, "Cannot approve without a matched vendor and PO.")
+        if "V-07" in result["decision"]["reasons"]:
+            raise HTTPException(409, "Cannot approve an invoice in another currency than its PO: the PO ledger "
+                                     "would mix currencies.")
         db.record_approval(run_id, result["vendor"]["vendor_id"], result["invoice"], result["po"],
                            result.get("line_matches", []), result["file_hash"])
     db.record_review(run_id, REVIEW_OUTCOMES[body.action], body.reason.strip())

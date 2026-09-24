@@ -11,7 +11,7 @@ import re
 from datetime import datetime
 
 from . import db
-from .normalize import invoice_key, po_key
+from .normalize import detect_currency, invoice_key, po_key
 from .schema import InvoiceData, LineItem, Sourced
 from .text import PageText
 
@@ -97,7 +97,7 @@ def parse_invoice(pages: list[PageText]) -> tuple[InvoiceData | None, list[str]]
         invoice_number=_sourced(number),
         invoice_date=_sourced(issued),
         due_date=_sourced(due),
-        currency="USD" if "$" in all_text or "USD" in all_text else None,
+        currency=detect_currency(all_text),
         po_number=_sourced(po),
         po_hint=hint,
         lines=items,

@@ -180,19 +180,21 @@ function renderDecision(run) {
       <div class="message-box" id="draft">Subject: ${esc(d.message.subject)}\n\n${esc(d.message.body)}</div>
       <button class="btn btn-sm" style="margin-top:8px" onclick="copyDraft()">Copy</button>
     </details>` : "";
-  // Approval needs a known vendor and a matched PO; without them the only safe choices are return or reject.
-  const canApprove = Boolean(r.vendor && r.po);
+  // Approval needs a known vendor, a matched PO and the PO's currency; otherwise the only safe choices are return or reject.
+  const blocker = !(r.vendor && r.po) ? "there is no known vendor and matched PO to approve against"
+    : d.reasons.includes("V-07") ? `the invoice is in ${r.invoice.currency}, a different currency from its PO`
+    : null;
   const reviewForm = held ? `
     <div style="margin-top:16px">
       <div style="font-weight:600;margin-bottom:6px">Resolve this invoice</div>
       <textarea id="reason" placeholder="Reason (required) — e.g. Confirmed PO-4504 with buyer Dana Whitfield"></textarea>
       <div class="actions">
-        <button class="btn btn-primary" onclick="review('approve')" ${canApprove ? "" : "disabled"}
-          title="${canApprove ? "" : "Needs a known vendor and a matched PO: onboard the vendor or fix the PO first"}">${icon("check", 16)} Approve</button>
+        <button class="btn btn-primary" onclick="review('approve')" ${blocker ? "disabled" : ""}
+          title="${blocker ? `Approve is unavailable: ${esc(blocker)}` : ""}">${icon("check", 16)} Approve</button>
         <button class="btn" onclick="review('return')">Return to vendor</button>
         <button class="btn btn-danger" onclick="review('reject')">${icon("x", 16)} Reject</button>
       </div>
-      ${canApprove ? "" : '<div class="muted" style="font-size:12.5px;margin-top:6px">Approve is unavailable: there is no known vendor and matched PO to approve against.</div>'}
+      ${blocker ? `<div class="muted" style="font-size:12.5px;margin-top:6px">Approve is unavailable: ${esc(blocker)}.</div>` : ""}
     </div>` : "";
   const resolved = run.review_actions.length ? `
     <div class="callout" style="margin-top:12px">${run.review_actions.map((a) =>
@@ -248,12 +250,14 @@ function renderFields(r) {
     ? `${esc(s.value)}${s.source_quote ? `<div class="quote">“${esc(s.source_quote)}”${s.page ? ` · page ${s.page}` : ""}</div>` : ""}`
     : '<span class="muted">not printed</span>';
   const plain = (v) => (v === null || v === undefined || v === "" ? '<span class="muted">—</span>' : esc(v));
+  const cur = (r.invoice && r.invoice.currency) || x.currency;
   const rows = [
     ["Vendor", src(x.vendor_name)], ["Invoice number", src(x.invoice_number)], ["Invoice date", src(x.invoice_date)],
     ["Due date", src(x.due_date)], ["PO number", src(x.po_number)], ["Order reference", plain(x.po_hint)],
-    ["Subtotal", plain(x.subtotal !== null ? money(x.subtotal) : null)],
-    ["Tax", plain(x.tax_amount !== null ? `${money(x.tax_amount)}${x.tax_rate_pct !== null ? ` (${x.tax_rate_pct}%)` : ""}` : null)],
-    ["Freight", plain(x.freight ? money(x.freight) : null)], ["Total", src(x.total)],
+    ["Currency", plain(x.currency ? `${x.currency} (as printed, not converted)` : cur ? `${cur} (none printed)` : null)],
+    ["Subtotal", plain(x.subtotal !== null ? money(x.subtotal, cur) : null)],
+    ["Tax", plain(x.tax_amount !== null ? `${money(x.tax_amount, cur)}${x.tax_rate_pct !== null ? ` (${x.tax_rate_pct}%)` : ""}` : null)],
+    ["Freight", plain(x.freight ? money(x.freight, cur) : null)], ["Total", src(x.total)],
     ["Remit-to bank", plain(x.remit_bank_name)], ["Routing", src(x.remit_routing_number)],
     ["Account", src(x.remit_account_number)], ["Notes on invoice", plain(x.notes)],
   ];
@@ -266,7 +270,7 @@ function renderFields(r) {
     <h2 style="margin:18px 0 8px">Lines on the invoice</h2>
     <table><thead><tr><th>SKU</th><th>Description</th><th class="num">Qty</th><th class="num">Unit price</th><th class="num">Amount</th></tr></thead>
     <tbody>${x.lines.map((l) => `<tr><td class="mono">${esc(l.sku || "—")}</td><td>${esc(l.description)}</td>
-      <td class="num">${l.quantity}</td><td class="num">${money(l.unit_price)}</td><td class="num">${money(l.amount)}</td></tr>`).join("")}</tbody></table>
+      <td class="num">${l.quantity}</td><td class="num">${money(l.unit_price, cur)}</td><td class="num">${money(l.amount, cur)}</td></tr>`).join("")}</tbody></table>
     <p class="muted" style="margin-top:12px;font-size:12.5px">Read by ${esc(ext.model || "—")}
       ${ext.input_tokens ? ` · ${ext.input_tokens} + ${ext.output_tokens} tokens` : ""}
       ${ext.fallbacks && ext.fallbacks.length ? ` · skipped: ${esc(ext.fallbacks.join("; "))}` : ""}</p>`;

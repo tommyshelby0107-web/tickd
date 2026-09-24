@@ -136,7 +136,7 @@ function render(b) {
     return `<tr class="clickable" onclick="location.href='/runs/${esc(r.run_id)}'">
       <td class="muted">${i + 1}</td><td>${esc(r.file_name)}</td><td>${status}</td>
       <td>${esc(r.vendor_name || "—")}</td><td class="nowrap">${esc(r.invoice_number || "—")}</td>
-      <td class="num">${money(r.total)}</td>
+      <td class="num">${money(r.total, r.currency)}</td>
       <td class="muted" style="max-width:360px;font-size:13px">${esc(why)}</td>
       <td class="num">${r.seconds ? `${r.seconds}s` : "—"}</td></tr>`;
   }).join("");

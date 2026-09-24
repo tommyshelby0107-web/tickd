@@ -1,6 +1,37 @@
 """Small helpers that turn messy printed values into comparable keys."""
 import re
+from collections import Counter
 from datetime import date
+
+from .config import POLICY
+
+BASE_CURRENCY = POLICY["base_currency"]
+SYMBOLS = {"USD": "$", "INR": "₹", "EUR": "€", "GBP": "£", "CAD": "C$", "AUD": "A$"}
+PRINTED_CURRENCY = {        # how each currency shows up on an invoice
+    "USD": r"\bUSD\b|US\$|(?<![A-Z])\$",
+    "INR": r"\bINR\b|₹|\bRs\.?\s?(?=\d)|\bRupees?\b",
+    "EUR": r"\bEUR\b|€",
+    "GBP": r"\bGBP\b|£",
+    "CAD": r"\bCAD\b|C\$",
+    "AUD": r"\bAUD\b|A\$",
+}
+
+
+def detect_currency(text: str) -> str | None:
+    """The currency printed most often on the page, e.g. 'Rs 564.00' -> 'INR'. None if no currency is printed."""
+    counts = Counter({code: len(re.findall(pattern, text or "")) for code, pattern in PRINTED_CURRENCY.items()})
+    code, n = counts.most_common(1)[0]
+    return code if n else None
+
+
+CURRENCY_ALIASES = {"$": "USD", "US$": "USD", "₹": "INR", "RS": "INR", "RS.": "INR", "RUPEE": "INR", "RUPEES": "INR",
+                    "€": "EUR", "£": "GBP", "C$": "CAD", "A$": "AUD"}
+
+
+def currency_code(value: str | None) -> str | None:
+    """'Rs', '₹', 'inr' -> 'INR'; '$' -> 'USD'. Other three-letter codes are kept as they are."""
+    value = (value or "").strip().upper()
+    return CURRENCY_ALIASES.get(value) or (value if re.fullmatch(r"[A-Z]{3}", value) else None)
 
 
 def invoice_key(number: str | None) -> str | None:
@@ -39,10 +70,14 @@ def parse_date(value: str | None) -> date | None:
         return None
 
 
-def money(value: float | None) -> str:
+def money(value: float | None, currency: str | None = None) -> str:
+    """Format in the invoice's own currency: never converted. No currency printed means the base currency."""
     if value is None:
         return "n/a"
-    return f"-${abs(value):,.2f}" if value < 0 else f"${value:,.2f}"
+    code = currency or BASE_CURRENCY
+    symbol = SYMBOLS.get(code)
+    amount = f"{symbol}{abs(value):,.2f}" if symbol else f"{code} {abs(value):,.2f}"
+    return f"-{amount}" if value < 0 else amount
 
 
 def squash(text: str | None) -> str:

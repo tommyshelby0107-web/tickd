@@ -54,6 +54,11 @@ Every check produces a **Finding**: `rule`, `outcome` (pass / note / review / re
   only an AI that looks at the image can read it. With one such reader, its outage stops every photo. We saw it
   happen: the free Gemini tier was overloaded on all 8 models at once. Mistral is a different company, so the
   two rarely fail together.
+- **What happens to an invoice in rupees (V-07)?** Amounts are kept in the invoice's own currency and never
+  converted: the receipt shows ₹564.00, not $564. Our POs are in USD, so comparing ₹564 with a $564 PO line would
+  be meaningless: the price and PO-total checks are skipped (not "passed"), the invoice is held, and Approve is
+  blocked so rupees never enter a dollar ledger. The currency comes from what is printed ("Rs", "₹", "INR"); the
+  AI's answer is used only when the page text shows none.
 - **Why templates, not an LLM, for explanations?** One fewer API call per invoice, and the explanation can
   never say something the rules did not find.
 - **What would you do for a real client?** Paid LLM tier (free tiers may train on data), ERP API instead of

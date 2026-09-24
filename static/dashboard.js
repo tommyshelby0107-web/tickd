@@ -9,6 +9,7 @@ const RULE_NAMES = {
   "P-01": "No PO found", "P-02": "PO of other vendor", "P-03": "PO closed", "P-04": "PO inferred",
   "V-01": "Missing data", "V-02": "Arithmetic", "V-03": "Date", "V-04": "Tax rate", "V-05": "Low confidence",
   "V-06": "Credit note / not a bill",
+  "V-07": "Currency differs from PO",
   "X-00": "Could not process",
 };
 
@@ -46,7 +47,7 @@ async function load() {
     <tr class="clickable" onclick="location.href='/runs/${esc(r.run_id)}'">
       <td><b>${esc(r.invoice_number || "(no number)")}</b></td>
       <td>${esc(r.vendor_name || "—")}</td>
-      <td class="num">${money(r.total)}</td>
+      <td class="num">${money(r.total, r.currency)}</td>
       <td>${decisionPill(r.decision, r.severity, r.status)}</td>
       <td>${esc(r.owner || "—")}</td>
       <td class="muted" style="max-width:420px">${esc((r.summary || "").replace(/^Held for [^.]+ review\. /, ""))}</td>
@@ -61,7 +62,7 @@ async function load() {
       <td>${sourceCell(r)}</td>
       <td>${esc(r.vendor_name || "—")}</td>
       <td>${esc(r.invoice_number || "—")}</td>
-      <td class="num">${money(r.total)}</td>
+      <td class="num">${money(r.total, r.currency)}</td>
       <td>${decisionPill(r.decision, r.severity, r.status)}</td>
       <td class="num">${r.seconds ? `${r.seconds}s` : "—"}</td>
       <td class="muted">${timeAgo(r.queued_at)}</td>

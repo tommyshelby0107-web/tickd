@@ -1,6 +1,10 @@
 # Approval policy. Business-owned thresholds; change here, not in code.
 version: 1
 
+# The currency our POs, vendor master and tolerances are kept in. Invoices keep their own printed currency
+# (never converted); one in another currency is not compared with a PO (V-07).
+base_currency: USD
+
 # Matching tolerances
 price_tolerance_pct: 2.0        # M-01: each line's unit price vs PO price
 header_tolerance_pct: 2.0       # M-04: invoice subtotal vs PO value of what was billed

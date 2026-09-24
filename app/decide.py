@@ -21,6 +21,8 @@ NEXT_STEP = {
     "D-03": "Check whether this is a duplicate of the earlier invoice.",
     "VM-01": "Onboard the vendor through procurement, or reject.",
     "V-02": "Check the figures on the PDF and correct or return to vendor.",
+    "V-07": "Confirm the currency with the buyer: ask the vendor for an invoice in the PO's currency, or have "
+            "procurement set up the PO in the invoice's currency.",
     "V-04": "Confirm the tax rate with the vendor.",
     "V-05": "Check the highlighted fields against the PDF.",
 }
@@ -28,8 +30,8 @@ NEXT_STEP = {
 
 # When several issues fire, the one a reviewer should read first: fraud and duplicates, then whether the document
 # can be trusted at all (not an invoice, missing data, its own maths wrong), then over-billing, price, quantity...
-LEAD_PRIORITY = ["VM-03", "VM-04", "VM-02", "D-01", "D-02", "V-06", "D-03", "VM-01", "V-01", "V-02", "M-03", "M-01", "M-04",
-                 "M-02", "M-05", "M-00", "P-01", "P-02", "P-03", "P-04", "V-04", "V-05", "V-03"]
+LEAD_PRIORITY = ["VM-03", "VM-04", "VM-02", "D-01", "D-02", "V-06", "D-03", "VM-01", "V-01", "V-02", "V-07", "M-03", "M-01",
+                 "M-04", "M-02", "M-05", "M-00", "P-01", "P-02", "P-03", "P-04", "V-04", "V-05", "V-03"]
 
 
 def _priority(f: Finding) -> int:
@@ -68,7 +70,8 @@ def decide(findings: list[Finding], ctx: Context) -> dict:
         outcome, owner, severity = "Approve", None, "normal"
         po = ctx.po["po_number"] if ctx.po else "its PO"
         notes = f" {len(by[NOTE])} variance note(s) within tolerance." if by[NOTE] else ""
-        summary = f"Approved. {vendor} invoice {number} for {money(_float(total))} passed every check against {po}.{notes}"
+        summary = (f"Approved. {vendor} invoice {number} for {money(_float(total), ctx.currency)} passed every check "
+                   f"against {po}.{notes}")
         next_action = "Added to the approved list and the PO ledger was updated. Include in the next payment run."
         message = None
 
@@ -107,7 +110,7 @@ def _reject_message(first: Finding, vendor: str, number: str, ctx: Context) -> d
 def _return_message(first: Finding, vendor: str, number: str, total, ctx: Context) -> dict:
     missing = ", ".join(first.details.get("missing", [])) or "required information"
     po = f" referencing {ctx.invoice.po_number.value}" if ctx.invoice.po_number.value else ""
-    amount = f" for {money(_float(total))}" if _float(total) else ""
+    amount = f" for {money(_float(total), ctx.currency)}" if _float(total) else ""
     return {"to": ctx.vendor["email"] if ctx.vendor else "vendor",
             "subject": f"Invoice {number} - information needed",
             "body": f"Hello {vendor} accounts team,\n\nWe received your invoice{amount}{po}, but we cannot process it "

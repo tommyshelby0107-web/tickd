@@ -36,8 +36,15 @@ async function api(path, options = {}) {
   return res.json();
 }
 
-const money = (v) => (v === null || v === undefined || v === "" ? "—"
-  : Number(v).toLocaleString("en-US", { style: "currency", currency: "USD" }));
+// Amounts are shown in the invoice's own currency, never converted (no currency printed = USD, our base currency).
+const money = (v, currency) => {
+  if (v === null || v === undefined || v === "") return "—";
+  try {
+    return Number(v).toLocaleString("en-US", { style: "currency", currency: currency || "USD" });
+  } catch {
+    return `${currency} ${Number(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+};
 
 function timeAgo(iso) {
   if (!iso) return "—";

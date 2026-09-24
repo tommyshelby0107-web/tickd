@@ -12,7 +12,7 @@ from rapidfuzz import fuzz, utils
 from . import config, db
 from .config import POLICY
 from .extract import InvoiceData, LineItem, Sourced
-from .normalize import digits, invoice_key, money, parse_date, po_key, squash, to_float
+from .normalize import BASE_CURRENCY, digits, invoice_key, money, parse_date, po_key, squash, to_float
 from .text import PageText
 
 PASS, NOTE, REVIEW, RETURN, REJECT = "pass", "note", "review", "return", "reject"
@@ -41,6 +41,16 @@ class Context:
     line_matches: list[dict] = field(default_factory=list)
     is_credit: bool = False         # a credit note: never paid, so payment matching does not apply
     email_from: str | None = None   # sender address, when the invoice arrived by email
+
+    @property
+    def currency(self) -> str:
+        """The invoice's own printed currency (never converted); none printed means the base currency."""
+        return self.invoice.currency or BASE_CURRENCY
+
+    @property
+    def foreign_currency(self) -> bool:
+        """Our POs are in the base currency, so an invoice in another one cannot be compared with them."""
+        return self.currency != BASE_CURRENCY
 
 
 def similarity(a: str | None, b: str | None) -> float:
@@ -74,16 +84,17 @@ def validate(ctx: Context) -> tuple[str, list[Finding]]:
     else:
         subtotal_ok = abs(line_sum - subtotal) <= tol
         expected_total = round(subtotal + sign(inv.tax_amount or 0.0) + (inv.freight or 0.0), 2)
-    problems = [f"'{l.description}' amount {money(l.amount)} is not qty x price"
+    cur = ctx.currency
+    problems = [f"'{l.description}' amount {money(l.amount, cur)} is not qty x price"
                 for l in inv.lines if abs(abs(l.quantity * l.unit_price) - sign(l.amount)) > tol]
     if not subtotal_ok:
-        problems.append(f"lines add up to {money(line_sum)} but subtotal is {money(subtotal)}")
+        problems.append(f"lines add up to {money(line_sum, cur)} but subtotal is {money(subtotal, cur)}")
     if total is not None and abs(expected_total - total) > tol:
-        problems.append(f"subtotal + tax + freight = {money(expected_total)} but total is {money(total)}")
+        problems.append(f"subtotal + tax + freight = {money(expected_total, cur)} but total is {money(total, cur)}")
     if problems:
         found.append(Finding("V-02", REVIEW, "Arithmetic does not reconcile: " + "; ".join(problems) + ".", owner="AP"))
     else:
-        found.append(Finding("V-02", PASS, f"Lines, subtotal, tax and total reconcile to {money(total)}."))
+        found.append(Finding("V-02", PASS, f"Lines, subtotal, tax and total reconcile to {money(total, cur)}."))
 
     invoice_date = parse_date(inv.invoice_date.value)
     today = date.today()
@@ -98,8 +109,20 @@ def validate(ctx: Context) -> tuple[str, list[Finding]]:
 
     found.append(check_document_type(ctx))
     found.append(check_evidence(ctx))
+    found.append(check_currency(ctx))
     ok = sum(f.outcome == PASS for f in found)
     return f"{ok} of {len(found)} checks passed", found
+
+
+def check_currency(ctx: Context) -> Finding:
+    """V-07: amounts stay in the invoice's own currency. One in another currency than our POs is held, because
+    comparing Rs 564 with a $564 PO line would be meaningless."""
+    total = money(to_float(ctx.invoice.total.value), ctx.currency)
+    if not ctx.foreign_currency:
+        return Finding("V-07", PASS, f"Invoice is in {ctx.currency}, the currency of our POs.")
+    return Finding("V-07", REVIEW, f"Invoice is in {ctx.currency} ({total}), kept as printed and not converted. Our POs "
+                                   f"are in {BASE_CURRENCY}, so prices and totals were not compared with a PO.",
+                   owner="AP", details={"currency": ctx.currency, "base_currency": BASE_CURRENCY})
 
 
 CREDIT_WORDS = re.compile(r"\bcredit\s+(note|memo)\b", re.IGNORECASE)
@@ -117,7 +140,7 @@ def check_document_type(ctx: Context) -> Finding:
     inv = ctx.invoice
     total = to_float(inv.total.value)
     if ctx.is_credit:
-        return Finding("V-06", REVIEW, f"This is a credit note for {money(abs(total or 0))}, not a bill to pay. "
+        return Finding("V-06", REVIEW, f"This is a credit note for {money(abs(total or 0), ctx.currency)}, not a bill to pay. "
                                        "Apply it against the vendor's open invoices instead.", owner="AP",
                        details={"llm_type": inv.document_type, "total": total})
     if inv.document_type not in ("invoice", "", None):
@@ -341,6 +364,10 @@ def po_match(ctx: Context) -> tuple[str, list[Finding]]:
         found.append(Finding("P-01", REVIEW, "No PO number printed and the vendor is unknown, so no PO can be found.",
                              owner="AP"))
         return "No PO", found
+    if ctx.foreign_currency:     # inference weighs the amount; a Rs amount says nothing about a $ PO
+        found.append(Finding("P-01", REVIEW, f"No PO number printed, and a PO cannot be inferred from amounts in "
+                                             f"{ctx.currency}.", owner="AP"))
+        return "No PO", found
     candidates = sorted((_score_po(inv, po) for po in db.purchase_orders(ctx.vendor["vendor_id"], open_only=True)),
                         key=lambda c: c["score"], reverse=True)
     ctx.po_candidates = [{k: c[k] for k in ("po_number", "score", "line_similarity", "amount_fit")}
@@ -386,6 +413,8 @@ def line_match(ctx: Context) -> tuple[str, list[Finding]]:
         return "Skipped: a credit note is applied to the balance, not matched for payment", found
     if not po:
         return "Skipped: no PO to match against", found
+    if ctx.foreign_currency:
+        return f"Skipped: invoice in {ctx.currency}, {po['po_number']} in {BASE_CURRENCY}; amounts not compared (V-07)", found
 
     # PO prices are net of tax. If the invoice's prices include tax, compare them net of that tax.
     tax_note = ""

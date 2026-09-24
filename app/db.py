@@ -26,7 +26,7 @@ CREATE TABLE runs (
   run_id TEXT PRIMARY KEY, file_name TEXT, file_hash TEXT, status TEXT, decision TEXT, owner TEXT,
   severity TEXT, vendor_name TEXT, invoice_number TEXT, total REAL, summary TEXT, queued_at TEXT, started_at TEXT,
   finished_at TEXT, seconds REAL, result_json TEXT,
-  batch_id TEXT, source TEXT, source_detail TEXT, email_from TEXT);
+  batch_id TEXT, source TEXT, source_detail TEXT, email_from TEXT, currency TEXT);
 CREATE TABLE batches (
   batch_id TEXT PRIMARY KEY, name TEXT, source TEXT, created_at TEXT, total INTEGER, skipped_json TEXT);
 CREATE TABLE email_log (
@@ -81,6 +81,8 @@ def ensure() -> None:
     if config.DB_PATH.exists():
         with connect() as conn:
             columns = {row[1] for row in conn.execute("PRAGMA table_info(runs)")}
+            if "email_from" in columns and "currency" not in columns:     # added later: keep existing runs
+                conn.execute("ALTER TABLE runs ADD COLUMN currency TEXT")
         if "email_from" in columns:
             return
     reset()
@@ -189,10 +191,11 @@ def finish_run(run_id: str, result: dict) -> None:
     with connect() as conn:
         conn.execute(
             "UPDATE runs SET status = 'done', decision = ?, owner = ?, severity = ?, vendor_name = ?,"
-            " invoice_number = ?, total = ?, summary = ?, finished_at = ?, seconds = ?, result_json = ?"
+            " invoice_number = ?, total = ?, currency = ?, summary = ?, finished_at = ?, seconds = ?, result_json = ?"
             " WHERE run_id = ?",
             (d["outcome"], d.get("owner"), d.get("severity"), inv.get("vendor_name"), inv.get("number"),
-             inv.get("total"), d.get("summary"), now(), result.get("seconds"), json.dumps(result), run_id))
+             inv.get("total"), inv.get("currency"), d.get("summary"), now(), result.get("seconds"), json.dumps(result),
+             run_id))
 
 
 def add_event(run_id: str, stage: str, status: str, summary: str, data: dict | None = None) -> dict:
@@ -213,8 +216,8 @@ def run(run_id: str) -> dict | None:
     return out
 
 
-RUN_COLUMNS = ("run_id, file_name, status, decision, owner, severity, vendor_name, invoice_number, total, summary,"
-               " queued_at, started_at, seconds, batch_id, source, source_detail, email_from")
+RUN_COLUMNS = ("run_id, file_name, status, decision, owner, severity, vendor_name, invoice_number, total, currency,"
+               " summary, queued_at, started_at, seconds, batch_id, source, source_detail, email_from")
 
 
 def runs(limit: int = 200) -> list[dict]:

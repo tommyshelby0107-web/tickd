@@ -23,6 +23,7 @@ from pydantic import BaseModel, ValidationError
 
 from .config import (GEMINI_API_KEY, GEMINI_MODELS, GROQ_API_KEY, GROQ_MODELS, MISTRAL_API_KEY, MISTRAL_MODELS, POLICY,
                      PROVIDER_ORDER)
+from .normalize import currency_code, detect_currency
 from .parser import parse_invoice
 from .schema import InvoiceData, LineItem, Sourced  # noqa: F401  (re-exported for the rest of the app)
 from .text import PageText, as_prompt_text, page_png
@@ -40,6 +41,8 @@ Rules:
   7.5% sales tax of $138.60)"); then the tax is already inside the line amounts.
 - Dates: value as YYYY-MM-DD; source_quote as printed.
 - Money: plain numbers with no currency symbols or thousands separators. Keep minus signs as printed.
+- currency: the ISO code of the printed currency, never converted: USD for $, INR for Rs or ₹, EUR for €,
+  GBP for £. Null if no currency is printed.
 - document_type: "credit_note" if the document is a credit note or credit memo, "other" if it is not a bill
   (statement, quote, reminder), otherwise "invoice".
 - source_quote: a short snippet copied character-for-character from the page text, e.g. "Invoice No. INV-2026-0457".
@@ -100,6 +103,7 @@ def extract_invoice(pdf_path: Path, pages: list[PageText]) -> Extraction:
         _recover_printed_total(data)
         _infer_tax_included(data)
         _strip_number_label(data)
+        _printed_currency(data, pages)
         return Extraction(data, model, round(time.perf_counter() - started, 2), tokens_in, tokens_out,
                           image_pages, skipped)
     raise ExtractionError(" | ".join(skipped))      # 4) the pipeline turns this into a human review
@@ -225,6 +229,12 @@ def _mistral(prompt: str, pdf_path: Path, image_pages: list[int], skipped: list[
 PRINTED_PO = re.compile(r"\bP\.?\s?O\.?\s*(?:number|no\.?|#)?\s*[:#-]?\s*((?:PO-?)?\d{3,})", re.IGNORECASE)
 NUMBER_LABEL = re.compile(r"(?:\bno\.?|\bnumber|#)\s*[:.]?\s*([A-Za-z0-9][\w\-/]*(?:[ ][\w\-/]+)*)\s*$", re.IGNORECASE)
 PRINTED_AMOUNT = re.compile(r"(-?)\$?\s*(-?)(\d[\d,]*\.\d{2})")
+
+
+def _printed_currency(data: InvoiceData, pages: list[PageText]) -> None:
+    """The currency printed on the page ('Rs 564.00' -> INR) wins over the model's answer; the model's answer is
+    used when the page text shows none (e.g. a photo OCR could barely read). Amounts are never converted."""
+    data.currency = detect_currency("\n".join(p.text for p in pages)) or currency_code(data.currency)
 
 
 def _strip_number_label(data: InvoiceData) -> None:

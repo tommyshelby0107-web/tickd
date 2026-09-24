@@ -12,7 +12,7 @@ from . import config, db
 from .config import POLICY, SAMPLES_DIR
 from .decide import decide
 from .extract import ExtractionError, InvoiceData, extract_invoice
-from .normalize import to_float
+from .normalize import BASE_CURRENCY, money, to_float
 from .rules import PASS, Context, Finding, duplicate_check, line_match, po_match, validate, vendor_check
 from .text import read_pages
 
@@ -79,7 +79,9 @@ def run_invoice(pdf_path: Path, run_id: str | None = None, listener: Listener | 
             result.setdefault("extraction", {"model": "provided (no LLM call)"})
         result["invoice"] = _invoice_summary(invoice)
         result["extracted"] = invoice.model_dump()
-        emit("extract", "pass", f"{len(invoice.lines)} line(s), total {invoice.total.value or 'missing'} "
+        total = to_float(invoice.total.value)
+        emit("extract", "pass", f"{len(invoice.lines)} line(s), total "
+                                f"{money(total, invoice.currency) if total is not None else 'missing'} "
                                 f"({result['extraction']['model']})", {"invoice": result["extracted"]})
 
         ctx = Context(invoice, pages, file_hash, email_from=(db.run(run_id) or {}).get("email_from"))
@@ -156,7 +158,8 @@ def _manual_review(reason: str) -> dict:
 def _invoice_summary(invoice: InvoiceData) -> dict:
     return {"vendor_name": invoice.vendor_name.value, "number": invoice.invoice_number.value,
             "date": invoice.invoice_date.value, "subtotal": invoice.subtotal,
-            "total": to_float(invoice.total.value), "po_number": invoice.po_number.value}
+            "total": to_float(invoice.total.value), "currency": invoice.currency or BASE_CURRENCY,
+            "po_number": invoice.po_number.value}
 
 
 def _vendor_summary(vendor: dict | None) -> dict | None:
