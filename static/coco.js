@@ -61,49 +61,58 @@ const CAT = `<svg class="cat" viewBox="0 0 120 84" width="100" height="70" role=
   </g>
 </svg>`;
 
-// Standing on four legs (for stretching, walking and batting the switch), facing right.
-const WALKER = `<svg class="walker" viewBox="0 0 130 96" width="96" height="71" aria-hidden="true">
+// Standing Coco is a rig: drawn in her own coordinates (x = forward, y up is negative, ground at y = 0) and posed
+// every frame by rigDraw(). Same fur, same face and collar as the curled Coco, so she visibly gets up.
+const RIG_SVG = `<svg class="rig" aria-hidden="true">
   <defs>
-    <radialGradient id="w-fur" cx="0.4" cy="0.25" r="0.95">
+    <radialGradient id="rig-fur" cx="0.35" cy="0.28" r="0.95">
       <stop offset="0" stop-color="#ffdcae"/><stop offset="0.55" stop-color="#f6a458"/><stop offset="1" stop-color="#d9702c"/>
     </radialGradient>
-    <linearGradient id="w-leg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3a05a"/><stop offset="1" stop-color="#e2803c"/></linearGradient>
   </defs>
-  <ellipse cx="64" cy="91" rx="42" ry="4" fill="#3a2230" opacity="0.14"/>
-  <g class="w-tail"><path d="M26 48 C12 44 8 28 15 14" fill="none" stroke="#ec8c43" stroke-width="9" stroke-linecap="round"/>
-    <circle cx="15" cy="14" r="4.6" fill="#fff1de"/></g>
-  <g class="leg lb2"><rect x="42" y="56" width="9" height="31" rx="4.5" fill="#cf6a2a"/><ellipse cx="46.5" cy="87" rx="6" ry="3.4" fill="#f1d6ba"/></g>
-  <g class="leg lf2"><rect x="80" y="56" width="9" height="31" rx="4.5" fill="#cf6a2a"/><ellipse cx="84.5" cy="87" rx="6" ry="3.4" fill="#f1d6ba"/></g>
-  <g class="w-body">
-    <path d="M22 52 C22 37 40 31 64 32 C88 33 104 39 104 53 C104 65 86 69 62 69 C40 69 22 66 22 52 Z" fill="url(#w-fur)"/>
-    <g fill="none" stroke="#c35f1e" stroke-opacity="0.45" stroke-width="4" stroke-linecap="round">
-      <path d="M50 34 q-3 7 0 13"/><path d="M63 33 q-3 7 0 14"/><path d="M76 34 q-3 7 0 13"/></g>
-    <ellipse cx="58" cy="40" rx="18" ry="4.5" fill="#fff" opacity="0.4"/>
-  </g>
-  <g class="leg lb"><rect x="30" y="56" width="10" height="32" rx="5" fill="url(#w-leg)"/><ellipse cx="35" cy="88" rx="6.5" ry="3.6" fill="#fff1de"/></g>
-  <g class="leg lf"><rect x="88" y="56" width="10" height="32" rx="5" fill="url(#w-leg)"/><ellipse cx="93" cy="88" rx="6.5" ry="3.6" fill="#fff1de"/></g>
-  <g class="w-head">
-    <path d="M93 27 Q90 12 95 7 Q98 5 101 9 L108 21 Z" fill="url(#w-fur)"/>
-    <path d="M96 22 Q94.5 14 97 11 L103 20 Z" fill="#ff9fb3" opacity="0.8"/>
-    <path d="M110 20 L116 8 Q119 5 121 9 Q123 17 121 27 Z" fill="url(#w-fur)"/>
-    <path d="M113 19 L117.5 11.5 Q119 10 119.5 12.5 L119 22 Z" fill="#ff9fb3" opacity="0.8"/>
-    <ellipse cx="106" cy="35" rx="19" ry="16" fill="url(#w-fur)"/>
-    <g fill="none" stroke="#c35f1e" stroke-opacity="0.45" stroke-width="2.4" stroke-linecap="round">
-      <path d="M103 21 v5"/><path d="M107 20.5 v6"/><path d="M111 21 v5"/></g>
-    <ellipse cx="99" cy="26" rx="7" ry="3" fill="#fff" opacity="0.5"/>
-    <ellipse cx="96" cy="41" rx="3.6" ry="2.2" fill="#ff8fa6" opacity="0.4"/><ellipse cx="118" cy="41" rx="3.6" ry="2.2" fill="#ff8fa6" opacity="0.4"/>
-    <path d="M93 47 Q106 55 119 47" fill="none" stroke="#6a4cf5" stroke-width="3.6" stroke-linecap="round"/>
-    <circle cx="106" cy="54.5" r="3.2" fill="#ffc94d" stroke="#e39a00" stroke-width="1"/>
-    <ellipse cx="110" cy="43" rx="8.5" ry="5.8" fill="#fff3e3"/>
-    <ellipse class="mouth-open" cx="110" cy="46" rx="3.4" ry="2.9" fill="#9b3a4f"/>
-    <path d="M107.5 39.6 h5 l-2.5 2.8 z" fill="#ff8fa6" stroke="#ff8fa6" stroke-width="1" stroke-linejoin="round"/>
-    <path d="M110 42.6 q-2 2.8 -4.3 1.5 M110 42.6 q2 2.8 4.3 1.5" fill="none" stroke="#6b4a3a" stroke-width="1.3" stroke-linecap="round"/>
-    <g stroke="#8a6a5a" stroke-opacity="0.45" stroke-width="1" stroke-linecap="round">
-      <path d="M102 44 l-11 -2"/><path d="M102 46 l-11 1.6"/><path d="M118 44 l10 -2"/><path d="M118 46 l10 1.6"/></g>
-    <g class="eyes-open"><ellipse cx="101" cy="33.5" rx="2.7" ry="3.5" fill="#3a2a35"/><ellipse cx="115" cy="33.5" rx="2.7" ry="3.5" fill="#3a2a35"/>
-      <circle cx="102" cy="32.2" r="1" fill="#fff"/><circle cx="116" cy="32.2" r="1" fill="#fff"/></g>
-    <g class="eyes-closed" fill="none" stroke="#3a2a35" stroke-width="2" stroke-linecap="round">
-      <path d="M97.5 33.5 q3.5 3 7 0"/><path d="M111.5 33.5 q3.5 3 7 0"/></g>
+  <ellipse class="r-shadow" rx="32" ry="4" fill="#3a2230" opacity="0.15"/>
+  <g class="r-root">
+    <path class="r-leg" data-leg="hf" fill="none" stroke="#d27330" stroke-width="9.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <ellipse class="r-paw" data-leg="hf" rx="5.6" ry="3.3" fill="#f1d6ba"/>
+    <path class="r-leg" data-leg="ff" fill="none" stroke="#d27330" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+    <ellipse class="r-paw" data-leg="ff" rx="5.4" ry="3.2" fill="#f1d6ba"/>
+    <path class="r-tail" fill="none" stroke="#ea8a42" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="r-tail-hi" fill="none" stroke="#fbc088" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+    <circle class="r-tip" r="4.4" fill="#fff1de"/>
+    <g class="r-body">
+      <path d="M-35 -30 C-35 -47 -16 -51 3 -49 C23 -48 35 -45 35 -30 C35 -17 21 -14 0 -14 C-21 -14 -35 -16 -35 -30 Z" fill="url(#rig-fur)"/>
+      <ellipse cx="-19" cy="-25" rx="12" ry="9" fill="#d9702c" opacity="0.28"/>
+      <g fill="none" stroke="#c35f1e" stroke-opacity="0.45" stroke-width="4" stroke-linecap="round">
+        <path d="M-13 -48 q-3 7 0 12"/><path d="M-1 -49 q-3 7 0 13"/><path d="M11 -48 q-3 7 0 12"/></g>
+      <ellipse cx="-4" cy="-42" rx="18" ry="4.5" fill="#fff" opacity="0.4"/>
+    </g>
+    <path class="r-leg" data-leg="hn" fill="none" stroke="#f09a52" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+    <ellipse class="r-paw" data-leg="hn" rx="6.2" ry="3.6" fill="#fff1de"/>
+    <path class="r-leg" data-leg="fn" fill="none" stroke="#f09a52" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <ellipse class="r-paw" data-leg="fn" rx="6" ry="3.5" fill="#fff1de"/>
+    <g class="r-head">
+      <g class="r-ear-l"><path d="M-17 -7 Q-21 -22 -17 -28 Q-14 -31 -10 -27 L-1 -17 Z" fill="url(#rig-fur)"/>
+        <path d="M-14.5 -12 Q-16.5 -20 -14 -24 L-6 -17 Z" fill="#ff9fb3" opacity="0.8"/></g>
+      <g class="r-ear-r"><path d="M1 -17 L10 -28 Q14 -32 17 -28 Q20 -20 17 -7 Z" fill="url(#rig-fur)"/>
+        <path d="M5.5 -17.5 L12 -24.5 Q14 -26 14.5 -23 L14.5 -12 Z" fill="#ff9fb3" opacity="0.8"/></g>
+      <ellipse rx="20" ry="17" fill="url(#rig-fur)"/>
+      <g fill="none" stroke="#c35f1e" stroke-opacity="0.45" stroke-width="2.4" stroke-linecap="round">
+        <path d="M-4 -14.5 v5"/><path d="M1 -15.5 v6"/><path d="M6 -14.5 v5"/></g>
+      <ellipse cx="-8" cy="-9.5" rx="8" ry="3.4" fill="#fff" opacity="0.5"/>
+      <ellipse cx="-11" cy="5.5" rx="4" ry="2.4" fill="#ff8fa6" opacity="0.4"/>
+      <ellipse cx="15" cy="5.5" rx="4" ry="2.4" fill="#ff8fa6" opacity="0.4"/>
+      <path d="M-13 12.5 Q1 21.5 15 12.5" fill="none" stroke="#6a4cf5" stroke-width="3.8" stroke-linecap="round"/>
+      <g class="r-tag"><circle cx="1" cy="20.5" r="3.3" fill="#ffc94d" stroke="#e39a00" stroke-width="1"/></g>
+      <ellipse cx="2" cy="7.5" rx="9" ry="6" fill="#fff3e3"/>
+      <ellipse class="r-mouth" cx="2" cy="10.2" rx="3.2" ry="2.6" fill="#9b3a4f" opacity="0"/>
+      <path d="M-0.6 3.6 h5.2 l-2.6 3 z" fill="#ff8fa6" stroke="#ff8fa6" stroke-width="1" stroke-linejoin="round"/>
+      <path d="M2 6.8 q-2 3 -4.5 1.6 M2 6.8 q2 3 4.5 1.6" fill="none" stroke="#6b4a3a" stroke-width="1.3" stroke-linecap="round"/>
+      <g stroke="#8a6a5a" stroke-opacity="0.45" stroke-width="1" stroke-linecap="round">
+        <path d="M-7 8 l-12 -2.5"/><path d="M-7 10 l-12 1.8"/><path d="M11 8 l12 -2.5"/><path d="M11 10 l12 1.8"/></g>
+      <g class="r-eyes"><ellipse cx="-5.5" cy="-2" rx="2.8" ry="3.6" fill="#3a2a35"/><ellipse cx="10.5" cy="-2" rx="2.8" ry="3.6" fill="#3a2a35"/>
+        <circle cx="-4.5" cy="-3.4" r="1" fill="#fff"/><circle cx="11.5" cy="-3.4" r="1" fill="#fff"/></g>
+      <g class="r-eyes-closed" fill="none" stroke="#3a2a35" stroke-width="2" stroke-linecap="round" opacity="0">
+        <path d="M-9.5 -2 q3.5 3 7 0"/><path d="M6.5 -2 q3.5 3 7 0"/></g>
+    </g>
   </g>
 </svg>`;
 
@@ -133,14 +142,16 @@ const PAW = '<svg viewBox="0 0 20 20" aria-hidden="true"><ellipse cx="10" cy="13
 const FISH_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c3-5 10-6 14-2l5-4v12l-5-4c-4 4-11 3-14-2z"/><circle cx="7.5" cy="11" r="0.6" fill="currentColor"/></svg>';
 const HEART_ICON = '<svg viewBox="0 0 24 22" fill="currentColor"><path d="M12 21C4 15 1 11 1 7a5.5 5.5 0 0 1 11-1 5.5 5.5 0 0 1 11 1c0 4-3 8-11 14z"/></svg>';
 
+// The curled cat and her buttons, plus the rig (standing Coco), which spans the whole sidebar foot so she can
+// walk across it to the switch.
 function cocoMarkup() {
   return `<div class="cat-corner">
-    <div class="coco"><div class="bubble" aria-hidden="true"></div>${CAT}${WALKER}</div>
+    <div class="coco"><div class="bubble" aria-hidden="true"></div>${CAT}</div>
     <div class="cat-actions">
       <button class="cat-btn feed" title="Feed Coco">${FISH_ICON} Feed</button>
       <button class="cat-btn pet" title="Pet Coco">${HEART_ICON} Pet</button>
     </div>
-  </div>`;
+  </div>${RIG_SVG}`;
 }
 
 // ---------------------------------------------------------------- small helpers
@@ -323,33 +334,262 @@ function hideBubble() {
   if (cat) cat.classList.remove("hello", "dreaming");
 }
 
-// ---------------------------------------------------------------- the walk to the switch
+// ---------------------------------------------------------------- the walking rig
+// Procedural animation, the way game characters walk:
+//   - four two-bone legs solved with inverse kinematics (hind legs bend back at the hock, front legs at the wrist)
+//   - a lateral-sequence cat gait (left hind, left front, right hind, right front). Each foot plants and stays put
+//     while the body passes over it, then lifts in an arc. The step phase follows distance walked, not time,
+//     so planted feet never slide, however the speed eases in and out.
+//   - secondary motion: the spine bobs on every footfall, the head stays steadier and nods, the tail waves as a
+//     chain, the ears and collar tag bounce.
+//   - poses are parameters on the same rig: lie (getting up / lying down), stretch (paws forward, rump up, yawn),
+//     bat (a paw reaches out and taps the switch), turn (a quick hop-turn).
 
-const PAW_REACH = 0.875;       // where her batting paw lands, as a fraction of the walker's width
+const GAIT = { stride: 15, duty: 0.6 };
+const PIVOT = [-18, -24];                  // the spine pitches around the hips
+const LEGS = [                             // hip, rest foot x, tucked foot x (lying), gait offset, bone lengths
+  { id: "hf", hip: [-15, -25], rest: -15, tuck: -9, off: 0.5, a: 12.5, b: 13, lift: 5, bend: 1 },
+  { id: "ff", hip: [19, -26], rest: 20, tuck: 27, off: 0.75, a: 12, b: 13.5, lift: 6, bend: -1 },
+  { id: "hn", hip: [-19, -24], rest: -19, tuck: -12, off: 0, a: 12.5, b: 13, lift: 5, bend: 1 },
+  { id: "fn", hip: [15, -25], rest: 16, tuck: 23, off: 0.25, a: 12, b: 13.5, lift: 6, bend: -1 },
+];
+const R = {};                              // the rig's state; tweens change it, rigDraw() renders it
+let rigEls = null;
+let rigRaf = 0;
 
-function pawPrints(walker, facing) {
-  const id = setInterval(() => {
-    const foot = walker.querySelector(".lb").getBoundingClientRect();
-    const p = document.createElement("span");
-    p.className = "paw-print";
-    p.innerHTML = PAW;
-    p.style.left = `${foot.left + foot.width / 2}px`;
-    p.style.top = `${foot.bottom - 3}px`;
-    p.style.setProperty("--r", facing === "right" ? "90deg" : "-90deg");
-    document.body.appendChild(p);
-    setTimeout(() => p.remove(), 1400);
-  }, 230);
-  return () => clearInterval(id);
+const clamp01 = (v) => Math.max(0, Math.min(1, v));
+const lerp = (a, b, k) => a + (b - a) * k;
+const frac = (v) => v - Math.floor(v);
+const ease = {
+  linear: (k) => k,
+  inOut: (k) => (k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2),
+  inOutSine: (k) => -(Math.cos(Math.PI * k) - 1) / 2,
+  out: (k) => 1 - Math.pow(1 - k, 3),
+  in: (k) => k * k * k,
+  outBack: (k) => 1 + 2.2 * Math.pow(k - 1, 3) + 1.2 * Math.pow(k - 1, 2),
+};
+
+function tween(ms, fn, curve = ease.inOut) {
+  return new Promise((resolve) => {
+    const start = performance.now();
+    const step = (now) => {
+      const k = Math.min(1, (now - start) / ms);
+      fn(curve(k), k);
+      if (k < 1) requestAnimationFrame(step); else resolve();
+    };
+    requestAnimationFrame(step);
+  });
 }
 
-function walk(walker, from, to, flipped) {
-  const flip = flipped ? " scaleX(-1)" : "";
-  walker.classList.add("walking");
-  const stop = pawPrints(walker, flipped ? "left" : "right");
-  return walker.animate(
-    [{ transform: `translateX(${from}px)${flip}` }, { transform: `translateX(${to}px)${flip}` }],
-    { duration: Math.max(500, Math.abs(to - from) * 8), easing: "cubic-bezier(0.45, 0.05, 0.55, 0.95)", fill: "forwards" },
-  ).finished.then(() => { walker.classList.remove("walking"); stop(); });
+// Two-bone IK: where the knee goes so the paw reaches (fx, fy). Out of reach: the leg points straight at it.
+function ik(hx, hy, fx, fy, a, b, bend) {
+  let dx = fx - hx, dy = fy - hy;
+  let d = Math.hypot(dx, dy) || 0.001;
+  const maxD = a + b - 0.05;
+  if (d > maxD) { fx = hx + (dx / d) * maxD; fy = hy + (dy / d) * maxD; dx = fx - hx; dy = fy - hy; d = maxD; }
+  d = Math.max(d, Math.abs(a - b) + 1);
+  const alpha = Math.acos(Math.max(-1, Math.min(1, (a * a + d * d - b * b) / (2 * a * d))));
+  const angle = Math.atan2(dy, dx) + bend * alpha;
+  return { kx: hx + a * Math.cos(angle), ky: hy + a * Math.sin(angle), fx, fy };
+}
+
+// Where a foot is, relative to its rest spot, at a point of its step cycle.
+function gaitOffset(p) {
+  if (p < GAIT.duty) return { dx: GAIT.stride / 2 - (p / GAIT.duty) * GAIT.stride, lift: 0 };
+  const q = (p - GAIT.duty) / (1 - GAIT.duty);
+  return { dx: -GAIT.stride / 2 + q * q * (3 - 2 * q) * GAIT.stride, lift: Math.sin(Math.PI * q) };
+}
+
+function rigDraw(now) {
+  const e = rigEls;
+  const t = now / 1000;
+  const phase = R.dist / (GAIT.stride / GAIT.duty);
+  const bob = R.walk * 1.8 * (0.5 - 0.5 * Math.cos(4 * Math.PI * phase));
+  const pitch = R.stretch * 13 + R.lean + R.shake;
+  const dy = R.lie * 13 - bob - R.stretch * 1.5;
+  const rad = (pitch * Math.PI) / 180, c = Math.cos(rad), s = Math.sin(rad);
+  const T = (x, y) => {
+    const px = x - PIVOT[0], py = y - PIVOT[1];
+    return [PIVOT[0] + px * c - py * s, PIVOT[1] + px * s + py * c + dy];
+  };
+  e.root.setAttribute("transform", `translate(${R.x.toFixed(2)} ${(R.ground + R.hop).toFixed(2)}) scale(${R.flip.toFixed(3)} ${R.squash.toFixed(3)})`);
+  e.body.setAttribute("transform", `translate(0 ${dy.toFixed(2)}) rotate(${pitch.toFixed(2)} ${PIVOT[0]} ${PIVOT[1]})`);
+  e.shadow.setAttribute("cx", R.x.toFixed(2));
+  e.shadow.setAttribute("cy", (R.ground + 1.5).toFixed(2));
+  e.shadow.setAttribute("rx", (32 * (1 + R.hop / 40)).toFixed(2));
+
+  const legAlpha = 1 - clamp01((R.lie - 0.45) / 0.5);          // legs fold away under her when she lies down
+  for (const leg of LEGS) {
+    const [hx, hy] = T(leg.hip[0], leg.hip[1]);
+    const p = frac(phase + leg.off);
+    const g = gaitOffset(p);
+    let fx = leg.rest + R.walk * g.dx + (leg.id[0] === "f" ? 16 : -2) * R.stretch;
+    let fy = -R.walk * g.lift * leg.lift;
+    fx = lerp(fx, leg.tuck, clamp01(R.lie));
+    fy = lerp(fy, 0, clamp01(R.lie));
+    if (leg.id === "fn" && R.bat) [fx, fy] = R.bat;
+    const k = ik(hx, hy, fx, fy, leg.a, leg.b, leg.bend);
+    const el = e.legs[leg.id];
+    el.leg.setAttribute("d", `M${hx.toFixed(2)} ${hy.toFixed(2)} L${k.kx.toFixed(2)} ${k.ky.toFixed(2)} L${k.fx.toFixed(2)} ${k.fy.toFixed(2)}`);
+    el.leg.setAttribute("opacity", legAlpha.toFixed(2));
+    el.paw.setAttribute("cx", (k.fx + 1.5).toFixed(2));
+    el.paw.setAttribute("cy", (k.fy - 1.4).toFixed(2));
+    // a paw print where each near foot touches down
+    if (leg.id[1] === "n" && R.walk > 0.6 && leg.prev !== undefined && p < leg.prev) {
+      pawPrintAt(R.x + R.flip * k.fx, R.ground, R.flip > 0 ? 90 : -90);
+    }
+    leg.prev = p;
+  }
+
+  // head: steadier than the body, with a small nod on each footfall
+  const [nx, ny] = T(34, -50);
+  const hx = nx + R.stretch * 4;
+  const hy = ny + bob * 0.55 + R.stretch * 8 + R.lie * 2;
+  const nod = R.walk * 2.2 * Math.sin(4 * Math.PI * phase + 0.9) + R.stretch * 9 + R.headDown;
+  e.head.setAttribute("transform", `translate(${hx.toFixed(2)} ${hy.toFixed(2)}) rotate(${nod.toFixed(2)})`);
+  const flick = R.walk * 5 * Math.sin(4 * Math.PI * phase - 0.6) + (t % 5.3 < 0.18 ? 12 : 0);
+  e.earL.setAttribute("transform", `rotate(${(-flick * 0.6).toFixed(2)} -9 -17)`);
+  e.earR.setAttribute("transform", `rotate(${flick.toFixed(2)} 9 -17)`);
+  e.tag.setAttribute("transform", `rotate(${(R.walk * 18 * Math.sin(4 * Math.PI * phase - 1.4) + 3 * Math.sin(t * 2.3)).toFixed(2)} 1 17)`);
+  const blink = t % 3.7 < 0.13;
+  const closed = R.yawn > 0.5 || blink;
+  e.eyes.setAttribute("opacity", closed ? 0 : 1);
+  e.eyesClosed.setAttribute("opacity", closed ? 1 : 0);
+  e.mouth.setAttribute("opacity", clamp01(R.yawn * 1.5).toFixed(2));
+
+  // tail: a chain curled like a question mark, with a wave travelling to the tip
+  let [px, py] = T(-31, -37);
+  const pts = [[px, py]];
+  const speed = R.walk > 0.1 ? 7 : 3.2;
+  for (let i = 0; i < 8; i++) {
+    const rest = -118 + i * 13, up = -96 + i * 2, down = -190 - i * 22;    // lying: curled down round her rump
+    const a = lerp(lerp(rest, up, R.stretch), down, clamp01(R.lie))
+      + (3 + i * 2.2) * Math.sin(t * speed - i * 0.55) * (1 - clamp01(R.lie) * 0.7);
+    px += 5.2 * Math.cos((a * Math.PI) / 180);
+    py += 5.2 * Math.sin((a * Math.PI) / 180);
+    pts.push([px, py]);
+  }
+  let d = `M${pts[0][0].toFixed(2)} ${pts[0][1].toFixed(2)}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const mx = (pts[i][0] + pts[i + 1][0]) / 2, my = (pts[i][1] + pts[i + 1][1]) / 2;
+    d += ` Q${pts[i][0].toFixed(2)} ${pts[i][1].toFixed(2)} ${mx.toFixed(2)} ${my.toFixed(2)}`;
+  }
+  const tip = pts[pts.length - 1];
+  d += ` L${tip[0].toFixed(2)} ${tip[1].toFixed(2)}`;
+  e.tail.setAttribute("d", d);
+  e.tailHi.setAttribute("d", d);
+  e.tip.setAttribute("cx", tip[0].toFixed(2));
+  e.tip.setAttribute("cy", tip[1].toFixed(2));
+}
+
+function pawPrintAt(x, y, rotation) {
+  const box = rigEls.svg.getBoundingClientRect();
+  const p = document.createElement("span");
+  p.className = "paw-print";
+  p.innerHTML = PAW;
+  p.style.left = `${box.left + x}px`;
+  p.style.top = `${box.top + y + 1}px`;
+  p.style.setProperty("--r", `${rotation}deg`);
+  document.body.appendChild(p);
+  setTimeout(() => p.remove(), 1500);
+}
+
+function rigLoop(now) {
+  rigDraw(now);
+  rigRaf = requestAnimationFrame(rigLoop);
+}
+
+// Swap the curled cat for the rig, lying in the same spot, facing the same way (left).
+function rigStart() {
+  const svg = document.querySelector(".rig");
+  if (!rigEls) {
+    const q = (sel) => svg.querySelector(sel);
+    rigEls = {
+      svg, root: q(".r-root"), body: q(".r-body"), head: q(".r-head"), shadow: q(".r-shadow"), earL: q(".r-ear-l"),
+      earR: q(".r-ear-r"), tag: q(".r-tag"), eyes: q(".r-eyes"), eyesClosed: q(".r-eyes-closed"), mouth: q(".r-mouth"),
+      tail: q(".r-tail"), tailHi: q(".r-tail-hi"), tip: q(".r-tip"), legs: {},
+    };
+    for (const leg of LEGS) rigEls.legs[leg.id] = { leg: q(`.r-leg[data-leg="${leg.id}"]`), paw: q(`.r-paw[data-leg="${leg.id}"]`) };
+  }
+  const box = svg.getBoundingClientRect();
+  const cat = getCat().getBoundingClientRect();
+  svg.setAttribute("viewBox", `0 0 ${box.width.toFixed(1)} ${box.height.toFixed(1)}`);
+  Object.assign(R, {
+    ground: cat.top + cat.height * 0.95 - box.top, home: cat.left + cat.width * 0.62 - box.left,
+    flip: -1, hop: 0, squash: 1, dist: 0, walk: 0, lie: 1, stretch: 0, yawn: 0, lean: 0, shake: 0, headDown: 0, bat: null,
+  });
+  R.x = R.home;
+  LEGS.forEach((leg) => { delete leg.prev; });
+  rigDraw(performance.now());
+  svg.classList.add("on");
+  document.querySelector(".coco").classList.add("away");
+  cancelAnimationFrame(rigRaf);
+  rigRaf = requestAnimationFrame(rigLoop);
+}
+
+function rigStop() {
+  rigEls.svg.classList.remove("on");
+  document.querySelector(".coco").classList.remove("away");
+  setTimeout(() => cancelAnimationFrame(rigRaf), 250);
+}
+
+async function rigTurn(dir) {
+  const from = R.flip;
+  await tween(300, (k, raw) => {
+    R.hop = -9 * Math.sin(Math.PI * raw);
+    const f = lerp(from, dir, k);
+    R.flip = Math.abs(f) < 0.1 ? 0.1 * Math.sign(f || dir) : f;          // never exactly edge-on
+    R.squash = 1 + 0.08 * Math.sin(Math.PI * raw);
+  });
+  R.flip = dir;
+  R.hop = 0;
+  await tween(150, (k, raw) => { R.squash = 1 - 0.1 * Math.sin(Math.PI * raw); }, ease.linear);
+  R.squash = 1;
+}
+
+async function rigWalkTo(x) {
+  const dir = x > R.x ? 1 : -1;
+  if (R.flip !== dir) await rigTurn(dir);
+  const x0 = R.x;
+  const distance = Math.abs(x - x0);
+  await tween(300 + distance * 10.5, (k, raw) => {
+    const nx = x0 + (x - x0) * k;
+    R.dist += Math.abs(nx - R.x);
+    R.x = nx;
+    R.walk = Math.min(1, raw / 0.16, (1 - raw) / 0.16);
+  }, ease.inOutSine);
+  R.walk = 0;
+}
+
+async function rigStretch() {
+  await tween(460, (k) => { R.stretch = k; R.yawn = clamp01((k - 0.55) / 0.45); });
+  await wait(380);
+  await tween(400, (k) => { R.stretch = 1 - k; R.yawn = clamp01(1 - k * 2); });
+  await tween(300, (k, raw) => { R.shake = Math.sin(raw * Math.PI * 6) * 3.5 * (1 - raw); }, ease.linear);
+  R.shake = 0;
+}
+
+// A paw goes up, then comes down on the target (page coordinates); onHit fires on contact.
+async function rigBat(targetX, targetY, onHit) {
+  const box = rigEls.svg.getBoundingClientRect();
+  const lx = (targetX - box.left - R.x) / R.flip;
+  const ly = targetY - box.top - R.ground;
+  const rest = [LEGS[3].rest, 0], up = [LEGS[3].rest + 9, -18], hit = [lx, ly];
+  let fired = false;
+  const mix = (a, b, k) => [lerp(a[0], b[0], k), lerp(a[1], b[1], k)];
+  await tween(760, (k, raw) => {
+    if (raw < 0.34) R.bat = mix(rest, up, ease.out(raw / 0.34));
+    else if (raw < 0.47) R.bat = mix(up, hit, ease.in((raw - 0.34) / 0.13));
+    else if (raw < 0.7) R.bat = hit;
+    else R.bat = mix(hit, rest, ease.inOut((raw - 0.7) / 0.3));
+    const bell = Math.sin(Math.PI * Math.min(1, raw / 0.88));
+    R.lean = 11 * bell;
+    R.headDown = 12 * bell;
+    if (!fired && raw >= 0.47) { fired = true; onHit(); }
+  }, ease.linear);
+  R.bat = null;
+  R.lean = 0;
+  R.headDown = 0;
 }
 
 function tapRing(x, y) {
@@ -361,44 +601,34 @@ function tapRing(x, y) {
   setTimeout(() => ring.remove(), 700);
 }
 
-// Clicking the switch: Coco wakes, stretches with a yawn, walks over leaving paw prints, bats the switch
-// (that is what flips day and night), then walks home and curls up again.
+// Clicking the switch: Coco gets up, stretches with a yawn and a shake, hop-turns, walks over, bats the knob with
+// her paw (that is what flips day and night), then walks home and lies back down.
 async function cocoToggleTheme(toggle) {
   const knob = toggle.querySelector(".knob");
   const next = theme() === "night" ? "day" : "night";
-  const coco = document.querySelector(".coco");
   const cat = getCat();
-  const walker = coco && coco.querySelector(".walker");
-  if (reducedMotion || catBusy || !walker || !cocoVisible()) { setTheme(next, knob); return; }
+  if (reducedMotion || catBusy || !cat || !cocoVisible() || !document.querySelector(".rig")) { setTheme(next, knob); return; }
   setCatBusy(true);
   toggle.disabled = true;
   hideBubble();
   try {
     cat.classList.remove("napping");
-    if (theme() === "night") { cat.classList.add("alert"); await wait(450); }     // wake up first
-    coco.classList.add("away");
-    walker.classList.add("on", "stretching");
-    await wait(1250);
-    walker.classList.remove("stretching");
+    if (theme() === "night") { cat.classList.add("alert"); await wait(420); }      // wake up first
+    rigStart();
+    await tween(520, (k) => { R.lie = 1 - k; }, ease.outBack);                     // get up
+    await rigStretch();
     const k = knob.getBoundingClientRect();
-    const w = walker.getBoundingClientRect();
-    const dx = Math.round(k.left + k.width / 2 - (w.left + w.width * PAW_REACH));
-    await walk(walker, 0, dx, false);
-    walker.classList.add("tapping");
-    await wait(300);                                   // the paw comes down on the knob
-    tapRing(k.left + k.width / 2, k.top + k.height / 2);
-    setTheme(next, knob, { cat: false });
-    await wait(450);
-    walker.classList.remove("tapping");
-    await walker.animate(
-      [{ transform: `translateX(${dx}px)` }, { transform: `translateX(${dx}px) scaleX(-1)` }],
-      { duration: 280, easing: "ease-in-out", fill: "forwards" }).finished;           // turn around
-    await walk(walker, dx, 0, true);
-    walker.classList.remove("on");
-    await wait(160);
-    walker.getAnimations().forEach((a) => a.cancel());
+    const box = rigEls.svg.getBoundingClientRect();
+    await rigWalkTo(k.left + k.width / 2 - box.left - 22);
+    await rigBat(k.left + k.width / 2, k.top + k.height / 2, () => {
+      tapRing(k.left + k.width / 2, k.top + k.height / 2);
+      setTheme(next, knob, { cat: false });
+    });
+    await wait(120);
+    await rigWalkTo(R.home);                                                         // home, facing left again
+    await tween(460, (k) => { R.lie = k; });                                         // lie back down
     cat.classList.remove("alert");
-    coco.classList.remove("away");
+    rigStop();
     pulseClass(cat, next === "night" ? "dozing" : "waking", 1400);
   } finally {
     toggle.disabled = false;
