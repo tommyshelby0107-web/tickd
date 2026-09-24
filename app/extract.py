@@ -12,7 +12,7 @@ from pathlib import Path
 import groq
 from google import genai
 from google.genai import errors, types
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, model_validator
 
 from .config import GEMINI_API_KEY, GEMINI_MODELS, GROQ_API_KEY, GROQ_MODELS, POLICY
 from .text import PageText, as_prompt_text, page_png
@@ -24,6 +24,14 @@ class Sourced(BaseModel):
     page: int | None = Field(description="Page number the value was found on")
     source_quote: str | None = Field(
         description="Short snippet copied verbatim from the page text that contains the value")
+
+    @model_validator(mode="before")
+    @classmethod
+    def _plain_value(cls, data):
+        """Accept a bare value too (older saved extractions store some fields that way)."""
+        if data is None or isinstance(data, (str, int, float)):
+            return {"value": None if data is None else str(data), "page": None, "source_quote": None}
+        return data
 
 
 class LineItem(BaseModel):
@@ -40,7 +48,7 @@ class InvoiceData(BaseModel):
     vendor_tax_id: str | None = Field(description="EIN / Fed Tax ID if printed")
     invoice_number: Sourced = Field(description="value exactly as printed, keeping spaces and hyphens")
     invoice_date: Sourced = Field(description="value in YYYY-MM-DD format")
-    due_date: str | None = Field(description="YYYY-MM-DD, only if printed")
+    due_date: Sourced = Field(description="value in YYYY-MM-DD format, only if printed")
     currency: str | None = Field(description="ISO code such as USD")
     po_number: Sourced = Field(description="Only a purchase order number actually printed; never guess one")
     po_hint: str | None = Field(
@@ -65,7 +73,10 @@ Rules:
 - If a field is not printed, return null for it.
 - If a purchase order number is printed (labels such as PO, P.O. #, Your PO, Customer PO, Purchase Order),
   put it in po_number.value. Never guess one. Put order reference wording without a number in po_hint.
-- invoice_number: exactly as printed, including spaces and hyphens.
+- invoice_number: exactly as printed, including spaces and hyphens. It may be labelled Invoice #, Invoice No.,
+  Invoice Number, Bill Number, Bill No., Document No. or Reference No.
+- tax_included_in_prices: true when the invoice says the prices or the total include tax (e.g. "Total (includes
+  7.5% sales tax of $138.60)"); then the tax is already inside the line amounts.
 - Dates: value as YYYY-MM-DD; source_quote as printed.
 - Money: plain numbers with no currency symbols or thousands separators. Keep minus signs as printed.
 - document_type: "credit_note" if the document is a credit note or credit memo, "other" if it is not a bill
@@ -112,6 +123,9 @@ def extract_invoice(pdf_path: Path, pages: list[PageText]) -> Extraction:
             skipped.append(str(exc))
             continue
         _recover_printed_po(data)
+        _recover_printed_total(data)
+        _infer_tax_included(data)
+        _strip_number_label(data)
         return Extraction(data, model, round(time.perf_counter() - started, 2), tokens_in, tokens_out,
                           image_pages, skipped)
     raise ExtractionError(" | ".join(skipped))
@@ -119,29 +133,49 @@ def extract_invoice(pdf_path: Path, pages: list[PageText]) -> Extraction:
 
 # ---------------------------------------------------------------- Groq (primary)
 
+MAX_RATE_LIMIT_WAIT_S = 20     # a short "try again in N seconds" is worth waiting for; a long one is not
+
+
 def _groq(prompt: str, pdf_path: Path, image_pages: list[int], skipped: list[str]):
     client = groq.Groq(api_key=GROQ_API_KEY, timeout=CALL_TIMEOUT_S, max_retries=0)
     for model in GROQ_MODELS:
-        try:
-            response = client.chat.completions.create(
-                model=model,
-                messages=[{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": prompt}],
-                response_format={"type": "json_schema",
-                                 "json_schema": {"name": "invoice", "strict": True, "schema": STRICT_SCHEMA}},
-                temperature=0,
-                reasoning_effort="low",
-            )
-            data = InvoiceData.model_validate_json(response.choices[0].message.content)
-        except groq.APIStatusError as exc:
-            if exc.status_code not in BUSY:
-                raise ExtractionError(f"Groq {model} failed ({exc.status_code}): {exc.message}") from exc
-            skipped.append(f"{model}: busy ({exc.status_code})")
-            continue
-        except (groq.APIConnectionError, ValidationError) as exc:     # timeouts, network, malformed output
-            skipped.append(f"{model}: {type(exc).__name__}")
-            continue
-        return data, model, response.usage.prompt_tokens, response.usage.completion_tokens
+        extra = {"reasoning_effort": "low"} if "gpt-oss" in model else {}   # only gpt-oss takes this setting
+        waited = False
+        while True:
+            try:
+                response = client.chat.completions.create(
+                    model=model,
+                    messages=[{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": prompt}],
+                    response_format={"type": "json_schema",
+                                     "json_schema": {"name": "invoice", "strict": True, "schema": STRICT_SCHEMA}},
+                    temperature=0,
+                    **extra,
+                )
+                data = InvoiceData.model_validate_json(response.choices[0].message.content)
+                return data, model, response.usage.prompt_tokens, response.usage.completion_tokens
+            except groq.RateLimitError as exc:
+                wait = _retry_after(exc)
+                if not waited and wait is not None and wait <= MAX_RATE_LIMIT_WAIT_S:
+                    time.sleep(wait)                     # free-tier per-minute limit: wait it out once
+                    waited = True
+                    continue
+                skipped.append(f"{model}: rate limited")
+            except groq.APIStatusError as exc:
+                schema_miss = exc.status_code == 400 and "json_validate_failed" in str(exc.body)
+                if exc.status_code not in BUSY and not schema_miss:
+                    raise ExtractionError(f"Groq {model} failed ({exc.status_code}): {exc.message}") from exc
+                skipped.append(f"{model}: {'output did not match the schema' if schema_miss else f'busy ({exc.status_code})'}")
+            except (groq.APIConnectionError, ValidationError) as exc:     # timeouts, network, malformed output
+                skipped.append(f"{model}: {type(exc).__name__}")
+            break                                        # next model
     raise ExtractionError("All Groq models unavailable")
+
+
+def _retry_after(exc: groq.APIStatusError) -> float | None:
+    try:
+        return float(exc.response.headers.get("retry-after"))
+    except (AttributeError, TypeError, ValueError):
+        return None
 
 
 def _strict_schema(model: type[BaseModel]) -> dict:
@@ -186,24 +220,68 @@ def _gemini(prompt: str, pdf_path: Path, image_pages: list[int], skipped: list[s
     )
     client = genai.Client(api_key=GEMINI_API_KEY, http_options=types.HttpOptions(
         timeout=CALL_TIMEOUT_S * 1000, retry_options=types.HttpRetryOptions(attempts=1)))
-    for model in GEMINI_MODELS:
-        try:
-            response = client.models.generate_content(model=model, contents=contents, config=config)
-        except errors.APIError as exc:
-            if exc.code not in BUSY:
-                raise ExtractionError(f"Gemini {model} failed ({exc.code}): {exc.message}") from exc
-            skipped.append(f"{model}: busy ({exc.code})")
-            continue
-        data = response.parsed if isinstance(response.parsed, InvoiceData) else InvoiceData.model_validate_json(response.text)
-        usage = response.usage_metadata
-        return (data, model, (usage.prompt_token_count or 0) if usage else 0,
-                (usage.candidates_token_count or 0) if usage else 0)
+    for attempt in range(2):            # Gemini's "high demand" spikes are short: one more pass after a pause
+        if attempt:
+            time.sleep(8)
+        for model in GEMINI_MODELS:
+            try:
+                response = client.models.generate_content(model=model, contents=contents, config=config)
+            except errors.APIError as exc:
+                if exc.code not in BUSY:
+                    raise ExtractionError(f"Gemini {model} failed ({exc.code}): {exc.message}") from exc
+                skipped.append(f"{model}: busy ({exc.code})")
+                continue
+            data = response.parsed if isinstance(response.parsed, InvoiceData) else InvoiceData.model_validate_json(response.text)
+            usage = response.usage_metadata
+            return (data, model, (usage.prompt_token_count or 0) if usage else 0,
+                    (usage.candidates_token_count or 0) if usage else 0)
     raise ExtractionError("All Gemini models busy")
 
 
 # ---------------------------------------------------------------- deterministic clean-up
 
 PRINTED_PO = re.compile(r"\bP\.?\s?O\.?\s*(?:number|no\.?|#)?\s*[:#-]?\s*((?:PO-?)?\d{3,})", re.IGNORECASE)
+
+
+NUMBER_LABEL = re.compile(r"(?:\bno\.?|\bnumber|#)\s*[:.]?\s*([A-Za-z0-9][\w\-/]*(?:[ ][\w\-/]+)*)\s*$", re.IGNORECASE)
+
+
+def _strip_number_label(data: InvoiceData) -> None:
+    """OCR can merge columns, so a model may return 'Accounts Payable No. NLS-7781' as the invoice number.
+    If the value still contains a label (No., Number, #), keep only the identifier after the last one."""
+    value = data.invoice_number.value
+    if value and " " in value:
+        match = NUMBER_LABEL.search(value)
+        if match and match.group(1) != value:
+            data.invoice_number.value = match.group(1)
+
+
+def _infer_tax_included(data: InvoiceData) -> None:
+    """Arithmetic, not guessing: if the lines (plus freight) already add up to the total while tax is stated
+    separately, the tax must be inside the line prices."""
+    try:
+        total = float(data.total.value) if data.total.value else None
+    except ValueError:
+        return
+    if data.tax_included_in_prices or not data.tax_amount or total is None or not data.lines:
+        return
+    lines_plus_freight = sum(l.amount for l in data.lines) + (data.freight or 0)
+    if abs(lines_plus_freight - total) <= 0.01 and abs(lines_plus_freight + data.tax_amount - total) > 0.01:
+        data.tax_included_in_prices = True
+
+
+PRINTED_AMOUNT = re.compile(r"(-?)\$?\s*(-?)(\d[\d,]*\.\d{2})")
+
+
+def _recover_printed_total(data: InvoiceData) -> None:
+    """If the model quoted the printed total (e.g. 'TOTAL $5,565.00') but left the value empty, take it from the quote.
+    Safe because the quote itself is verified against the page text later (rule V-05)."""
+    if data.total.value or not data.total.source_quote:
+        return
+    amounts = PRINTED_AMOUNT.findall(data.total.source_quote)
+    if amounts:
+        sign_a, sign_b, number = amounts[-1]
+        data.total.value = ("-" if (sign_a or sign_b) else "") + number.replace(",", "")
 
 
 def _recover_printed_po(data: InvoiceData) -> None:

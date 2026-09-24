@@ -1,14 +1,13 @@
 {
   "scenario": "T-08",
-  "model": "gemini-3.5-flash-lite",
-  "seconds": 22.13,
-  "input_tokens": 500,
-  "output_tokens": 633,
+  "model": "openai/gpt-oss-120b",
+  "seconds": 18.72,
+  "input_tokens": 2163,
+  "output_tokens": 893,
   "image_pages": [],
-  "fallbacks": [
-    "gemini-3.6-flash: busy (429)"
-  ],
+  "fallbacks": [],
   "data": {
+    "document_type": "invoice",
     "vendor_name": {
       "value": "Pinnacle Office Supply",
       "page": 1,
@@ -25,7 +24,11 @@
       "page": 1,
       "source_quote": "Date of issue Sep 18, 2026"
     },
-    "due_date": "2026-10-18",
+    "due_date": {
+      "value": "2026-10-18",
+      "page": 1,
+      "source_quote": "Date due Oct 18, 2026"
+    },
     "currency": "USD",
     "po_number": {
       "value": null,

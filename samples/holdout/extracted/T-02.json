@@ -1,18 +1,17 @@
 {
   "scenario": "T-02",
-  "model": "gemini-3.5-flash-lite",
-  "seconds": 33.95,
-  "input_tokens": 1557,
-  "output_tokens": 2494,
+  "model": "openai/gpt-oss-120b",
+  "seconds": 17.76,
+  "input_tokens": 2980,
+  "output_tokens": 2256,
   "image_pages": [],
-  "fallbacks": [
-    "gemini-3.6-flash: busy (503)"
-  ],
+  "fallbacks": [],
   "data": {
+    "document_type": "invoice",
     "vendor_name": {
       "value": "HARBORLINE OFFICE PRODUCTS",
       "page": 1,
-      "source_quote": "HARBORLINE OFFICE PRODUCTS"
+      "source_quote": "HARBORLINE OFFICE PRODUCTS INVOICE"
     },
     "vendor_tax_id": "20-8834112",
     "invoice_number": {
@@ -25,8 +24,12 @@
       "page": 1,
       "source_quote": "Date 10-Sep-2026"
     },
-    "due_date": null,
-    "currency": "USD",
+    "due_date": {
+      "value": null,
+      "page": null,
+      "source_quote": null
+    },
+    "currency": null,
     "po_number": {
       "value": "PO-4511",
       "page": 1,

@@ -1,21 +1,17 @@
 {
   "scenario": "HP-1",
-  "model": "gemini-3.5-flash-lite",
-  "seconds": 37.67,
-  "input_tokens": 564,
-  "output_tokens": 769,
-  "pages": [
-    {
-      "number": 1,
-      "source": "text-layer",
-      "ocr_confidence": null
-    }
-  ],
+  "model": "openai/gpt-oss-120b",
+  "seconds": 3.44,
+  "input_tokens": 2231,
+  "output_tokens": 1034,
+  "image_pages": [],
+  "fallbacks": [],
   "data": {
+    "document_type": "invoice",
     "vendor_name": {
       "value": "Apex Fasteners Inc.",
       "page": 1,
-      "source_quote": "Apex Fasteners Inc."
+      "source_quote": "Apex Fasteners Inc. INVOICE"
     },
     "vendor_tax_id": "74-3829105",
     "invoice_number": {
@@ -28,8 +24,12 @@
       "page": 1,
       "source_quote": "Invoice Date September 14, 2026"
     },
-    "due_date": "2026-10-14",
-    "currency": "USD",
+    "due_date": {
+      "value": "2026-10-14",
+      "page": 1,
+      "source_quote": "Due Date October 14, 2026"
+    },
+    "currency": null,
     "po_number": {
       "value": "PO-4501",
       "page": 1,

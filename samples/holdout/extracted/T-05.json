@@ -1,14 +1,16 @@
 {
   "scenario": "T-05",
-  "model": "gemini-3.5-flash-lite",
-  "seconds": 13.73,
-  "input_tokens": 502,
-  "output_tokens": 609,
+  "model": "openai/gpt-oss-20b",
+  "seconds": 1.76,
+  "input_tokens": 2162,
+  "output_tokens": 639,
   "image_pages": [],
   "fallbacks": [
-    "gemini-3.6-flash: busy (429)"
+    "openai/gpt-oss-120b: rate limited",
+    "qwen/qwen3.8-27b: rate limited"
   ],
   "data": {
+    "document_type": "invoice",
     "vendor_name": {
       "value": "Delta Pallet & Crate Co.",
       "page": 1,
@@ -25,7 +27,11 @@
       "page": 1,
       "source_quote": "Date of issue Sep 17, 2026"
     },
-    "due_date": "2026-10-17",
+    "due_date": {
+      "value": "2026-10-17",
+      "page": 1,
+      "source_quote": "Date due Oct 17, 2026"
+    },
     "currency": "USD",
     "po_number": {
       "value": "PO-4513",

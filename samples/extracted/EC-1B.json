@@ -1,23 +1,21 @@
 {
   "scenario": "EC-1B",
-  "model": "gemini-3.5-flash-lite",
-  "seconds": 49.0,
-  "input_tokens": 486,
-  "output_tokens": 630,
-  "pages": [
-    {
-      "number": 1,
-      "source": "text-layer",
-      "ocr_confidence": null
-    }
+  "model": "qwen/qwen3.8-27b",
+  "seconds": 20.69,
+  "input_tokens": 667,
+  "output_tokens": 480,
+  "image_pages": [],
+  "fallbacks": [
+    "openai/gpt-oss-120b: rate limited"
   ],
   "data": {
+    "document_type": "invoice",
     "vendor_name": {
       "value": "SUMMIT ELECTRICAL SUPPLY LLC",
       "page": 1,
       "source_quote": "SUMMIT ELECTRICAL SUPPLY LLC"
     },
-    "vendor_tax_id": "25-6617093",
+    "vendor_tax_id": null,
     "invoice_number": {
       "value": "SUM-10421",
       "page": 1,
@@ -28,7 +26,11 @@
       "page": 1,
       "source_quote": "Issued: 2026-09-18"
     },
-    "due_date": "2026-11-02",
+    "due_date": {
+      "value": "2026-11-02",
+      "page": 1,
+      "source_quote": "Due: 2026-11-02"
+    },
     "currency": "USD",
     "po_number": {
       "value": "PO-4503",
@@ -51,11 +53,11 @@
     "tax_included_in_prices": false,
     "freight": null,
     "total": {
-      "value": "21,500.00",
+      "value": "21500.00",
       "page": 1,
       "source_quote": "AMOUNT DUE (USD) $21,500.00"
     },
-    "remit_bank_name": "Allegheny Trust Bank",
+    "remit_bank_name": null,
     "remit_routing_number": {
       "value": "043318072",
       "page": 1,
@@ -66,6 +68,6 @@
       "page": 1,
       "source_quote": "Acct 640017723905"
     },
-    "notes": "Please reference the invoice number with your payment."
+    "notes": null
   }
 }

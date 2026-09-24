@@ -1,21 +1,17 @@
 {
   "scenario": "HP-2",
-  "model": "gemini-3.6-flash",
-  "seconds": 12.8,
-  "input_tokens": 578,
-  "output_tokens": 768,
-  "pages": [
-    {
-      "number": 1,
-      "source": "text-layer",
-      "ocr_confidence": null
-    }
-  ],
+  "model": "openai/gpt-oss-120b",
+  "seconds": 3.08,
+  "input_tokens": 2251,
+  "output_tokens": 1067,
+  "image_pages": [],
+  "fallbacks": [],
   "data": {
+    "document_type": "invoice",
     "vendor_name": {
       "value": "Coastal Packaging Corp.",
       "page": 1,
-      "source_quote": "Coastal Packaging Corp."
+      "source_quote": "Coastal Packaging Corp. INVOICE"
     },
     "vendor_tax_id": null,
     "invoice_number": {
@@ -28,8 +24,12 @@
       "page": 1,
       "source_quote": "Date 09/16/2026"
     },
-    "due_date": null,
-    "currency": "USD",
+    "due_date": {
+      "value": null,
+      "page": null,
+      "source_quote": null
+    },
+    "currency": null,
     "po_number": {
       "value": "PO-4502",
       "page": 1,

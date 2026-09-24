@@ -22,7 +22,7 @@ def _models(name: str, default: str) -> list[str]:
     return [m.strip() for m in os.getenv(name, default).split(",") if m.strip()]
 
 
-GROQ_MODELS = _models("GROQ_MODELS", "openai/gpt-oss-120b,openai/gpt-oss-20b")
+GROQ_MODELS = _models("GROQ_MODELS", "openai/gpt-oss-120b,qwen/qwen3.8-27b,openai/gpt-oss-20b")
 GEMINI_MODELS = _models("GEMINI_MODELS", "gemini-3.6-flash,gemini-3.5-flash-lite,gemini-flash-lite-latest")
 
 _WINDOWS_TESSERACT = r"C:\Program Files\Tesseract-OCR\tesseract.exe"

@@ -1,17 +1,15 @@
 {
   "scenario": "EC-3",
-  "model": "gemini-flash-lite-latest",
-  "seconds": 102.96,
-  "input_tokens": 508,
-  "output_tokens": 738,
-  "pages": [
-    {
-      "number": 1,
-      "source": "ocr",
-      "ocr_confidence": 95.0
-    }
+  "model": "qwen/qwen3.8-27b",
+  "seconds": 5.31,
+  "input_tokens": 684,
+  "output_tokens": 526,
+  "image_pages": [],
+  "fallbacks": [
+    "openai/gpt-oss-120b: output did not match the schema"
   ],
   "data": {
+    "document_type": "invoice",
     "vendor_name": {
       "value": "NORTHLINE SAFETY CO.",
       "page": 1,
@@ -28,14 +26,18 @@
       "page": 1,
       "source_quote": "Dated 15 Sep 2026"
     },
-    "due_date": null,
+    "due_date": {
+      "value": null,
+      "page": 1,
+      "source_quote": "Kindly remit within 30 days"
+    },
     "currency": "USD",
     "po_number": {
       "value": null,
-      "page": null,
+      "page": 1,
       "source_quote": null
     },
-    "po_hint": "Re: Q3 safety equipment order",
+    "po_hint": null,
     "lines": [
       {
         "sku": null,
@@ -69,7 +71,7 @@
       "page": 1,
       "source_quote": "TOTAL $5,565.00"
     },
-    "remit_bank_name": "North Shore Savings Bank",
+    "remit_bank_name": null,
     "remit_routing_number": {
       "value": "091017442",
       "page": 1,
@@ -80,6 +82,6 @@
       "page": 1,
       "source_quote": "account 771902458301"
     },
-    "notes": "Sales tax not collected - purchaser to self-assess use tax. Kindly remit within 30 days to North Shore Savings Bank, routing 091017442, account 771902458301, quoting our invoice number."
+    "notes": "Sales tax not collected - purchaser to self-assess use tax."
   }
 }

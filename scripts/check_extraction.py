@@ -38,10 +38,11 @@ def score(data: dict, truth: dict) -> dict[str, bool]:
         "date": data["invoice_date"]["value"] == truth["invoice_date"],
         "po": data["po_number"]["value"] == truth["po_number"],
         "lines": lines_ok,
-        # on a tax-inclusive invoice a net subtotal (lines minus tax) is an equally valid reading
+        # a tax-inclusive invoice prints no subtotal: "none", gross or net (lines minus tax) are all valid readings
         "subtotal": same_money(data["subtotal"], truth["subtotal"]) or (
             truth.get("tax_included", False)
-            and same_money(data["subtotal"], float(truth["subtotal"]) - float(truth["tax"]))),
+            and (data["subtotal"] is None
+                 or same_money(data["subtotal"], float(truth["subtotal"]) - float(truth["tax"])))),
         "tax": same_money(data["tax_amount"], truth["tax"]),
         "freight": same_money(data["freight"], truth["freight"]),
         "total": same_money(data["total"]["value"], truth["total"]),
@@ -75,6 +76,8 @@ def main(selected: list[str]) -> None:
         status = "OK  " if not misses else "MISS"
         print(f"{status} {item['scenario']:6} {pages[0].source:10} {result.model:24} {result.seconds:5.1f}s "
               f"{result.input_tokens:5}+{result.output_tokens:<5} tok  {', '.join(misses)}")
+        if result.fallbacks:
+            print(f"       skipped first: {'; '.join(result.fallbacks)}")
     if runs:
         print("\nField accuracy: " + "  ".join(f"{k} {v}/{runs}" for k, v in totals.items()))
 

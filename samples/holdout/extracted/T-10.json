@@ -1,14 +1,13 @@
 {
   "scenario": "T-10",
-  "model": "gemini-3.5-flash-lite",
-  "seconds": 28.34,
-  "input_tokens": 541,
-  "output_tokens": 634,
+  "model": "openai/gpt-oss-120b",
+  "seconds": 2.71,
+  "input_tokens": 2195,
+  "output_tokens": 766,
   "image_pages": [],
-  "fallbacks": [
-    "gemini-3.6-flash: busy (429)"
-  ],
+  "fallbacks": [],
   "data": {
+    "document_type": "credit_note",
     "vendor_name": {
       "value": "Apex Fasteners Inc.",
       "page": 1,
@@ -25,8 +24,12 @@
       "page": 1,
       "source_quote": "Invoice Date September 20, 2026"
     },
-    "due_date": "2026-10-20",
-    "currency": "USD",
+    "due_date": {
+      "value": "2026-10-20",
+      "page": 1,
+      "source_quote": "Due Date October 20, 2026"
+    },
+    "currency": null,
     "po_number": {
       "value": "PO-4501",
       "page": 1,

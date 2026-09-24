@@ -1,20 +1,21 @@
 {
   "scenario": "T-06",
-  "model": "gemini-3.5-flash-lite",
-  "seconds": 11.88,
-  "input_tokens": 564,
-  "output_tokens": 672,
+  "model": "qwen/qwen3.8-27b",
+  "seconds": 21.67,
+  "input_tokens": 707,
+  "output_tokens": 501,
   "image_pages": [],
   "fallbacks": [
-    "gemini-3.6-flash: busy (429)"
+    "openai/gpt-oss-120b: rate limited"
   ],
   "data": {
+    "document_type": "invoice",
     "vendor_name": {
       "value": "EVERGREEN CHEMICAL SUPPLY",
       "page": 1,
-      "source_quote": "EVERGREEN CHEMICAL SUPPLY INVOICE"
+      "source_quote": "EVERGREEN CHEMICAL SUPPLY"
     },
-    "vendor_tax_id": "93-4402781",
+    "vendor_tax_id": null,
     "invoice_number": {
       "value": "ECS-40218",
       "page": 1,
@@ -25,7 +26,11 @@
       "page": 1,
       "source_quote": "Date 11-Sep-2026"
     },
-    "due_date": null,
+    "due_date": {
+      "value": null,
+      "page": 1,
+      "source_quote": "Terms Net 30"
+    },
     "currency": "USD",
     "po_number": {
       "value": "PO-4514",
@@ -59,7 +64,7 @@
       "page": 1,
       "source_quote": "INVOICE TOTAL $2,305.88"
     },
-    "remit_bank_name": "Cascade Trust Bank",
+    "remit_bank_name": null,
     "remit_routing_number": {
       "value": "123006965",
       "page": 1,
@@ -70,6 +75,6 @@
       "page": 1,
       "source_quote": "Account 771430092258"
     },
-    "notes": "Terms Net 30. Please quote the invoice number with payment."
+    "notes": null
   }
 }

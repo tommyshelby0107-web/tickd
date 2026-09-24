@@ -1,20 +1,21 @@
 {
   "scenario": "T-04",
-  "model": "gemini-3.5-flash-lite",
-  "seconds": 29.68,
-  "input_tokens": 522,
-  "output_tokens": 619,
+  "model": "qwen/qwen3.8-27b",
+  "seconds": 1.69,
+  "input_tokens": 662,
+  "output_tokens": 474,
   "image_pages": [],
   "fallbacks": [
-    "gemini-3.6-flash: busy (503)"
+    "openai/gpt-oss-120b: rate limited"
   ],
   "data": {
+    "document_type": "invoice",
     "vendor_name": {
       "value": "Apex Fasteners Inc.",
       "page": 1,
       "source_quote": "Apex Fasteners Inc."
     },
-    "vendor_tax_id": "74-3829105",
+    "vendor_tax_id": null,
     "invoice_number": {
       "value": "INV-2026-0512",
       "page": 1,
@@ -23,9 +24,13 @@
     "invoice_date": {
       "value": "2026-09-16",
       "page": 1,
-      "source_quote": "September 16, 2026"
+      "source_quote": "Invoice Date September 16, 2026"
     },
-    "due_date": "2026-10-16",
+    "due_date": {
+      "value": "2026-10-16",
+      "page": 1,
+      "source_quote": "Due Date October 16, 2026"
+    },
     "currency": "USD",
     "po_number": {
       "value": "PO-4480",
@@ -52,7 +57,7 @@
       "page": 1,
       "source_quote": "Total Due $1,283.98"
     },
-    "remit_bank_name": "Lone Star Commerce Bank",
+    "remit_bank_name": null,
     "remit_routing_number": {
       "value": "113004218",
       "page": 1,
@@ -63,6 +68,6 @@
       "page": 1,
       "source_quote": "Account 582033194712"
     },
-    "notes": "Remit payment by ACH to:"
+    "notes": null
   }
 }

@@ -1,41 +1,37 @@
 {
   "set": "holdout",
   "mode": "live",
-  "at": "2026-09-23T17:29:49+00:00",
-  "decisions_correct": 7,
-  "total": 10,
+  "at": "2026-09-24T13:07:42+00:00",
+  "decisions_correct": 11,
+  "total": 11,
   "field_accuracy": {
-    "number": 10,
-    "date": 10,
-    "po": 10,
-    "lines": 10,
-    "subtotal": 9,
-    "tax": 10,
-    "freight": 10,
-    "total": 10,
-    "account": 10
+    "number": 11,
+    "date": 11,
+    "po": 11,
+    "lines": 11,
+    "subtotal": 10,
+    "tax": 11,
+    "freight": 11,
+    "total": 11,
+    "account": 11
   },
-  "field_runs": 10,
+  "field_runs": 11,
   "rows": [
     {
       "scenario": "T-01",
       "title": "Prices include sales tax (tax-inclusive invoice)",
       "expected": "Approve",
-      "got": "Review",
-      "owner": "Buyer",
-      "reasons": [
-        "M-01",
-        "M-04",
-        "V-02"
-      ],
-      "correct": false,
-      "why": "expected Approve, got Review",
+      "got": "Approve",
+      "owner": null,
+      "reasons": [],
+      "correct": true,
+      "why": "ok",
       "field_misses": [
         "subtotal"
       ],
-      "model": "gemini-3.5-flash-lite",
-      "seconds": 40.07,
-      "summary": "Held for Buyer review. Price above tolerance - Impact wrench 1/2in drive, cordless: $202.10 vs PO $188.00 (+7.5%); Socket set metric, 40 piece: $77.40 vs PO $72.00 (+7.5%). Plus 2 other issue(s)."
+      "model": "openai/gpt-oss-120b",
+      "seconds": 20.82,
+      "summary": "Approved. Keystone Industrial Tools Inc. invoice KIT-22817 for $1,986.60 passed every check against PO-4510. 1 variance note(s) within tolerance."
     },
     {
       "scenario": "T-02",
@@ -47,8 +43,8 @@
       "correct": true,
       "why": "ok",
       "field_misses": [],
-      "model": "gemini-3.5-flash-lite",
-      "seconds": 34.32,
+      "model": "openai/gpt-oss-120b",
+      "seconds": 17.96,
       "summary": "Approved. Harborline Office Products invoice HOP-500931 for $7,212.50 passed every check against PO-4511."
     },
     {
@@ -63,8 +59,8 @@
       "correct": true,
       "why": "ok",
       "field_misses": [],
-      "model": "gemini-3.5-flash-lite",
-      "seconds": 43.8,
+      "model": "qwen/qwen3.8-27b",
+      "seconds": 1.58,
       "summary": "Held for Buyer review. 1 line(s) are not on PO-4512: Quarterly HVAC service - labour, filters and disposal (lump sum)."
     },
     {
@@ -81,8 +77,8 @@
       "correct": true,
       "why": "ok",
       "field_misses": [],
-      "model": "gemini-3.5-flash-lite",
-      "seconds": 29.84,
+      "model": "qwen/qwen3.8-27b",
+      "seconds": 1.8,
       "summary": "Held for Buyer review. PO-4480 would be billed $2,388.80 of $1,194.40 (200.0%). Only $0.00 remains billable. Plus 2 other issue(s)."
     },
     {
@@ -97,8 +93,8 @@
       "correct": true,
       "why": "ok",
       "field_misses": [],
-      "model": "gemini-3.5-flash-lite",
-      "seconds": 13.85,
+      "model": "openai/gpt-oss-20b",
+      "seconds": 1.87,
       "summary": "Held for Warehouse review. Wooden pallet 48x40, heat treated: invoiced 300, but only 180 received and not yet billed (0 of 300 already invoiced)."
     },
     {
@@ -106,17 +102,17 @@
       "title": "Arithmetic error on a line (typed 609.00 instead of 690.00)",
       "expected": "Review",
       "got": "Review",
-      "owner": "Buyer",
+      "owner": "AP",
       "reasons": [
-        "M-04",
-        "V-02"
+        "V-02",
+        "M-04"
       ],
-      "correct": false,
-      "why": "owner Buyer, expected AP",
+      "correct": true,
+      "why": "ok",
       "field_misses": [],
-      "model": "gemini-3.5-flash-lite",
-      "seconds": 12.02,
-      "summary": "Held for Buyer review. Subtotal $2,145.00 is $-81.00 (-3.64%) away from PO pricing of $2,226.00; tolerance is $44.52. Plus 1 other issue(s)."
+      "model": "qwen/qwen3.8-27b",
+      "seconds": 21.8,
+      "summary": "Held for AP review. Arithmetic does not reconcile: 'Absorbent granules, 25 lb bag' amount $609.00 is not qty x price. Plus 1 other issue(s)."
     },
     {
       "scenario": "T-07",
@@ -130,8 +126,8 @@
       "correct": true,
       "why": "ok",
       "field_misses": [],
-      "model": "gemini-3.5-flash-lite",
-      "seconds": 24.11,
+      "model": "openai/gpt-oss-120b",
+      "seconds": 2.75,
       "summary": "Held for AP review. Possible duplicate: invoice CPK-88120 for $3,878.60 dated 2026-08-20 has a different number but the same amount."
     },
     {
@@ -147,8 +143,8 @@
       "correct": true,
       "why": "ok",
       "field_misses": [],
-      "model": "gemini-3.5-flash-lite",
-      "seconds": 24.13,
+      "model": "openai/gpt-oss-120b",
+      "seconds": 20.16,
       "summary": "Held for Procurement review. Vendor 'Pinnacle Office Supply' is not in the vendor master. Plus 1 other issue(s)."
     },
     {
@@ -164,7 +160,7 @@
       "why": "safe alternative",
       "field_misses": [],
       "model": "gemini-3.5-flash-lite",
-      "seconds": 18.48,
+      "seconds": 22.32,
       "summary": "Held for AP review. Could not verify against the document: invoice number (quote not found in page text); invoice date (quote not found in page text); PO number (OCR confidence 68); bank account (OCR confidence 71)."
     },
     {
@@ -172,17 +168,33 @@
       "title": "Credit note for returned goods",
       "expected": "Review",
       "got": "Review",
-      "owner": "Buyer",
+      "owner": "AP",
       "reasons": [
-        "M-04",
-        "V-02"
+        "V-06"
       ],
-      "correct": false,
-      "why": "missing rule(s) ['V-06']",
+      "correct": true,
+      "why": "ok",
       "field_misses": [],
-      "model": "gemini-3.5-flash-lite",
-      "seconds": 28.49,
-      "summary": "Held for Buyer review. Subtotal $-192.50 is $-385.00 (-200.00%) away from PO pricing of $192.50; tolerance is $3.85. Plus 1 other issue(s)."
+      "model": "openai/gpt-oss-120b",
+      "seconds": 2.85,
+      "summary": "Held for AP review. This is a credit note for $206.94, not a bill to pay. Apply it against the vendor's open invoices instead."
+    },
+    {
+      "scenario": "T-11",
+      "title": "No master data at all: unknown vendor, unknown PO, unknown items",
+      "expected": "Review",
+      "got": "Review",
+      "owner": "Procurement",
+      "reasons": [
+        "VM-01",
+        "P-01"
+      ],
+      "correct": true,
+      "why": "ok",
+      "field_misses": [],
+      "model": "openai/gpt-oss-120b",
+      "seconds": 20.59,
+      "summary": "Held for Procurement review. Vendor 'NORTHGATE INDUSTRIAL SOLUTIONS LLC' is not in the vendor master. Plus 1 other issue(s)."
     }
   ]
 }

@@ -1,14 +1,15 @@
 {
   "scenario": "T-03",
-  "model": "gemini-3.5-flash-lite",
-  "seconds": 43.68,
-  "input_tokens": 544,
-  "output_tokens": 611,
+  "model": "qwen/qwen3.8-27b",
+  "seconds": 1.46,
+  "input_tokens": 682,
+  "output_tokens": 463,
   "image_pages": [],
   "fallbacks": [
-    "gemini-3.6-flash: busy (503)"
+    "openai/gpt-oss-120b: rate limited"
   ],
   "data": {
+    "document_type": "invoice",
     "vendor_name": {
       "value": "Crestview Facility Services",
       "page": 1,
@@ -25,7 +26,11 @@
       "page": 1,
       "source_quote": "Invoice Date September 12, 2026"
     },
-    "due_date": "2026-09-27",
+    "due_date": {
+      "value": "2026-09-27",
+      "page": 1,
+      "source_quote": "Terms Net 15"
+    },
     "currency": "USD",
     "po_number": {
       "value": "PO-4512",
@@ -52,7 +57,7 @@
       "page": 1,
       "source_quote": "Amount due $2,176.88"
     },
-    "remit_bank_name": "Buckeye Savings Bank",
+    "remit_bank_name": null,
     "remit_routing_number": {
       "value": "044072324",
       "page": 1,
@@ -63,6 +68,6 @@
       "page": 1,
       "source_quote": "Account 662004817390"
     },
-    "notes": "Thank you for trusting us with your facility."
+    "notes": null
   }
 }

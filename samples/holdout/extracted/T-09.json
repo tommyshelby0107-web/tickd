@@ -1,16 +1,17 @@
 {
   "scenario": "T-09",
   "model": "gemini-3.5-flash-lite",
-  "seconds": 17.59,
-  "input_tokens": 1577,
-  "output_tokens": 664,
+  "seconds": 21.46,
+  "input_tokens": 1713,
+  "output_tokens": 710,
   "image_pages": [
     1
   ],
   "fallbacks": [
-    "gemini-3.6-flash: busy (429)"
+    "gemini-3.6-flash: busy (503)"
   ],
   "data": {
+    "document_type": "invoice",
     "vendor_name": {
       "value": "Lakeside Bearings & Seals",
       "page": 1,
@@ -27,7 +28,11 @@
       "page": 1,
       "source_quote": "Sep 19, 2026"
     },
-    "due_date": "2026-10-19",
+    "due_date": {
+      "value": "2026-10-19",
+      "page": 1,
+      "source_quote": "Oct 19, 2026"
+    },
     "currency": "USD",
     "po_number": {
       "value": "PO-4516",
@@ -59,7 +64,7 @@
     "total": {
       "value": "1429.75",
       "page": 1,
-      "source_quote": "1,429.75"
+      "source_quote": "$1,429.75"
     },
     "remit_bank_name": "Northwoods Bank",
     "remit_routing_number": {

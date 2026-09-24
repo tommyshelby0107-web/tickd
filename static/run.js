@@ -250,7 +250,7 @@ function renderFields(r) {
   const plain = (v) => (v === null || v === undefined || v === "" ? '<span class="muted">—</span>' : esc(v));
   const rows = [
     ["Vendor", src(x.vendor_name)], ["Invoice number", src(x.invoice_number)], ["Invoice date", src(x.invoice_date)],
-    ["Due date", plain(x.due_date)], ["PO number", src(x.po_number)], ["Order reference", plain(x.po_hint)],
+    ["Due date", src(x.due_date)], ["PO number", src(x.po_number)], ["Order reference", plain(x.po_hint)],
     ["Subtotal", plain(x.subtotal !== null ? money(x.subtotal) : null)],
     ["Tax", plain(x.tax_amount !== null ? `${money(x.tax_amount)}${x.tax_rate_pct !== null ? ` (${x.tax_rate_pct}%)` : ""}` : null)],
     ["Freight", plain(x.freight ? money(x.freight) : null)], ["Total", src(x.total)],
