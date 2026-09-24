@@ -11,8 +11,8 @@ const isPdf = (f) => f.name.toLowerCase().endsWith(".pdf");
 
 async function showPick() {
   document.getElementById("pick").hidden = false;
-  document.getElementById("folder-icon").innerHTML = icon("folder", 28);
-  document.getElementById("files-icon").innerHTML = icon("upload", 28);
+  document.getElementById("folder-art").innerHTML = clayArt("folder", 104);
+  document.getElementById("files-art").innerHTML = clayArt("upload", 104);
   const folderInput = document.getElementById("folder-input");
   const filesInput = document.getElementById("files-input");
   folderInput.addEventListener("change", () => {
@@ -40,22 +40,23 @@ function choose(files) {
   const pdfs = chosen.filter(isPdf);
   const preview = document.getElementById("preview");
   preview.hidden = chosen.length === 0;
-  document.getElementById("preview-title").textContent =
-    `${folderName}: ${pdfs.length} PDF${pdfs.length === 1 ? "" : "s"}${chosen.length > pdfs.length ? `, ${chosen.length - pdfs.length} other file(s) skipped` : ""}`;
+  document.getElementById("preview-title").textContent = `${folderName} · ${pdfs.length} PDF${pdfs.length === 1 ? "" : "s"}`;
   const start = document.getElementById("start");
-  start.textContent = `Process ${pdfs.length} invoice${pdfs.length === 1 ? "" : "s"}`;
+  start.innerHTML = `${icon("bolt", 16)} Process ${pdfs.length}`;
   start.disabled = pdfs.length === 0;
   let n = 0;
-  document.getElementById("preview-rows").innerHTML = chosen.map((f) => `
-    <tr><td class="muted">${isPdf(f) ? ++n : ""}</td><td>${esc(f.webkitRelativePath || f.name)}</td>
-      <td class="num">${kb(f.size)}</td>
-      <td>${isPdf(f) ? '<span class="pill info">processed</span>' : '<span class="pill plain">skipped, not a PDF</span>'}</td></tr>`).join("");
+  const rows = document.getElementById("preview-rows");
+  rows.innerHTML = chosen.map((f) => `
+    <tr><td class="muted">${isPdf(f) ? ++n : ""}</td><td><b>${esc(f.webkitRelativePath || f.name)}</b></td>
+      <td class="num muted">${kb(f.size)}</td>
+      <td>${isPdf(f) ? '<span class="pill info">PDF</span>' : '<span class="pill plain">skipped</span>'}</td></tr>`).join("");
+  stagger(rows, "tr");
 }
 
 async function startBatch() {
   const start = document.getElementById("start");
   start.disabled = true;
-  start.textContent = "Uploading…";
+  start.innerHTML = `<span class="spin">${icon("spinner", 16)}</span> Uploading`;
   const form = new FormData();
   chosen.filter(isPdf).forEach((f) => form.append("files", f, f.name));
   form.append("name", folderName);
@@ -82,22 +83,37 @@ function tally(runs) {
 
 async function loadBatches() {
   const list = await api("/api/batches");
-  document.getElementById("batches").innerHTML = list.length ? list.map((b) => {
+  const body = document.getElementById("batches");
+  body.innerHTML = list.length ? list.map((b) => {
     const t = tally(b.runs);
     const pct = Math.round((100 * t.done) / Math.max(1, b.total));
     return `<tr class="clickable" onclick="location.href='/bulk/${esc(b.batch_id)}'">
-      <td><b>${esc(b.name)}</b><div class="quote mono">${esc(b.batch_id)}</div></td>
-      <td class="muted">${timeAgo(b.created_at)}</td><td class="num">${b.total}</td>
-      <td><div class="progress"><div style="width:${pct}%"></div></div><div class="muted" style="font-size:12px">${t.done} of ${b.total}</div></td>
+      <td><b>${esc(b.name)}</b></td>
+      <td class="muted nowrap">${timeAgo(b.created_at)}</td><td class="num">${b.total}</td>
+      <td style="min-width:140px"><div class="progress"><div style="width:${pct}%"></div></div></td>
       <td class="num">${t.approve}</td><td class="num">${t.review}</td><td class="num">${t.returned}</td><td class="num">${t.reject}</td></tr>`;
-  }).join("") : '<tr><td colspan="8" class="empty">No batches yet.</td></tr>';
+  }).join("") : `<tr><td colspan="8">${emptyState("No batches yet", "folder")}</td></tr>`;
+  stagger(body, "tr");
 }
 
 // ---------------------------------------------------------------- watch
 
+const COUNTS = [
+  ["approve", "Approved", "mint", "check"], ["review", "Needs review", "amber", "alert"],
+  ["returned", "Returned", "lilac", "mail"], ["reject", "Rejected", "coral", "x"], ["waiting", "Waiting", "sky", "clock"],
+];
+let lastRows = "";
+let painted = false;
+
 async function showWatch(id) {
   document.getElementById("watch").hidden = false;
-  document.getElementById("batch-label").textContent = `Batch ${id}`;
+  document.getElementById("to-dashboard").innerHTML = `${icon("dashboard", 16)} Dashboard`;
+  document.getElementById("new-batch").innerHTML = `${icon("folder", 16)} New batch`;
+  const counts = document.getElementById("counts");
+  counts.innerHTML = COUNTS.map(([key, label, color, ico]) => `
+    <div class="card kpi"><div class="blob ${color}">${icon(ico, 24)}</div>
+      <div><div class="value" id="c-${key}">0</div><div class="label">${label}</div></div></div>`).join("");
+  stagger(counts);
   const tick = async () => {
     const b = await api(`/api/batches/${id}`);
     render(b);
@@ -115,31 +131,36 @@ function render(b) {
   const lastEnd = Math.max(...b.runs.map((r) => (r.started_at ? new Date(r.started_at).getTime() + 1000 * (r.seconds || 0) : 0)));
   const secs = ((finished ? lastEnd : Date.now()) - started) / 1000;
   document.getElementById("batch-title").textContent = b.name;
-  document.getElementById("batch-sub").textContent = `${b.total} invoice(s) · started ${new Date(b.created_at).toLocaleString()}` +
-    (b.skipped.length ? ` · skipped: ${b.skipped.join(", ")}` : "");
+  document.getElementById("batch-meta").innerHTML = `<span class="pill plain">${icon("file", 14)}${b.total} invoices</span>` +
+    (b.skipped.length ? `<span class="pill plain" title="${esc(b.skipped.join(", "))}">${b.skipped.length} skipped</span>` : "");
   document.getElementById("progress-text").textContent = finished
-    ? `Done: ${b.total} invoices in ${secs.toFixed(0)}s · ${Math.round((100 * (t.approve + t.reject)) / b.total)}% decided automatically`
-    : `Processing ${t.done} of ${b.total}…`;
+    ? `Done · ${Math.round((100 * (t.approve + t.reject)) / b.total)}% decided automatically`
+    : `Processing ${t.done} of ${b.total}`;
   document.getElementById("elapsed").textContent = `${secs.toFixed(0)}s`;
+  document.getElementById("progress").classList.toggle("live", !finished);
   document.getElementById("progress-bar").style.width = `${pct}%`;
-  document.getElementById("counts").innerHTML = [
-    ["Approved", t.approve, "var(--green)"], ["Needs review", t.review, "var(--amber)"],
-    ["Returned to vendor", t.returned, "var(--violet)"], ["Rejected", t.reject, "var(--red)"],
-    ["Waiting", b.total - t.done, "var(--muted)"],
-  ].map(([label, n, color]) => `<div class="card kpi" style="box-shadow:none">
-      <div class="label">${label}</div><div class="value" style="color:${color}">${n}</div></div>`).join("");
-  document.getElementById("batch-rows").innerHTML = b.runs.map((r, i) => {
+  const values = { ...t, waiting: b.total - t.done };
+  COUNTS.forEach(([key]) => countUp(document.getElementById(`c-${key}`), values[key]));
+
+  const html = b.runs.map((r, i) => {
     const status = r.status === "running" && r.current_stage
       ? `<span class="pill running">${esc(r.current_stage.stage)}</span>`
       : decisionPill(r.decision, r.severity, r.status);
     const why = (r.summary || "").replace(/^(Approved|Rejected|Returned to vendor|Held for [^.]+ review)\. /, "");
     return `<tr class="clickable" onclick="location.href='/runs/${esc(r.run_id)}'">
-      <td class="muted">${i + 1}</td><td>${esc(r.file_name)}</td><td>${status}</td>
+      <td class="muted">${i + 1}</td><td><b>${esc(r.file_name)}</b></td><td>${status}</td>
       <td>${esc(r.vendor_name || "—")}</td><td class="nowrap">${esc(r.invoice_number || "—")}</td>
       <td class="num">${money(r.total, r.currency)}</td>
-      <td class="muted" style="max-width:360px;font-size:13px">${esc(why)}</td>
+      <td class="muted" style="max-width:360px;font-size:13px"><div class="clamp" title="${esc(r.summary || "")}">${esc(why)}</div></td>
       <td class="num">${r.seconds ? `${r.seconds}s` : "—"}</td></tr>`;
   }).join("");
+  if (html !== lastRows) {
+    lastRows = html;
+    const rows = document.getElementById("batch-rows");
+    rows.innerHTML = html;
+    if (!painted) stagger(rows, "tr");
+  }
+  painted = true;
 }
 
 renderSidebar("bulk");

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Run · Invoice Agent</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
@@ -13,17 +13,10 @@
   <main>
     <!-- Start a run -->
     <div id="new-run" hidden>
-      <div class="page-head">
-        <div>
-          <div class="section-label">Process an invoice</div>
-          <h1>New run</h1>
-          <p>Upload a vendor invoice PDF, or run one of the prepared scenarios.</p>
-        </div>
-      </div>
-      <label class="dropzone" id="dropzone">
-        <div id="upload-icon"></div>
-        <div style="font-weight:600;margin-top:6px">Drop an invoice PDF here, or click to choose</div>
-        <div class="muted">Digital or scanned, up to 10 MB</div>
+      <div class="page-head enter"><h1>New run</h1></div>
+      <label class="dropzone enter" style="--i:1" id="dropzone">
+        <div id="upload-art"></div>
+        <div>Drop an invoice PDF here, or click to choose</div>
         <input type="file" id="file" accept="application/pdf" hidden>
       </label>
       <div id="sample-sets"></div>
@@ -31,34 +24,34 @@
 
     <!-- Watch a run -->
     <div id="live" hidden>
-      <div class="page-head">
+      <div class="page-head enter">
         <div>
-          <div class="section-label" id="run-label">Run</div>
           <h1 id="run-title">Processing…</h1>
-          <p id="run-sub">Starting</p>
+          <div class="meta" id="run-meta"></div>
         </div>
         <div class="actions" style="margin:0">
-          <a class="btn" id="pdf-link" target="_blank">Open PDF</a>
-          <a class="btn btn-primary" href="/run">New run</a>
+          <a class="btn" id="pdf-link" target="_blank"></a>
+          <a class="btn btn-primary" href="/run" id="again"></a>
         </div>
       </div>
 
       <section class="card decision" id="decision"></section>
 
       <div class="grid grid-run">
-        <section class="card">
-          <div class="card-head"><h2>Live run</h2><span class="muted mono" id="elapsed"></span></div>
+        <section class="card enter" style="--i:1">
+          <div class="card-head"><h2>Live run</h2><span class="clock" id="elapsed">0.0s</span></div>
           <ol class="timeline" id="timeline"></ol>
         </section>
-        <section class="card">
+        <section class="card enter" style="--i:2">
           <div class="tabs">
+            <span class="tab-thumb"></span>
             <button class="tab active" data-tab="document">Document</button>
-            <button class="tab" data-tab="fields">Extracted fields</button>
+            <button class="tab" data-tab="fields">Fields</button>
             <button class="tab" data-tab="lines">PO match</button>
           </div>
-          <div id="tab-document"></div>
-          <div id="tab-fields" hidden><div class="empty">Available once the invoice has been read.</div></div>
-          <div id="tab-lines" hidden><div class="empty">Available once the PO has been matched.</div></div>
+          <div id="tab-document" class="tab-panel"></div>
+          <div id="tab-fields" class="tab-panel" hidden></div>
+          <div id="tab-lines" class="tab-panel" hidden></div>
         </section>
       </div>
     </div>

@@ -5,25 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Email inbox · Invoice Agent</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
   <aside id="sidebar"></aside>
   <main>
-    <div class="page-head">
+    <div class="page-head enter">
       <div>
-        <div class="section-label">Invoices by email</div>
         <h1>Email inbox</h1>
-        <p id="lead">Vendors email invoices to the AP inbox; every PDF attachment is picked up and processed.</p>
+        <div class="meta" id="status"></div>
       </div>
-      <button class="btn btn-primary" id="check">Check now</button>
+      <button class="btn btn-primary" id="check"></button>
     </div>
-    <section class="card" style="margin-bottom:16px" id="status"></section>
-    <section class="card">
-      <div class="card-head"><h2>Received emails</h2><span class="muted" id="count"></span></div>
+    <section class="card enter" style="--i:1;margin-bottom:20px" id="setup" hidden></section>
+    <section class="card enter" style="--i:2">
+      <div class="card-head"><h2>Received</h2><span class="tag" id="count">0</span></div>
       <table>
-        <thead><tr><th>Received</th><th>From</th><th>Subject</th><th>Invoices processed</th><th>Ignored</th></tr></thead>
+        <thead><tr><th>Received</th><th>From</th><th>Subject</th><th>Invoices</th><th>Ignored</th></tr></thead>
         <tbody id="emails"></tbody>
       </table>
     </section>

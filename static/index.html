@@ -5,52 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard · Invoice Agent</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
   <aside id="sidebar"></aside>
   <main>
-    <div class="page-head">
-      <div>
-        <div class="section-label">Overview</div>
-        <h1>Dashboard</h1>
-        <p>Every invoice the agent has processed, what it decided and what is waiting for a person.</p>
-      </div>
-      <a class="btn btn-primary" href="/run"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> New run</a>
+    <div class="page-head enter">
+      <h1>Dashboard</h1>
+      <a class="btn btn-primary" href="/run" id="new-run"></a>
     </div>
 
-    <section class="kpis">
-      <div class="card kpi"><div class="label">Invoices processed</div><div class="value" id="k-total">0</div><div class="hint">since last reset</div></div>
-      <div class="card kpi"><div class="label">Decided automatically</div><div class="value" id="k-stp">0%</div><div class="hint" id="k-stp-hint">approved or rejected, no human</div></div>
-      <div class="card kpi"><div class="label">Average decision time</div><div class="value" id="k-time">—</div><div class="hint">PDF in to decision out</div></div>
-      <div class="card kpi"><div class="label">Open reviews</div><div class="value" id="k-open">0</div><div class="hint">waiting for a person</div></div>
-      <div class="card kpi"><div class="label">High-risk holds</div><div class="value" id="k-high">0</div><div class="hint">bank-detail changes</div></div>
+    <section class="kpis" id="kpis">
+      <div class="card kpi"><div class="blob" data-icon="file"></div><div><div class="value" id="k-total">0</div><div class="label">Processed</div></div></div>
+      <div class="card kpi"><div class="blob mint" data-icon="bolt"></div><div><div class="value" id="k-stp">0%</div><div class="label">Auto-decided</div></div></div>
+      <div class="card kpi"><div class="blob sky" data-icon="clock"></div><div><div class="value" id="k-time">—</div><div class="label">Avg. time</div></div></div>
+      <div class="card kpi"><div class="blob amber" data-icon="inbox"></div><div><div class="value" id="k-open">0</div><div class="label">Open reviews</div></div></div>
+      <div class="card kpi"><div class="blob coral" data-icon="shield"></div><div><div class="value" id="k-high">0</div><div class="label">High-risk holds</div></div></div>
     </section>
 
-    <section class="grid grid-2" style="margin-bottom:16px">
-      <div class="card">
-        <div class="card-head"><h2>Decisions</h2><span class="muted">automated outcome per invoice</span></div>
-        <div class="bars" id="by-outcome"></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><h2>Exceptions by rule</h2><span class="muted">why invoices were not approved</span></div>
-        <div class="bars" id="by-reason"></div>
-      </div>
+    <section class="grid grid-2" id="charts" style="margin-bottom:20px">
+      <div class="card"><div class="card-head"><h2>Decisions</h2></div><div class="bars" id="by-outcome"></div></div>
+      <div class="card"><div class="card-head"><h2>Exceptions by rule</h2></div><div class="bars" id="by-reason"></div></div>
     </section>
 
-    <section class="card" style="margin-bottom:16px">
-      <div class="card-head"><h2>Review queue</h2><span class="muted" id="queue-count"></span></div>
+    <section class="card enter" style="--i:7;margin-bottom:20px">
+      <div class="card-head"><h2>Review queue</h2><span class="tag" id="queue-count">0</span></div>
       <table>
         <thead><tr><th>Invoice</th><th>Vendor</th><th class="num">Total</th><th>Status</th><th>Owner</th><th>Held because</th><th>Received</th></tr></thead>
         <tbody id="queue"></tbody>
       </table>
     </section>
 
-    <section class="card">
-      <div class="card-head"><h2>All runs</h2><span class="muted" id="runs-count"></span></div>
+    <section class="card enter" style="--i:8">
+      <div class="card-head"><h2>All runs</h2><span class="tag" id="runs-count">0</span></div>
       <table>
-        <thead><tr><th>Run</th><th>File</th><th>Source</th><th>Vendor</th><th>Invoice</th><th class="num">Total</th><th>Decision</th><th class="num">Time</th><th>When</th></tr></thead>
+        <thead><tr><th>File</th><th>Source</th><th>Vendor</th><th>Invoice</th><th class="num">Total</th><th>Decision</th><th class="num">Time</th><th>When</th></tr></thead>
         <tbody id="runs"></tbody>
       </table>
     </section>

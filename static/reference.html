@@ -5,31 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Reference data · Invoice Agent</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
   <aside id="sidebar"></aside>
   <main>
-    <div class="page-head">
-      <div>
-        <div class="section-label">What the rules check against</div>
-        <h1>Reference data</h1>
-        <p>Vendor master, PO register with what has been billed so far, approved invoices and the approval policy.</p>
-      </div>
-      <button class="btn btn-danger" id="reset">Reset demo data</button>
+    <div class="page-head enter">
+      <h1>Reference data</h1>
+      <button class="btn btn-danger" id="reset"></button>
     </div>
 
-    <section class="card" style="margin-bottom:16px">
-      <div class="card-head"><h2>Purchase orders</h2><span class="muted">billed updates as invoices are approved</span></div>
+    <section class="card enter" style="--i:1;margin-bottom:20px">
+      <div class="card-head"><h2>Purchase orders</h2><span class="tag" id="po-count">0</span></div>
       <table>
-        <thead><tr><th>PO</th><th>Vendor</th><th>Description</th><th>Status</th><th>Buyer</th><th class="num">Value</th><th class="num">Billed</th><th style="width:140px"></th></tr></thead>
+        <thead><tr><th>PO</th><th>Vendor</th><th>Description</th><th>Status</th><th>Buyer</th><th class="num">Value</th><th class="num">Billed</th><th style="width:150px"></th></tr></thead>
         <tbody id="pos"></tbody>
       </table>
     </section>
 
-    <section class="card" style="margin-bottom:16px">
-      <div class="card-head"><h2>Vendor master</h2></div>
+    <section class="card enter" style="--i:2;margin-bottom:20px">
+      <div class="card-head"><h2>Vendor master</h2><span class="tag" id="vendor-count">0</span></div>
       <table>
         <thead><tr><th>ID</th><th>Vendor</th><th>Status</th><th>Tax ID</th><th>Bank on file</th><th>Phone on file</th><th class="num">Tax rate</th><th>Terms</th></tr></thead>
         <tbody id="vendors"></tbody>
@@ -37,15 +33,15 @@
     </section>
 
     <section class="grid grid-2">
-      <div class="card">
-        <div class="card-head"><h2>Invoice registry</h2><span class="muted">approved or paid; used for duplicate checks</span></div>
+      <div class="card enter" style="--i:3">
+        <div class="card-head"><h2>Invoice registry</h2><span class="tag" id="registry-count">0</span></div>
         <table>
           <thead><tr><th>Vendor</th><th>Invoice</th><th>Key</th><th class="num">Total</th><th>Status</th></tr></thead>
           <tbody id="registry"></tbody>
         </table>
       </div>
-      <div class="card">
-        <div class="card-head"><h2>Approval policy</h2><span class="muted mono">policy.yaml</span></div>
+      <div class="card enter" style="--i:4">
+        <div class="card-head"><h2>Approval policy</h2><span class="chip">policy.yaml</span></div>
         <table><tbody id="policy"></tbody></table>
       </div>
     </section>

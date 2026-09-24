@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Bulk run · Invoice Agent</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
@@ -13,29 +13,21 @@
   <main>
     <!-- Pick a folder -->
     <div id="pick" hidden>
-      <div class="page-head">
-        <div>
-          <div class="section-label">Process many invoices</div>
-          <h1>Bulk run</h1>
-          <p>Choose a folder: every PDF in it is processed, one after another, and you can watch the batch live.</p>
-        </div>
-      </div>
-      <section class="card" style="margin-bottom:16px">
+      <div class="page-head enter"><h1>Bulk run</h1></div>
+      <section class="card enter" style="--i:1;margin-bottom:20px">
         <div class="grid grid-2" style="align-items:stretch">
           <label class="dropzone" id="folder-zone">
-            <div id="folder-icon"></div>
-            <div style="font-weight:600;margin-top:6px">Choose a folder</div>
-            <div class="muted">All PDFs inside it are picked up; other files are skipped</div>
+            <div id="folder-art"></div>
+            <div>Choose a folder</div>
             <input type="file" id="folder-input" webkitdirectory directory multiple hidden>
           </label>
           <label class="dropzone" id="files-zone">
-            <div id="files-icon"></div>
-            <div style="font-weight:600;margin-top:6px">Or drop / choose several PDFs</div>
-            <div class="muted">Up to 10 MB each</div>
+            <div id="files-art"></div>
+            <div>Or drop several PDFs</div>
             <input type="file" id="files-input" accept="application/pdf" multiple hidden>
           </label>
         </div>
-        <div id="preview" hidden style="margin-top:16px">
+        <div id="preview" hidden style="margin-top:22px">
           <div class="card-head">
             <h2 id="preview-title"></h2>
             <div class="actions" style="margin:0">
@@ -44,12 +36,12 @@
             </div>
           </div>
           <table>
-            <thead><tr><th style="width:40px">#</th><th>File</th><th class="num">Size</th><th>Will be</th></tr></thead>
+            <thead><tr><th style="width:40px">#</th><th>File</th><th class="num">Size</th><th></th></tr></thead>
             <tbody id="preview-rows"></tbody>
           </table>
         </div>
       </section>
-      <section class="card">
+      <section class="card enter" style="--i:2">
         <div class="card-head"><h2>Recent batches</h2></div>
         <table>
           <thead><tr><th>Batch</th><th>Started</th><th class="num">Invoices</th><th>Progress</th>
@@ -61,23 +53,22 @@
 
     <!-- Watch a batch -->
     <div id="watch" hidden>
-      <div class="page-head">
+      <div class="page-head enter">
         <div>
-          <div class="section-label" id="batch-label">Batch</div>
           <h1 id="batch-title"></h1>
-          <p id="batch-sub"></p>
+          <div class="meta" id="batch-meta"></div>
         </div>
         <div class="actions" style="margin:0">
-          <a class="btn" href="/">Dashboard</a>
-          <a class="btn btn-primary" href="/bulk">New batch</a>
+          <a class="btn" href="/" id="to-dashboard"></a>
+          <a class="btn btn-primary" href="/bulk" id="new-batch"></a>
         </div>
       </div>
-      <section class="card" style="margin-bottom:16px">
-        <div class="card-head"><h2 id="progress-text"></h2><span class="muted mono" id="elapsed"></span></div>
-        <div class="progress" style="height:10px"><div id="progress-bar" style="width:0%"></div></div>
-        <div class="kpis" style="margin:16px 0 0" id="counts"></div>
+      <section class="card enter" style="--i:1;margin-bottom:20px">
+        <div class="card-head"><h2 id="progress-text"></h2><span class="clock" id="elapsed"></span></div>
+        <div class="progress big live" id="progress"><div id="progress-bar" style="width:0%"></div></div>
+        <div class="kpis" style="margin:22px 0 0" id="counts"></div>
       </section>
-      <section class="card">
+      <section class="card enter" style="--i:2">
         <table>
           <thead><tr><th style="width:36px">#</th><th>File</th><th>Status</th><th>Vendor</th><th>Invoice</th>
             <th class="num">Total</th><th>Why</th><th class="num">Time</th></tr></thead>

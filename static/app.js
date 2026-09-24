@@ -1,4 +1,4 @@
-// Shared helpers for every page: sidebar, API calls, formatting, status pills.
+// Shared helpers for every page: sidebar, API calls, formatting, status pills, clay art and motion.
 
 const ICONS = {
   dashboard: '<path d="M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z"/>',
@@ -13,12 +13,67 @@ const ICONS = {
   minus: '<path d="M5 12h14"/>',
   upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
   mail: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
-  logo: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M9 15l2 2 4-4"/>',
+  file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6"/>',
+  bolt: '<path d="M13 2 3 14h9l-1 8 10-12h-9z"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4M12 16h.01"/>',
+  inbox: '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  refresh: '<path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/>',
+  external: '<path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+  sparkle: '<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/>',
+  trash: '<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>',
 };
 
 function icon(name, size = 18) {
+  // pathLength=100 lets CSS "draw" any icon stroke in the same time, whatever its real length
+  const body = ICONS[name].replace(/<(path|circle|rect|ellipse) /g, '<$1 pathLength="100" ');
   return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor"
-    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
+    stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`;
+}
+
+// A puffy clay invoice with a badge: the brand mark, drop-zone art and empty-state illustration.
+let artCount = 0;
+const ART_BADGES = {
+  doc: ["#8fe8bf", "#1f9d63", '<path d="M-8 0l5 5 10-10"/>'],
+  upload: ["#b8adff", "#6c5ce7", '<path d="M0 8V-8M-7-1l7-7 7 7"/>'],
+  folder: ["#ffd48a", "#e8940c", '<path d="M-9 7V-6h6l2 3h10V7z"/>'],
+  mail: ["#9ccaff", "#2f7fea", '<rect x="-9" y="-6" width="18" height="13" rx="2"/><path d="M-9-5l9 7 9-7"/>'],
+  empty: ["#d9c2ff", "#8a4de6", '<path d="M-7 0h14"/>'],
+};
+
+function clayArt(kind = "doc", size = 96) {
+  const id = `ca${++artCount}`;
+  const [light, dark, glyph] = ART_BADGES[kind] || ART_BADGES.doc;
+  return `<svg class="clay-art" viewBox="0 0 120 120" width="${size}" height="${size}" aria-hidden="true">
+    <defs>
+      <linearGradient id="${id}p" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#cfc7ff"/></linearGradient>
+      <radialGradient id="${id}h" cx="0.85" cy="0.95" r="0.8"><stop offset="0" stop-color="#6c5ce7" stop-opacity="0.35"/><stop offset="1" stop-color="#6c5ce7" stop-opacity="0"/></radialGradient>
+      <radialGradient id="${id}b" cx="0.35" cy="0.3" r="0.85"><stop offset="0" stop-color="${light}"/><stop offset="1" stop-color="${dark}"/></radialGradient>
+      <filter id="${id}s" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4"/></filter>
+    </defs>
+    <ellipse cx="58" cy="112" rx="36" ry="5" fill="#5b4fd6" opacity="0.2" filter="url(#${id}s)"/>
+    <g class="paper">
+      <rect x="24" y="10" width="66" height="88" rx="20" fill="url(#${id}p)"/>
+      <rect x="24" y="10" width="66" height="88" rx="20" fill="url(#${id}h)"/>
+      <rect x="25.5" y="11.5" width="63" height="85" rx="18.5" fill="none" stroke="#fff" stroke-width="2.5" opacity="0.9"/>
+      <rect x="37" y="30" width="30" height="8" rx="4" fill="#a99dff"/>
+      <rect x="37" y="45" width="40" height="8" rx="4" fill="#d3cdff"/>
+      <rect x="37" y="60" width="24" height="8" rx="4" fill="#d3cdff"/>
+      <ellipse cx="44" cy="19" rx="11" ry="3.5" fill="#fff"/>
+    </g>
+    <g transform="translate(86 86)">
+      <g class="badge">
+        <circle r="21" fill="url(#${id}b)"/>
+        <ellipse cx="-7" cy="-10" rx="8" ry="4.5" fill="#fff" opacity="0.5"/>
+        <g fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">${glyph}</g>
+      </g>
+    </g>
+  </svg>`;
+}
+
+function emptyState(text, kind = "empty") {
+  return `<div class="empty">${clayArt(kind, 84)}${text}</div>`;
 }
 
 // Escape anything that came from a PDF or the API before putting it in HTML.
@@ -69,8 +124,64 @@ function decisionPill(decision, severity, status) {
   if (decision === "Review" && severity === "high" && status !== "resolved")
     return '<span class="pill high">High-risk hold</span>';
   const [cls, label] = OUTCOME[decision] || ["", decision];
-  const suffix = status === "resolved" ? " (by reviewer)" : "";
+  const suffix = status === "resolved" ? " · resolved" : "";
   return `<span class="pill ${cls}">${esc(label + suffix)}</span>`;
+}
+
+// ---------------------------------------------------------------- motion helpers
+
+const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// Run after the browser has painted the current state, so a CSS transition has a "from" value.
+function nextFrame(fn) { requestAnimationFrame(() => requestAnimationFrame(fn)); }
+
+// Mark children to spring in one after another (first paint only, so refreshes don't flicker).
+function stagger(parent, selector = ":scope > *") {
+  parent.querySelectorAll(selector).forEach((el, i) => { el.classList.add("enter"); el.style.setProperty("--i", i); });
+}
+
+// Count a number up from its previous value.
+function countUp(el, value, format = (v) => Math.round(v).toLocaleString()) {
+  const to = Number(value) || 0;
+  const from = el.dataset.v === undefined ? 0 : Number(el.dataset.v);
+  el.dataset.v = to;
+  if (reducedMotion || from === to) { el.textContent = format(to); return; }
+  const start = performance.now();
+  const duration = 900;
+  const step = (now) => {
+    const t = Math.min(1, (now - start) / duration);
+    el.textContent = format(from + (to - from) * (1 - Math.pow(1 - t, 3)));
+    if (t < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+// A burst of clay confetti from an element (used when an invoice is approved live).
+function confetti(fromEl, pieces = 42) {
+  if (reducedMotion || !fromEl) return;
+  const box = fromEl.getBoundingClientRect();
+  const colors = ["#6fdcaa", "#a397ff", "#ffc766", "#8cc0ff", "#ff9a9a", "#cfa8ff"];
+  for (let i = 0; i < pieces; i++) {
+    const piece = document.createElement("span");
+    piece.className = `confetti${i % 3 === 0 ? " round" : ""}`;
+    piece.style.left = `${box.left + box.width / 2}px`;
+    piece.style.top = `${box.top + box.height / 2}px`;
+    piece.style.background = colors[i % colors.length];
+    piece.style.setProperty("--dx", `${(Math.random() - 0.5) * 520}px`);
+    piece.style.setProperty("--up", `${-120 - Math.random() * 180}px`);
+    piece.style.setProperty("--dy", `${160 + Math.random() * 260}px`);
+    piece.style.setProperty("--rot", `${(Math.random() - 0.5) * 900}deg`);
+    piece.style.animationDelay = `${Math.random() * 120}ms`;
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), 1900);
+  }
+}
+
+// Restart a one-shot CSS animation class on an element.
+function replay(el, cls) {
+  el.classList.remove(cls);
+  void el.offsetWidth;
+  el.classList.add(cls);
 }
 
 function toast(text) {
@@ -82,32 +193,34 @@ function toast(text) {
   }
   el.textContent = text;
   el.classList.add("show");
-  setTimeout(() => el.classList.remove("show"), 2200);
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove("show"), 2400);
 }
 
+// ---------------------------------------------------------------- sidebar
+
+const NAV = [
+  ["dashboard", "/", "dashboard", "Dashboard"],
+  ["run", "/run", "run", "New run"],
+  ["bulk", "/bulk", "folder", "Bulk run"],
+  ["inbox", "/inbox", "mail", "Email inbox"],
+  ["reference", "/reference", "reference", "Reference data"],
+];
+
 async function renderSidebar(active) {
+  if (!document.querySelector(".bg")) {
+    document.body.insertAdjacentHTML("afterbegin", '<div class="bg"><span></span><span></span><span></span></div>');
+  }
   const aside = document.getElementById("sidebar");
   aside.innerHTML = `
-    <div class="brand">
-      <div class="brand-mark">${icon("logo", 18)}</div>
-      <div><div class="brand-name">Invoice Agent</div><div class="brand-sub">Meridian · Accounts Payable</div></div>
-    </div>
-    <nav>
-      <a href="/" class="${active === "dashboard" ? "active" : ""}">${icon("dashboard")} Dashboard
-        <span class="nav-badge" id="nav-reviews" hidden></span></a>
-      <a href="/run" class="${active === "run" ? "active" : ""}">${icon("run")} New run</a>
-      <a href="/bulk" class="${active === "bulk" ? "active" : ""}">${icon("folder")} Bulk run</a>
-      <a href="/inbox" class="${active === "inbox" ? "active" : ""}">${icon("mail")} Email inbox</a>
-      <a href="/reference" class="${active === "reference" ? "active" : ""}">${icon("reference")} Reference data</a>
-    </nav>
-    <div class="sidebar-foot" id="env"></div>`;
+    <div class="brand">${clayArt("doc", 54)}<div class="brand-name">Invoice<br><span>Agent</span></div></div>
+    <nav>${NAV.map(([key, href, ico, label]) => `
+      <a href="${href}" class="${active === key ? "active" : ""}">${icon(ico, 20)} ${label}
+        ${key === "dashboard" ? '<span class="nav-badge" id="nav-reviews" title="Open reviews" hidden></span>' : ""}</a>`).join("")}
+    </nav>`;
   try {
-    const [cfg, m] = await Promise.all([api("/api/config"), api("/api/metrics")]);
-    document.getElementById("env").innerHTML = `
-      <div><b>Reader:</b> ${esc(cfg.llm_providers.join(" → ") || "no LLM key")}</div>
-      <div><b>Mode:</b> ${esc(cfg.extraction_mode)} · <b>Policy</b> v${esc(cfg.policy_version)}</div>
-      <div><b>Email:</b> ${cfg.email ? esc(cfg.email) : "not connected"}</div>`;
+    const m = await api("/api/metrics");
     const badge = document.getElementById("nav-reviews");
-    if (m.open_reviews) { badge.hidden = false; badge.textContent = `${m.open_reviews} to review`; }
-  } catch (e) { /* sidebar info is optional */ }
+    if (m.open_reviews) { badge.hidden = false; badge.textContent = m.open_reviews; }
+  } catch (e) { /* the badge is optional */ }
 }
