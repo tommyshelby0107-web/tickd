@@ -3,6 +3,7 @@
 const ICONS = {
   dashboard: '<path d="M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z"/>',
   run: '<path d="M12 5v14M5 12h14"/>',
+  folder: '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>',
   reference: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
   check: '<path d="M20 6 9 17l-5-5"/>',
   x: '<path d="M18 6 6 18M6 6l12 12"/>',
@@ -56,6 +57,7 @@ const OUTCOME = {
 };
 
 function decisionPill(decision, severity, status) {
+  if (status === "queued") return '<span class="pill">Queued</span>';
   if (status === "running" || !decision) return '<span class="pill running">Running</span>';
   if (decision === "Review" && severity === "high" && status !== "resolved")
     return '<span class="pill high">High-risk hold</span>';
@@ -87,6 +89,7 @@ async function renderSidebar(active) {
       <a href="/" class="${active === "dashboard" ? "active" : ""}">${icon("dashboard")} Dashboard
         <span class="nav-badge" id="nav-reviews" hidden></span></a>
       <a href="/run" class="${active === "run" ? "active" : ""}">${icon("run")} New run</a>
+      <a href="/bulk" class="${active === "bulk" ? "active" : ""}">${icon("folder")} Bulk run</a>
       <a href="/reference" class="${active === "reference" ? "active" : ""}">${icon("reference")} Reference data</a>
     </nav>
     <div class="sidebar-foot" id="env"></div>`;

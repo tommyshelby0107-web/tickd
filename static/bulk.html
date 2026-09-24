@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bulk run · Invoice Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <aside id="sidebar"></aside>
+  <main>
+    <!-- Pick a folder -->
+    <div id="pick" hidden>
+      <div class="page-head">
+        <div>
+          <div class="section-label">Process many invoices</div>
+          <h1>Bulk run</h1>
+          <p>Choose a folder: every PDF in it is processed, one after another, and you can watch the batch live.</p>
+        </div>
+      </div>
+      <section class="card" style="margin-bottom:16px">
+        <div class="grid grid-2" style="align-items:stretch">
+          <label class="dropzone" id="folder-zone">
+            <div id="folder-icon"></div>
+            <div style="font-weight:600;margin-top:6px">Choose a folder</div>
+            <div class="muted">All PDFs inside it are picked up; other files are skipped</div>
+            <input type="file" id="folder-input" webkitdirectory directory multiple hidden>
+          </label>
+          <label class="dropzone" id="files-zone">
+            <div id="files-icon"></div>
+            <div style="font-weight:600;margin-top:6px">Or drop / choose several PDFs</div>
+            <div class="muted">Up to 10 MB each</div>
+            <input type="file" id="files-input" accept="application/pdf" multiple hidden>
+          </label>
+        </div>
+        <div id="preview" hidden style="margin-top:16px">
+          <div class="card-head">
+            <h2 id="preview-title"></h2>
+            <div class="actions" style="margin:0">
+              <button class="btn" id="clear">Clear</button>
+              <button class="btn btn-primary" id="start"></button>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th style="width:40px">#</th><th>File</th><th class="num">Size</th><th>Will be</th></tr></thead>
+            <tbody id="preview-rows"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="card">
+        <div class="card-head"><h2>Recent batches</h2></div>
+        <table>
+          <thead><tr><th>Batch</th><th>Started</th><th class="num">Invoices</th><th>Progress</th>
+            <th class="num">Approved</th><th class="num">Review</th><th class="num">Returned</th><th class="num">Rejected</th></tr></thead>
+          <tbody id="batches"></tbody>
+        </table>
+      </section>
+    </div>
+
+    <!-- Watch a batch -->
+    <div id="watch" hidden>
+      <div class="page-head">
+        <div>
+          <div class="section-label" id="batch-label">Batch</div>
+          <h1 id="batch-title"></h1>
+          <p id="batch-sub"></p>
+        </div>
+        <div class="actions" style="margin:0">
+          <a class="btn" href="/">Dashboard</a>
+          <a class="btn btn-primary" href="/bulk">New batch</a>
+        </div>
+      </div>
+      <section class="card" style="margin-bottom:16px">
+        <div class="card-head"><h2 id="progress-text"></h2><span class="muted mono" id="elapsed"></span></div>
+        <div class="progress" style="height:10px"><div id="progress-bar" style="width:0%"></div></div>
+        <div class="kpis" style="margin:16px 0 0" id="counts"></div>
+      </section>
+      <section class="card">
+        <table>
+          <thead><tr><th style="width:36px">#</th><th>File</th><th>Status</th><th>Vendor</th><th>Invoice</th>
+            <th class="num">Total</th><th>Why</th><th class="num">Time</th></tr></thead>
+          <tbody id="batch-rows"></tbody>
+        </table>
+      </section>
+    </div>
+  </main>
+  <script src="/static/app.js"></script>
+  <script src="/static/bulk.js"></script>
+</body>
+</html>

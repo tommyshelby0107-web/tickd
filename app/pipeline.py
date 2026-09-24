@@ -35,7 +35,10 @@ def run_invoice(pdf_path: Path, run_id: str | None = None, listener: Listener | 
     run_id = run_id or new_run_id()
     started = time.perf_counter()
     file_hash = hashlib.sha256(pdf_path.read_bytes()).hexdigest()
-    db.create_run(run_id, pdf_path.name, file_hash)
+    if db.run(run_id):              # already queued by the web app: now it starts
+        db.mark_running(run_id)
+    else:
+        db.create_run(run_id, pdf_path.name, file_hash)
     done: set[str] = set()
 
     def emit(stage: str, status: str, summary: str, data: dict | None = None) -> None:
@@ -90,6 +93,8 @@ def run_invoice(pdf_path: Path, run_id: str | None = None, listener: Listener | 
             emit(key, worst, summary, {"findings": [asdict(f) for f in found]})
 
         emit("decide", "running", "Applying the decision matrix")
+        if ctx.vendor:      # show the vendor master's name, not however the invoice happened to print it
+            result["invoice"]["vendor_name"] = ctx.vendor["name"]
         decision = decide([Finding(**f) for f in result["findings"]], ctx)
         if decision["outcome"] == "Approve":
             db.record_approval(run_id, ctx.vendor["vendor_id"], result["invoice"], ctx.po["po_number"],

@@ -3,7 +3,10 @@
 Run:  uvicorn app.main:app --reload
 """
 import asyncio
+import hashlib
 import json
+import logging
+import queue
 import shutil
 import threading
 from collections import Counter
@@ -28,9 +31,40 @@ def uploads_dir() -> Path:
     return config.STORAGE_DIR / "uploads"
 
 
+# ---------------------------------------------------------------- one work queue for every intake channel
+# Uploads, folders (and later email) all put invoices on this queue; one worker processes them in order.
+# One at a time respects free-tier LLM rate limits and makes duplicates within a batch deterministic.
+
+JOBS: "queue.Queue[tuple[Path, str]]" = queue.Queue()
+_worker_started = threading.Event()
+
+
+def _worker() -> None:
+    while True:
+        path, run_id = JOBS.get()
+        try:
+            run_invoice(path, run_id)
+        except Exception:        # run_invoice already turns failures into a Review; this guards the worker itself
+            logging.exception("run %s failed", run_id)
+        finally:
+            JOBS.task_done()
+
+
+def enqueue(path: Path, source: str, source_detail: str | None = None, batch_id: str | None = None,
+            run_id: str | None = None) -> str:
+    run_id = run_id or new_run_id()
+    db.create_run(run_id, path.name, hashlib.sha256(path.read_bytes()).hexdigest(), status="queued",
+                  batch_id=batch_id, source=source, source_detail=source_detail)
+    JOBS.put((path, run_id))
+    return run_id
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     db.ensure()
+    if not _worker_started.is_set():
+        threading.Thread(target=_worker, daemon=True, name="invoice-worker").start()
+        _worker_started.set()
     yield
 
 
@@ -54,6 +88,12 @@ def run_page(run_id: str | None = None):
 @app.get("/reference", include_in_schema=False)
 def reference_page():
     return FileResponse(STATIC / "reference.html")
+
+
+@app.get("/bulk", include_in_schema=False)
+@app.get("/bulk/{batch_id}", include_in_schema=False)
+def bulk_page(batch_id: str | None = None):
+    return FileResponse(STATIC / "bulk.html")
 
 
 # ---------------------------------------------------------------- runs
@@ -81,18 +121,66 @@ async def start_run(file: UploadFile | None = File(None), sample: str | None = F
             raise HTTPException(404, f"Unknown sample {sample}")
         path = folder / item["file"]
         shutil.copyfile(item["path"], path)
+        source = "sample"
     elif file:
         content = await file.read()
-        if not content.startswith(b"%PDF"):
-            raise HTTPException(400, "Please upload a PDF file.")
-        if len(content) > MAX_UPLOAD_BYTES:
-            raise HTTPException(400, "PDF is larger than 10 MB.")
+        problem = _pdf_problem(content)
+        if problem:
+            raise HTTPException(400, problem)
         path = folder / Path(file.filename or "invoice.pdf").name
         path.write_bytes(content)
+        source = "upload"
     else:
         raise HTTPException(400, "Send a PDF file or a sample name.")
-    threading.Thread(target=run_invoice, args=(path, run_id), daemon=True).start()
+    enqueue(path, source, run_id=run_id)
     return {"run_id": run_id}
+
+
+def _pdf_problem(content: bytes) -> str | None:
+    if not content.startswith(b"%PDF"):
+        return "not a PDF"
+    if len(content) > MAX_UPLOAD_BYTES:
+        return "larger than 10 MB"
+    return None
+
+
+@app.post("/api/batches")
+async def start_batch(files: list[UploadFile] = File(...), name: str = Form("Uploaded files")):
+    """Process a whole folder: every PDF is saved and queued in filename order; anything else is listed as skipped."""
+    received = sorted(files, key=lambda f: (f.filename or "").lower())
+    batch_id = new_run_id()
+    accepted, skipped = [], []
+    for f in received:
+        filename = Path(f.filename or "file").name       # browsers send "Folder/sub/file.pdf" for folder uploads
+        content = await f.read()
+        problem = _pdf_problem(content)
+        if problem:
+            skipped.append(f"{filename} ({problem})")
+            continue
+        accepted.append((filename, content))
+    if not accepted:
+        raise HTTPException(400, "No PDF invoices found. Skipped: " + ", ".join(skipped))
+    db.create_batch(batch_id, name, "folder", len(accepted), skipped)
+    for filename, content in accepted:
+        run_id = new_run_id()
+        path = uploads_dir() / run_id / filename
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
+        enqueue(path, "folder", source_detail=name, batch_id=batch_id, run_id=run_id)
+    return {"batch_id": batch_id, "queued": len(accepted), "skipped": skipped}
+
+
+@app.get("/api/batches")
+def list_batches():
+    return db.batches()
+
+
+@app.get("/api/batches/{batch_id}")
+def get_batch(batch_id: str):
+    found = db.batch(batch_id)
+    if not found:
+        raise HTTPException(404, "Batch not found")
+    return found
 
 
 @app.get("/api/runs")
@@ -106,6 +194,8 @@ def get_run(run_id: str):
     if not run:
         raise HTTPException(404, "Run not found")
     run["review_actions"] = db.review_actions(run_id)
+    if run["status"] == "queued":
+        run["queue_position"] = db.queue_position(run_id)
     return run
 
 
@@ -113,16 +203,16 @@ def get_run(run_id: str):
 async def run_events(run_id: str):
     """Server-Sent Events: replay what is stored, then keep sending new stage events until the decision."""
     async def stream():
-        last_id, waited = 0, 0.0
-        while waited < 300:
+        last_id, idle = 0, 0.0
+        while idle < 300:          # give up only after 5 minutes with no new event (a queued run just waits)
             for event in db.events(run_id, last_id):
-                last_id = event["id"]
+                last_id, idle = event["id"], 0.0
                 yield f"data: {json.dumps(event)}\n\n"
                 if event["stage"] == "decide" and event["status"] != "running":
                     yield "event: end\ndata: {}\n\n"
                     return
             await asyncio.sleep(0.3)
-            waited += 0.3
+            idle += 0.3
         yield "event: end\ndata: {}\n\n"
 
     return StreamingResponse(stream(), media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
@@ -210,6 +300,12 @@ def reference():
 
 @app.post("/api/admin/reset")
 def reset_demo():
+    while not JOBS.empty():          # drop anything still waiting; its runs are about to be wiped
+        try:
+            JOBS.get_nowait()
+            JOBS.task_done()
+        except queue.Empty:
+            break
     db.reset()
     shutil.rmtree(uploads_dir(), ignore_errors=True)
     return {"ok": True, "at": datetime.now().isoformat(timespec="seconds")}

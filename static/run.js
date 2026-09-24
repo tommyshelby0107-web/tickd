@@ -132,7 +132,13 @@ function updateStage(event) {
 
 async function loadHeader(id) {
   const run = await api(`/api/runs/${id}`).catch(() => null);
-  if (run) document.getElementById("run-title").textContent = run.file_name;
+  if (!run) return;
+  document.getElementById("run-title").textContent = run.file_name;
+  if (run.status === "queued") {
+    const ahead = run.queue_position || 0;
+    document.getElementById("run-sub").textContent =
+      `Queued: ${ahead} invoice${ahead === 1 ? "" : "s"} ahead of this one. It starts automatically.`;
+  }
 }
 
 async function loadResult(id) {

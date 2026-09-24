@@ -49,7 +49,7 @@ async function load() {
       <td>${decisionPill(r.decision, r.severity, r.status)}</td>
       <td>${esc(r.owner || "—")}</td>
       <td class="muted" style="max-width:420px">${esc((r.summary || "").replace(/^Held for [^.]+ review\. /, ""))}</td>
-      <td class="muted">${timeAgo(r.started_at)}</td>
+      <td class="muted">${timeAgo(r.queued_at)}</td>
     </tr>`).join("") : '<tr><td colspan="7" class="empty">Nothing waiting. Every processed invoice was decided automatically or has been resolved.</td></tr>';
 
   document.getElementById("runs-count").textContent = `${runs.length} total`;
@@ -57,13 +57,22 @@ async function load() {
     <tr class="clickable" onclick="location.href='/runs/${esc(r.run_id)}'">
       <td class="mono">${esc(r.run_id)}</td>
       <td>${esc(r.file_name)}</td>
+      <td>${sourceCell(r)}</td>
       <td>${esc(r.vendor_name || "—")}</td>
       <td>${esc(r.invoice_number || "—")}</td>
       <td class="num">${money(r.total)}</td>
       <td>${decisionPill(r.decision, r.severity, r.status)}</td>
       <td class="num">${r.seconds ? `${r.seconds}s` : "—"}</td>
-      <td class="muted">${timeAgo(r.started_at)}</td>
-    </tr>`).join("") : '<tr><td colspan="8" class="empty">No runs yet. <a href="/run">Process your first invoice</a>.</td></tr>';
+      <td class="muted">${timeAgo(r.queued_at)}</td>
+    </tr>`).join("") : '<tr><td colspan="9" class="empty">No runs yet. <a href="/run">Process your first invoice</a>.</td></tr>';
+}
+
+// Where the invoice came in: a prepared sample, an upload, a folder batch or an email.
+function sourceCell(r) {
+  const label = { sample: "Sample", upload: "Upload", folder: "Folder", email: "Email" }[r.source] || r.source || "—";
+  const link = r.batch_id ? `<a href="/bulk/${esc(r.batch_id)}" onclick="event.stopPropagation()">${esc(r.source_detail || "batch")}</a>`
+    : esc(r.source_detail || "");
+  return `${esc(label)}${link ? `<div class="quote">${link}</div>` : ""}`;
 }
 
 renderSidebar("dashboard");

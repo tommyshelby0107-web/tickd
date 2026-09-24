@@ -24,8 +24,11 @@ CREATE TABLE invoice_registry (
   run_id TEXT, file_hash TEXT);
 CREATE TABLE runs (
   run_id TEXT PRIMARY KEY, file_name TEXT, file_hash TEXT, status TEXT, decision TEXT, owner TEXT,
-  severity TEXT, vendor_name TEXT, invoice_number TEXT, total REAL, summary TEXT, started_at TEXT,
-  finished_at TEXT, seconds REAL, result_json TEXT);
+  severity TEXT, vendor_name TEXT, invoice_number TEXT, total REAL, summary TEXT, queued_at TEXT, started_at TEXT,
+  finished_at TEXT, seconds REAL, result_json TEXT,
+  batch_id TEXT, source TEXT, source_detail TEXT);
+CREATE TABLE batches (
+  batch_id TEXT PRIMARY KEY, name TEXT, source TEXT, created_at TEXT, total INTEGER, skipped_json TEXT);
 CREATE TABLE events (
   id INTEGER PRIMARY KEY AUTOINCREMENT, run_id TEXT, stage TEXT, status TEXT, summary TEXT, at TEXT,
   data_json TEXT);
@@ -71,8 +74,13 @@ def reset() -> None:
 
 
 def ensure() -> None:
-    if not config.DB_PATH.exists():
-        reset()
+    """Create the database if missing, or rebuild it if it was made by an older version of the schema."""
+    if config.DB_PATH.exists():
+        with connect() as conn:
+            columns = {row[1] for row in conn.execute("PRAGMA table_info(runs)")}
+        if "batch_id" in columns:
+            return
+    reset()
 
 
 def _read_csv(name: str) -> list[dict]:
@@ -150,10 +158,27 @@ def record_approval(run_id: str, vendor_id: str, invoice: dict, po_number: str |
 
 # ---------------------------------------------------------------- runs and events
 
-def create_run(run_id: str, file_name: str, file_hash: str) -> None:
+def create_run(run_id: str, file_name: str, file_hash: str, status: str = "running", batch_id: str | None = None,
+               source: str = "upload", source_detail: str | None = None) -> None:
+    at = now()
     with connect() as conn:
-        conn.execute("INSERT INTO runs (run_id, file_name, file_hash, status, started_at) VALUES (?,?,?,?,?)",
-                     (run_id, file_name, file_hash, "running", now()))
+        conn.execute("INSERT INTO runs (run_id, file_name, file_hash, status, queued_at, started_at, batch_id, source,"
+                     " source_detail) VALUES (?,?,?,?,?,?,?,?,?)",
+                     (run_id, file_name, file_hash, status, at, at if status == "running" else None,
+                      batch_id, source, source_detail))
+
+
+def mark_running(run_id: str) -> None:
+    with connect() as conn:
+        conn.execute("UPDATE runs SET status = 'running', started_at = ? WHERE run_id = ?", (now(), run_id))
+
+
+def queue_position(run_id: str) -> int:
+    """How many invoices will be processed before this queued one (including the one running now)."""
+    with connect() as conn:
+        row = conn.execute("SELECT queued_at FROM runs WHERE run_id = ?", (run_id,)).fetchone()
+        return conn.execute("SELECT COUNT(*) FROM runs WHERE status IN ('queued', 'running') AND run_id != ?"
+                            " AND queued_at <= ?", (run_id, row["queued_at"])).fetchone()[0] if row else 0
 
 
 def finish_run(run_id: str, result: dict) -> None:
@@ -185,13 +210,50 @@ def run(run_id: str) -> dict | None:
     return out
 
 
+RUN_COLUMNS = ("run_id, file_name, status, decision, owner, severity, vendor_name, invoice_number, total, summary,"
+               " queued_at, started_at, seconds, batch_id, source, source_detail")
+
+
 def runs(limit: int = 200) -> list[dict]:
     with connect() as conn:
-        rows = conn.execute("SELECT run_id, file_name, status, decision, owner, severity, vendor_name,"
-                            " invoice_number, total, summary, started_at, seconds FROM runs"
-                            " ORDER BY started_at DESC, rowid DESC"
-                            " LIMIT ?", (limit,)).fetchall()
+        rows = conn.execute(f"SELECT {RUN_COLUMNS} FROM runs ORDER BY queued_at DESC, rowid DESC LIMIT ?",
+                            (limit,)).fetchall()
     return [dict(r) for r in rows]
+
+
+# ---------------------------------------------------------------- batches (a folder of invoices processed together)
+
+def create_batch(batch_id: str, name: str, source: str, total: int, skipped: list[str]) -> None:
+    with connect() as conn:
+        conn.execute("INSERT INTO batches (batch_id, name, source, created_at, total, skipped_json) VALUES (?,?,?,?,?,?)",
+                     (batch_id, name, source, now(), total, json.dumps(skipped)))
+
+
+def batch(batch_id: str) -> dict | None:
+    with connect() as conn:
+        head = conn.execute("SELECT * FROM batches WHERE batch_id = ?", (batch_id,)).fetchone()
+        if not head:
+            return None
+        rows = conn.execute(f"SELECT {RUN_COLUMNS} FROM runs WHERE batch_id = ? ORDER BY queued_at, rowid",
+                            (batch_id,)).fetchall()
+        items = []
+        for r in rows:
+            item = dict(r)
+            if item["status"] == "running":     # show which stage it is on right now
+                last = conn.execute("SELECT stage, summary FROM events WHERE run_id = ? ORDER BY id DESC LIMIT 1",
+                                    (item["run_id"],)).fetchone()
+                item["current_stage"] = dict(last) if last else None
+            items.append(item)
+    out = dict(head)
+    out["skipped"] = json.loads(out.pop("skipped_json") or "[]")
+    out["runs"] = items
+    return out
+
+
+def batches(limit: int = 50) -> list[dict]:
+    with connect() as conn:
+        heads = conn.execute("SELECT batch_id FROM batches ORDER BY created_at DESC LIMIT ?", (limit,)).fetchall()
+    return [batch(h["batch_id"]) for h in heads]
 
 
 def results() -> list[dict]:
