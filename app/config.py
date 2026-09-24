@@ -29,7 +29,7 @@ def _models(name: str, default: str) -> list[str]:
 PROVIDER_ORDER = _models("LLM_PROVIDER_ORDER", "groq,gemini,mistral")
 GROQ_MODELS = _models("GROQ_MODELS", "qwen/qwen3.8-27b")
 GEMINI_MODELS = _models("GEMINI_MODELS", "gemini-3.5-flash-lite")
-MISTRAL_MODELS = _models("MISTRAL_MODELS", "mistral-medium-2508")
+MISTRAL_MODELS = _models("MISTRAL_MODELS", "mistral-medium-2604")
 
 _WINDOWS_TESSERACT = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 TESSERACT_CMD = os.getenv("TESSERACT_CMD") or (_WINDOWS_TESSERACT if os.name == "nt" else "tesseract")
