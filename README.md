@@ -1,4 +1,4 @@
-# tickd — every invoice, ticked (PS-1)
+# tickd by Sid — every invoice, ticked (PS-1)
 
 **tickd** (said "ticked") takes a vendor invoice PDF and returns an explained decision: Approve, Review, Return to
 vendor, or Reject. The name comes from the auditor's tick mark: the ✓ placed next to every figure that has been

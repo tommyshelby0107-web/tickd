@@ -50,6 +50,8 @@
   --toast-bg: #2a2238; --toast-fg: #ffffff;
   --switch-shadow: rgba(88, 66, 120, 0.2);
   --doc-filter: none;
+  --wm-ds1: -1px -1px 0 rgba(255, 255, 255, 0.95); --wm-ds2: 3px 5px 5px rgba(70, 50, 150, 0.3);
+  --sig-ink: #5536e0; --sig-glow: transparent;
 
   --r-lg: 28px;
   --r: 20px;
@@ -95,6 +97,8 @@
   --toast-bg: #efeaf8; --toast-fg: #1e1b2d;
   --switch-shadow: rgba(0, 0, 0, 0.45);
   --doc-filter: brightness(0.9) contrast(0.95);
+  --wm-ds1: 0 0 4px rgba(210, 198, 255, 0.55); --wm-ds2: 0 0 16px rgba(130, 110, 255, 0.5);
+  --sig-ink: #8ff5c9; --sig-glow: rgba(111, 230, 180, 0.85);
 }
 
 * { box-sizing: border-box; }
@@ -179,13 +183,21 @@ nav a.active .nav-badge { background: #fff; color: var(--o-violet); }
    down, so the new colour rises through the letter like liquid filling it; leaving drains it back. */
 .wordmark .in {
   --t0: #cbc3ff; --t1: #7b6bf2; --t2: #4a39d4;
-  display: inline-block; padding: 0 0.015em; transform-origin: 50% 100%;
+  position: relative; display: inline-block; padding: 0 0.015em; transform-origin: 50% 100%;
   background-image: linear-gradient(180deg, var(--wm-0) 0%, var(--wm-1) 24%, var(--wm-2) 47%, var(--t0) 53%, var(--t1) 77%, var(--t2) 100%);
   background-size: 100% 200%; background-position: 0 0;
   -webkit-background-clip: text; background-clip: text; color: transparent;
-  filter: drop-shadow(-1px -1px 0 var(--wm-rim)) drop-shadow(3px 5px 5px var(--wm-shade));
-  transition: background-position 0.65s var(--ease) calc(var(--i) * 65ms);
+  filter: drop-shadow(var(--wm-ds1)) drop-shadow(var(--wm-ds2));
+  transition: background-position 0.65s var(--ease) calc(var(--i) * 65ms), filter 0.8s var(--ease);
   animation: idle-bob 9s ease-in-out infinite; animation-delay: calc(4s + var(--i) * 120ms);
+}
+/* day: a glint of sunlight sweeps across the glazed clay, letter by letter */
+.wordmark .in::after {
+  content: attr(data-ch); position: absolute; left: 0; top: 0; padding: inherit; pointer-events: none;
+  background: linear-gradient(100deg, transparent 32%, rgba(255, 255, 255, 0.95) 47%, rgba(255, 255, 255, 0) 60%);
+  background-size: 280% 100%; background-position: 130% 0;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: glint 7s ease-in-out infinite; animation-delay: calc(2.6s + var(--i) * 90ms);
 }
 .wordmark .l:nth-child(1) .in { --t0: #b8f5d8; --t1: #3fc98a; --t2: #13875a; }   /* matcha */
 .wordmark .l:nth-child(2) .in { --t0: #ffe4a8; --t1: #ffb52e; --t2: #e57a00; }   /* apricot */
@@ -207,7 +219,52 @@ nav a.active .nav-badge { background: #fff; color: var(--o-violet); }
 }
 .wordmark:hover .tagline { opacity: 1; transform: none; transition-delay: 0.3s; }
 .wordmark .tagline b { color: var(--mint); }
+/* the signature: "by Sid", handwritten. It writes itself on first visit and whenever day returns;
+   at night it glows like a neon sign. Hover draws a swoosh under it. */
+.sig { position: absolute; left: calc(100% - 12px); bottom: 15px; overflow: visible; pointer-events: none; transform: rotate(-7deg); filter: drop-shadow(0 0 5px var(--sig-glow)); transition: filter 0.8s; }
+.sig-text { font-family: "Caveat", cursive; font-weight: 700; fill: var(--sig-ink); stroke: var(--sig-ink); stroke-width: 0.5; transition: fill 0.8s, stroke 0.8s; }
+.sig-reveal { transform-box: fill-box; transform-origin: 0 50%; }
+.sig-swoosh {
+  fill: none; stroke: var(--sig-ink); stroke-width: 2.2; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100;
+  transition: stroke-dashoffset 0.6s var(--ease) 0.15s, stroke 0.8s;
+}
+.wordmark:hover .sig-swoosh { stroke-dashoffset: 0; }
+
+/* twinkling stars around the word, only at night */
+.wm-stars i {
+  position: absolute; width: 9px; height: 9px; background: #fff4c7; opacity: 0; transform: scale(0); pointer-events: none;
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+}
+.wm-stars i:nth-child(1) { left: -2px; top: 6px; }
+.wm-stars i:nth-child(2) { left: 44px; top: -4px; width: 6px; height: 6px; background: #d9d2ff; }
+.wm-stars i:nth-child(3) { left: 92px; top: 0; width: 11px; height: 11px; }
+.wm-stars i:nth-child(4) { left: 134px; top: 16px; width: 7px; height: 7px; background: #d9d2ff; }
+.wm-stars i:nth-child(5) { left: 20px; top: 58px; width: 6px; height: 6px; background: #d9d2ff; }
+.wm-stars i:nth-child(6) { left: 176px; top: 44px; width: 8px; height: 8px; }
+
+/* night: zero gravity. Letters float out of step, the tick glows like a firefly, stars twinkle */
+[data-theme="night"] .wordmark .l { animation: zero-g 5.6s ease-in-out infinite; animation-delay: calc(var(--i) * -1.1s); }
+[data-theme="night"] .wordmark .in { animation: none; }
+[data-theme="night"] .wordmark .in::after { animation: none; opacity: 0; }
+[data-theme="night"] .wordmark .tick-dot { animation: firefly 2.8s ease-in-out infinite; }
+[data-theme="night"] .wm-stars i { animation: star-twinkle 3.2s ease-in-out infinite; }
+[data-theme="night"] .wm-stars i:nth-child(2) { animation-delay: 0.6s; }
+[data-theme="night"] .wm-stars i:nth-child(3) { animation-delay: 1.3s; }
+[data-theme="night"] .wm-stars i:nth-child(4) { animation-delay: 1.9s; }
+[data-theme="night"] .wm-stars i:nth-child(5) { animation-delay: 2.4s; }
+[data-theme="night"] .wm-stars i:nth-child(6) { animation-delay: 0.9s; }
+
+/* the moment of switching: to night the letters lift off one by one and the neon flickers on;
+   to day they land with a clay squash, sunlight sweeps through and the signature is written again */
+.wordmark.to-night .l { animation: lift-off 1.3s var(--ease) backwards; animation-delay: calc(var(--i) * 85ms); }
+.wordmark.to-night .tick-dot { animation: ignite 1.2s var(--spring) 0.45s backwards; }
+.wordmark.to-night .sig { animation: neon-on 1.3s linear 0.5s backwards; }
+.wordmark.to-day .l { animation: land 0.95s var(--spring) backwards; animation-delay: calc(var(--i) * 75ms); }
+.wordmark.to-day .in::after { animation: glint-now 0.9s ease-in-out backwards; animation-delay: calc(0.55s + var(--i) * 70ms); opacity: 1; }
+.wordmark.to-day .sig-reveal { animation: sig-write 1.1s cubic-bezier(0.5, 0, 0.3, 1) 0.6s backwards; }
+
 .wordmark.intro .l { animation: clay-drop 0.9s var(--spring) backwards; animation-delay: calc(0.15s + var(--i) * 95ms); }
+.wordmark.intro .sig-reveal { animation: sig-write 1.2s cubic-bezier(0.5, 0, 0.3, 1) 1.5s backwards; }
 .wordmark.intro .tick-dot { animation: dot-in 0.9s var(--spring) 0.75s backwards; }
 .wordmark.intro .tick-dot path { animation: draw 0.5s var(--ease) 1.35s backwards; }
 .wordmark.party .in { animation: hop 0.8s var(--ease) both; animation-delay: calc(var(--i) * 70ms); }
@@ -314,6 +371,61 @@ nav a.active .nav-badge { background: #fff; color: var(--o-violet); }
 [data-theme="night"] .cat .zzz text:nth-child(3) { animation-delay: 3s; }
 .cat.waking { animation: cat-wake 0.85s var(--spring); }
 .cat.dozing { animation: cat-doze 1.4s var(--ease); }
+.cat .eyes-happy, .cat .mouth-open { opacity: 0; }
+.cat .eyes-happy { transition: opacity 0.2s; }
+.cat .blush { transition: opacity 0.3s; }
+
+/* cat states. ":root" lifts them above the night defaults, so a sleeping cat can still wake for a snack.
+   Order matters: alert < eating < happy < petted. */
+:root .cat.alert .eyes-open { opacity: 1; animation: none; transform: scale(1.22); transition: opacity 0.12s, transform 0.35s var(--spring); }
+:root .cat.alert .eyes-closed, :root .cat.alert .zzz { opacity: 0; transition: opacity 0.1s; }
+:root .cat.alert .cat-head { transform: translateY(-3px); transition: transform 0.35s var(--spring); }
+:root .cat.alert .ear-l { transform: rotate(6deg); }
+:root .cat.alert .ear-r { animation: none; transform: rotate(-6deg); transition: transform 0.3s var(--spring); }
+:root .cat.eating .cat-head { animation: chomp 0.3s ease-in-out 3; }
+:root .cat.eating .mouth-open { animation: chomp-mouth 0.3s ease-in-out 3; }
+:root .cat.full .cat-body { animation: belly-full 1.2s var(--spring); }
+:root .cat.happy .eyes-open, :root .cat.happy .eyes-closed { opacity: 0; transition: opacity 0.1s; }
+:root .cat.happy .eyes-happy { opacity: 1; }
+:root .cat.happy .blush { opacity: 0.85; }
+:root .cat.petted .cat-body { animation: purr 0.1s linear infinite; }
+:root .cat.petted .cat-tail { animation: tail-happy 0.45s ease-in-out infinite alternate; }
+:root .cat.petted .cat-head { transform: rotate(5deg) translateY(1px); transition: transform 0.4s var(--spring); }
+:root .cat.petted .ear-l { transform: rotate(-14deg); }
+:root .cat.petted .ear-r { animation: none; transform: rotate(14deg); transition: transform 0.3s var(--spring); }
+
+/* feed and pet buttons */
+.cat-corner { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.cat-actions { display: flex; gap: 6px; }
+.cat-btn {
+  display: inline-flex; align-items: center; gap: 5px; border: none; font: inherit; font-size: 12px; font-weight: 900;
+  padding: 5px 11px 5px 8px; border-radius: 12px; background: var(--clay); color: var(--ink-2); cursor: pointer;
+  box-shadow: var(--clay-shadow-sm); transition: transform 0.3s var(--spring), box-shadow 0.2s, opacity 0.2s;
+}
+.cat-btn svg { width: 15px; height: 15px; }
+.cat-btn.feed svg { color: var(--o-sky); }
+.cat-btn.pet svg { color: #ff6f91; }
+.cat-btn:hover { transform: translateY(-2px); }
+.cat-btn:hover svg { animation: jelly 0.7s var(--ease); }
+.cat-btn:active { transform: scale(0.9); box-shadow: var(--clay-inset); transition-duration: 0.08s; }
+.cat-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+.cat-btn:focus-visible { outline: 3px solid var(--violet-2); outline-offset: 2px; }
+
+/* things that fly: the fish, the petting hand, hearts, crumbs and the cat's words */
+.flyer { position: fixed; left: 0; top: 0; z-index: 70; pointer-events: none; will-change: transform; }
+.flyer svg { display: block; filter: drop-shadow(3px 5px 5px rgba(60, 40, 90, 0.25)); }
+.love {
+  position: fixed; z-index: 70; pointer-events: none; width: 16px; height: 15px; margin: -8px 0 0 -8px;
+  color: #ff6f91; filter: drop-shadow(0 2px 3px rgba(255, 80, 120, 0.35)); animation: love-float 1.6s var(--ease) backwards;
+}
+.love svg { display: block; width: 100%; height: 100%; fill: currentColor; }
+[data-theme="night"] .love { color: #c4b8ff; filter: drop-shadow(0 0 6px rgba(196, 184, 255, 0.85)); }
+.confetti.crumb { width: 5px; height: 5px; animation-duration: 0.9s; }
+.cat-word {
+  position: fixed; z-index: 70; pointer-events: none; font-family: "Caveat", cursive; font-weight: 700; font-size: 25px;
+  color: var(--sig-ink); white-space: nowrap; transform-origin: 0 100%; animation: word-pop 1.9s var(--ease) forwards;
+  text-shadow: 0 0 10px var(--sig-glow);
+}
 
 /* ---------- layout ---------- */
 main { padding: 30px 34px 60px; max-width: 1340px; width: 100%; }
@@ -716,6 +828,53 @@ textarea:focus { outline: none; box-shadow: var(--clay-inset), 0 0 0 3px var(--v
   100% { transform: none; }
 }
 
+/* the wordmark by day and by night */
+@keyframes glint { 0%, 72% { background-position: 130% 0; } 88%, 100% { background-position: -30% 0; } }
+@keyframes glint-now { from { background-position: 130% 0; } to { background-position: -30% 0; } }
+@keyframes zero-g {
+  0%, 100% { transform: translateY(-2px) rotate(0); } 25% { transform: translateY(-6px) rotate(-3deg); }
+  50% { transform: translateY(-1px) rotate(1.5deg); } 75% { transform: translateY(-7px) rotate(3deg); }
+}
+@keyframes lift-off {
+  0% { transform: none; } 20% { transform: translateY(3px) scale(1.08, 0.9); }
+  55% { transform: translateY(-16px) rotate(-7deg) scale(0.95, 1.06); } 100% { transform: translateY(-2px) rotate(0); }
+}
+@keyframes land {
+  0% { transform: translateY(-18px) scale(0.92, 1.1); } 55% { transform: translateY(0) scale(1.2, 0.8); }
+  75% { transform: translateY(-3px) scale(0.96, 1.05); } 100% { transform: none; }
+}
+@keyframes firefly {
+  0%, 100% { filter: drop-shadow(0 0 3px rgba(111, 230, 170, 0.6)); transform: scale(1); }
+  50% { filter: drop-shadow(0 0 10px rgba(111, 240, 175, 1)) drop-shadow(0 0 18px rgba(111, 240, 175, 0.5)); transform: scale(1.08); }
+}
+@keyframes ignite {
+  0% { transform: scale(0.6); filter: brightness(0.6); } 55% { transform: scale(1.45); filter: brightness(1.8); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.2) rotate(0); } 50% { opacity: 1; transform: scale(1) rotate(90deg); }
+}
+@keyframes neon-on { 0% { opacity: 0; } 8% { opacity: 1; } 12% { opacity: 0.15; } 20% { opacity: 1; } 26% { opacity: 0.35; } 34%, 100% { opacity: 1; } }
+@keyframes sig-write { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+/* feeding and petting */
+@keyframes chomp { 0%, 100% { transform: translateY(-3px); } 50% { transform: rotate(6deg) translateY(1px); } }
+@keyframes chomp-mouth { 0%, 100% { opacity: 0; } 45% { opacity: 1; } }
+@keyframes belly-full { 0% { transform: none; } 35% { transform: scale(1.09, 1.07); } 70% { transform: scale(1.03, 1.02); } 100% { transform: none; } }
+@keyframes purr { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(0.45px) scaleY(1.01); } 75% { transform: translateX(-0.45px); } }
+@keyframes tail-happy { from { transform: rotate(0); } to { transform: rotate(9deg); } }
+@keyframes love-float {
+  0% { opacity: 0; transform: translate(0, 6px) scale(0); }
+  18% { opacity: 1; transform: translate(calc(var(--dx) * 0.2), -6px) scale(calc(var(--s) * 1.25)); }
+  100% { opacity: 0; transform: translate(var(--dx), -72px) scale(var(--s)) rotate(14deg); }
+}
+@keyframes word-pop {
+  0% { opacity: 0; transform: translateY(8px) scale(0.4) rotate(-12deg); }
+  18% { opacity: 1; transform: translateY(0) scale(1.12) rotate(-6deg); }
+  28% { transform: scale(1) rotate(-6deg); }
+  78% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-26px) scale(1) rotate(-6deg); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
@@ -728,7 +887,7 @@ textarea:focus { outline: none; box-shadow: var(--clay-inset), 0 0 0 3px var(--v
   nav { flex-direction: row; }
   nav a { padding: 9px 12px; white-space: nowrap; }
   .wordmark { font-size: 30px; padding: 6px 6px 6px 4px; }
-  .wordmark .tagline, .cat { display: none; }
+  .wordmark .tagline, .sig, .wm-stars, .cat-corner { display: none; }
   .sidebar-foot { margin: 0 0 0 auto; }
   main { padding: 18px 16px 40px; }
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
