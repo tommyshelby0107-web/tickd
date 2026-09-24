@@ -74,6 +74,11 @@ app.mount("/static", StaticFiles(directory=STATIC), name="static")
 # ---------------------------------------------------------------- pages
 
 @app.get("/", include_in_schema=False)
+def cover_page():
+    return FileResponse(STATIC / "home.html")
+
+
+@app.get("/dashboard", include_in_schema=False)
 def dashboard_page():
     return FileResponse(STATIC / "index.html")
 

@@ -1,0 +1,173 @@
+{
+  "set": "demo",
+  "mode": "truth",
+  "at": "2026-09-24T21:07:19+00:00",
+  "decisions_correct": 10,
+  "total": 10,
+  "field_accuracy": {},
+  "field_runs": 0,
+  "rows": [
+    {
+      "scenario": "HP-1",
+      "title": "Happy path: clean digital invoice, exact PO match",
+      "expected": "Approve",
+      "got": "Approve",
+      "owner": null,
+      "reasons": [],
+      "correct": true,
+      "why": "ok",
+      "field_misses": [],
+      "model": "provided (no LLM call)",
+      "seconds": 0.12,
+      "summary": "Approved. Apex Fasteners Inc. invoice INV-2026-0457 for $2,588.06 passed every check against PO-4501."
+    },
+    {
+      "scenario": "HP-2",
+      "title": "Within tolerance: one price 1.2% above PO, small freight charge",
+      "expected": "Approve",
+      "got": "Approve",
+      "owner": null,
+      "reasons": [],
+      "correct": true,
+      "why": "ok",
+      "field_misses": [],
+      "model": "provided (no LLM call)",
+      "seconds": 0.13,
+      "summary": "Approved. Coastal Packaging Corp. invoice CPK-88214 for $13,650.20 passed every check against PO-4502. 3 variance note(s) within tolerance."
+    },
+    {
+      "scenario": "EC-1A",
+      "title": "Split invoicing, first invoice (already approved on 2026-09-08)",
+      "expected": "Reject",
+      "got": "Reject",
+      "owner": "AP",
+      "reasons": [
+        "D-02",
+        "M-03",
+        "M-02"
+      ],
+      "correct": true,
+      "why": "ok",
+      "field_misses": [],
+      "model": "provided (no LLM call)",
+      "seconds": 0.1,
+      "summary": "Rejected. Duplicate of invoice SUM-10388 from this vendor, already approved on 2026-09-08."
+    },
+    {
+      "scenario": "EC-1B",
+      "title": "Split invoicing: second invoice pushes PO-4503 to 112.5%",
+      "expected": "Review",
+      "got": "Review",
+      "owner": "Buyer",
+      "reasons": [
+        "M-03",
+        "M-02"
+      ],
+      "correct": true,
+      "why": "ok",
+      "field_misses": [],
+      "model": "provided (no LLM call)",
+      "seconds": 0.1,
+      "summary": "Held for Buyer review. PO-4503 would be billed $45,000.00 of $40,000.00 (112.5%). Only $15,000.00 remains billable. Plus 1 other issue(s)."
+    },
+    {
+      "scenario": "EC-2",
+      "title": "Duplicate resubmission: HP-1 re-sent as a scan with a reformatted number",
+      "expected": "Reject",
+      "got": "Reject",
+      "owner": "AP",
+      "reasons": [
+        "D-02",
+        "M-03",
+        "M-02"
+      ],
+      "correct": true,
+      "why": "ok",
+      "field_misses": [],
+      "model": "provided (no LLM call)",
+      "seconds": 1.34,
+      "summary": "Rejected. Duplicate of invoice INV-2026-0457 from this vendor, already approved on 2026-09-24."
+    },
+    {
+      "scenario": "EC-3",
+      "title": "Scanned invoice with no PO number, only a reference line",
+      "expected": "Review",
+      "got": "Review",
+      "owner": "AP",
+      "reasons": [
+        "P-04"
+      ],
+      "correct": true,
+      "why": "ok",
+      "field_misses": [],
+      "model": "provided (no LLM call)",
+      "seconds": 1.57,
+      "summary": "Held for AP review. PO-4504 was inferred (match score 0.92, next best 0.21). Confirm it before approval - inferred matches are never auto-approved."
+    },
+    {
+      "scenario": "EC-4",
+      "title": "Bank-detail change on an otherwise perfect invoice",
+      "expected": "Review",
+      "got": "Review",
+      "owner": "AP lead",
+      "reasons": [
+        "VM-03"
+      ],
+      "correct": true,
+      "why": "ok",
+      "field_misses": [],
+      "model": "provided (no LLM call)",
+      "seconds": 0.12,
+      "summary": "Held for AP lead review. Bank account on the invoice (...5561, Crestline Federal Bank) does not match the vendor master (...0147, Harbor Point Bank). Hold payment and verify by calling (414) 555-0133 - the number on file, not one printed on the invoice."
+    },
+    {
+      "scenario": "RV-1",
+      "title": "Missing invoice number and date",
+      "expected": "Return to vendor",
+      "got": "Return to vendor",
+      "owner": "Vendor",
+      "reasons": [
+        "V-01"
+      ],
+      "correct": true,
+      "why": "ok",
+      "field_misses": [],
+      "model": "provided (no LLM call)",
+      "seconds": 0.11,
+      "summary": "Returned to vendor. Missing invoice number, invoice date."
+    },
+    {
+      "scenario": "X-1",
+      "title": "Invoice from a blocked vendor (scanned)",
+      "expected": "Reject",
+      "got": "Reject",
+      "owner": "AP",
+      "reasons": [
+        "VM-02"
+      ],
+      "correct": true,
+      "why": "ok",
+      "field_misses": [],
+      "model": "provided (no LLM call)",
+      "seconds": 1.11,
+      "summary": "Rejected. Redline Industrial Services is Blocked in the vendor master; its invoices cannot be paid."
+    },
+    {
+      "scenario": "X-2",
+      "title": "Price 6% above PO, outside tolerance",
+      "expected": "Review",
+      "got": "Review",
+      "owner": "Buyer",
+      "reasons": [
+        "M-01",
+        "M-04"
+      ],
+      "correct": true,
+      "why": "ok",
+      "field_misses": [],
+      "model": "provided (no LLM call)",
+      "seconds": 0.1,
+      "summary": "Held for Buyer review. Price above tolerance - Wedge anchor 1/2 x 4in, box of 25: $44.52 vs PO $42.00 (+6.0%). Plus 1 other issue(s)."
+    }
+  ]
+}

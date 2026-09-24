@@ -305,16 +305,23 @@ function petCat() {
 
 // ---------------------------------------------------------------- "Hi, I'm Coco!"
 
+const HELLO = {
+  day: [[["Hi, I'm ", ""], ["Coco", "name"], ["!", ""]], [["Sid's digital cute pet", ""]]],
+  night: [[["zzz… I'm ", ""], ["Coco", "name"], ["…", ""]], [["Sid's digital cute pet… zzz", ""]]],
+};
+const WELCOME = {
+  day: [[["Welcome in! ", ""], ["♥", "name"]], [["let's tick some invoices", ""]]],
+  night: [[["zzz… welcome in… ", ""], ["♥", "name"]], [["night shift, let's go… zzz", ""]]],
+};
+
 // Letters bounce in one by one. At night she is asleep, so it is a dreamy thought bubble instead.
-function cocoSay() {
+function cocoSay(lines = HELLO) {
   const coco = document.querySelector(".coco");
   const bubble = coco && coco.querySelector(".bubble");
   const cat = getCat();
   if (!bubble || catBusy || coco.classList.contains("away")) return;
   const night = theme() === "night";
-  const parts = night
-    ? [[["zzz… I'm ", ""], ["Coco", "name"], ["…", ""]], [["Sid's digital cute pet… zzz", ""]]]
-    : [[["Hi, I'm ", ""], ["Coco", "name"], ["!", ""]], [["Sid's digital cute pet", ""]]];
+  const parts = night ? lines.night : lines.day;
   let i = 0;
   const line = (segments) => segments.map(([text, cls]) => [...text].map((ch) =>
     `<span class="ch ${cls}" style="--i:${i++}">${ch === " " ? "&nbsp;" : esc(ch)}</span>`).join("")).join("");
@@ -412,11 +419,12 @@ function rigDraw(now) {
     const px = x - PIVOT[0], py = y - PIVOT[1];
     return [PIVOT[0] + px * c - py * s, PIVOT[1] + px * s + py * c + dy];
   };
-  e.root.setAttribute("transform", `translate(${R.x.toFixed(2)} ${(R.ground + R.hop).toFixed(2)}) scale(${R.flip.toFixed(3)} ${R.squash.toFixed(3)})`);
+  e.root.setAttribute("transform", `translate(${R.x.toFixed(2)} ${(R.ground + R.hop).toFixed(2)}) scale(${(R.flip * R.scale).toFixed(3)} ${(R.squash * R.scale).toFixed(3)})`);
   e.body.setAttribute("transform", `translate(0 ${dy.toFixed(2)}) rotate(${pitch.toFixed(2)} ${PIVOT[0]} ${PIVOT[1]})`);
   e.shadow.setAttribute("cx", R.x.toFixed(2));
   e.shadow.setAttribute("cy", (R.ground + 1.5).toFixed(2));
-  e.shadow.setAttribute("rx", (32 * (1 + R.hop / 40)).toFixed(2));
+  e.shadow.setAttribute("rx", (32 * R.scale * (1 + R.hop / 40)).toFixed(2));
+  e.shadow.setAttribute("ry", (4 * R.scale).toFixed(2));
 
   const legAlpha = 1 - clamp01((R.lie - 0.45) / 0.5);          // legs fold away under her when she lies down
   for (const leg of LEGS) {
@@ -436,7 +444,7 @@ function rigDraw(now) {
     el.paw.setAttribute("cy", (k.fy - 1.4).toFixed(2));
     // a paw print where each near foot touches down
     if (leg.id[1] === "n" && R.walk > 0.6 && leg.prev !== undefined && p < leg.prev) {
-      pawPrintAt(R.x + R.flip * k.fx, R.ground, R.flip > 0 ? 90 : -90);
+      pawPrintAt(R.x + R.flip * R.scale * k.fx, R.ground, R.flip > 0 ? 90 : -90);
     }
     leg.prev = p;
   }
@@ -452,8 +460,9 @@ function rigDraw(now) {
   e.earR.setAttribute("transform", `rotate(${flick.toFixed(2)} 9 -17)`);
   e.tag.setAttribute("transform", `rotate(${(R.walk * 18 * Math.sin(4 * Math.PI * phase - 1.4) + 3 * Math.sin(t * 2.3)).toFixed(2)} 1 17)`);
   const blink = t % 3.7 < 0.13;
-  const closed = R.yawn > 0.5 || blink;
+  const closed = R.yawn > 0.5 || R.sleep > 0.5 || blink;
   e.eyes.setAttribute("opacity", closed ? 0 : 1);
+  e.eyes.setAttribute("transform", `translate(${R.lookX.toFixed(2)} ${R.lookY.toFixed(2)})`);
   e.eyesClosed.setAttribute("opacity", closed ? 1 : 0);
   e.mouth.setAttribute("opacity", clamp01(R.yawn * 1.5).toFixed(2));
 
@@ -499,37 +508,47 @@ function rigLoop(now) {
   rigRaf = requestAnimationFrame(rigLoop);
 }
 
-// Swap the curled cat for the rig, lying in the same spot, facing the same way (left).
-function rigStart() {
-  const svg = document.querySelector(".rig");
-  if (!rigEls) {
-    const q = (sel) => svg.querySelector(sel);
-    rigEls = {
-      svg, root: q(".r-root"), body: q(".r-body"), head: q(".r-head"), shadow: q(".r-shadow"), earL: q(".r-ear-l"),
-      earR: q(".r-ear-r"), tag: q(".r-tag"), eyes: q(".r-eyes"), eyesClosed: q(".r-eyes-closed"), mouth: q(".r-mouth"),
-      tail: q(".r-tail"), tailHi: q(".r-tail-hi"), tip: q(".r-tip"), legs: {},
-    };
-    for (const leg of LEGS) rigEls.legs[leg.id] = { leg: q(`.r-leg[data-leg="${leg.id}"]`), paw: q(`.r-paw[data-leg="${leg.id}"]`) };
-  }
+function rigInit(svg) {
+  if (rigEls && rigEls.svg === svg) return;
+  const q = (sel) => svg.querySelector(sel);
+  rigEls = {
+    svg, root: q(".r-root"), body: q(".r-body"), head: q(".r-head"), shadow: q(".r-shadow"), earL: q(".r-ear-l"),
+    earR: q(".r-ear-r"), tag: q(".r-tag"), eyes: q(".r-eyes"), eyesClosed: q(".r-eyes-closed"), mouth: q(".r-mouth"),
+    tail: q(".r-tail"), tailHi: q(".r-tail-hi"), tip: q(".r-tip"), legs: {},
+  };
+  for (const leg of LEGS) rigEls.legs[leg.id] = { leg: q(`.r-leg[data-leg="${leg.id}"]`), paw: q(`.r-paw[data-leg="${leg.id}"]`) };
+}
+
+// Show the rig. In the sidebar she replaces the curled cat, lying in the same spot facing the same way (left);
+// on the cover page she is placed where the page says (opts: svg, home, ground, flip, scale, lie).
+function rigStart(opts = {}) {
+  const svg = opts.svg || document.querySelector(".coco-foot .rig, .sidebar-foot .rig");
+  rigInit(svg);
   const box = svg.getBoundingClientRect();
-  const cat = getCat().getBoundingClientRect();
   svg.setAttribute("viewBox", `0 0 ${box.width.toFixed(1)} ${box.height.toFixed(1)}`);
+  let { home, ground } = opts;
+  if (home === undefined) {
+    const cat = getCat().getBoundingClientRect();
+    ground = cat.top + cat.height * 0.95 - box.top;
+    home = cat.left + cat.width * 0.62 - box.left;
+  }
   Object.assign(R, {
-    ground: cat.top + cat.height * 0.95 - box.top, home: cat.left + cat.width * 0.62 - box.left,
-    flip: -1, hop: 0, squash: 1, dist: 0, walk: 0, lie: 1, stretch: 0, yawn: 0, lean: 0, shake: 0, headDown: 0, bat: null,
+    ground, home, flip: opts.flip ?? -1, scale: opts.scale ?? 1, lie: opts.lie ?? 1,
+    hop: 0, squash: 1, dist: 0, walk: 0, stretch: 0, yawn: 0, sleep: 0, lean: 0, shake: 0, headDown: 0, bat: null, lookX: 0, lookY: 0,
   });
   R.x = R.home;
   LEGS.forEach((leg) => { delete leg.prev; });
   rigDraw(performance.now());
   svg.classList.add("on");
-  document.querySelector(".coco").classList.add("away");
+  if (!opts.svg) document.querySelector(".coco").classList.add("away");
   cancelAnimationFrame(rigRaf);
   rigRaf = requestAnimationFrame(rigLoop);
 }
 
 function rigStop() {
   rigEls.svg.classList.remove("on");
-  document.querySelector(".coco").classList.remove("away");
+  const coco = document.querySelector(".coco");
+  if (coco) coco.classList.remove("away");
   setTimeout(() => cancelAnimationFrame(rigRaf), 250);
 }
 
@@ -572,8 +591,8 @@ async function rigStretch() {
 // A paw goes up, then comes down on the target (page coordinates); onHit fires on contact.
 async function rigBat(targetX, targetY, onHit) {
   const box = rigEls.svg.getBoundingClientRect();
-  const lx = (targetX - box.left - R.x) / R.flip;
-  const ly = targetY - box.top - R.ground;
+  const lx = (targetX - box.left - R.x) / (R.flip * R.scale);
+  const ly = (targetY - box.top - R.ground) / R.scale;
   const rest = [LEGS[3].rest, 0], up = [LEGS[3].rest + 9, -18], hit = [lx, ly];
   let fired = false;
   const mix = (a, b, k) => [lerp(a[0], b[0], k), lerp(a[1], b[1], k)];
@@ -738,7 +757,7 @@ function wireCoco(aside, firstVisit) {
   feed.addEventListener("click", () => feedCat(feed));
   aside.querySelector(".cat-btn.pet").addEventListener("click", petCat);
   const cat = aside.querySelector(".cat");
-  cat.addEventListener("mouseenter", cocoSay);
+  cat.addEventListener("mouseenter", () => cocoSay());
   cat.addEventListener("mouseleave", hideBubble);
   if (!cocoAlive) {                     // page-wide listeners, once
     cocoAlive = true;
@@ -746,7 +765,17 @@ function wireCoco(aside, firstVisit) {
     napWhenIdle();
     watchDrags();
   }
-  if (firstVisit && !reducedMotion) {    // she introduces herself on the first visit
-    setTimeout(() => { if (!cat.matches(":hover")) { cocoSay(); setTimeout(() => { if (!cat.matches(":hover")) hideBubble(); }, 3200); } }, 2600);
+  const greet = (lines, delay) => setTimeout(() => {
+    if (cat.matches(":hover")) return;
+    cocoSay(lines);
+    setTimeout(() => { if (!cat.matches(":hover")) hideBubble(); }, 3400);
+  }, delay);
+  let welcome = false;
+  try { welcome = sessionStorage.getItem("tickd-welcome") === "1"; sessionStorage.removeItem("tickd-welcome"); } catch { /* private mode */ }
+  if (welcome && !reducedMotion) {       // arriving from the cover page: she jumps up to welcome you
+    setTimeout(() => pulseClass(cat, "jump", 950), 500);
+    greet(WELCOME, 900);
+  } else if (firstVisit && !reducedMotion) {   // otherwise she introduces herself on the first visit
+    greet(HELLO, 2600);
   }
 }

@@ -23,6 +23,7 @@ const ICONS = {
   external: '<path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
   sparkle: '<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/>',
   trash: '<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>',
+  arrowRight: '<path d="M5 12h14M13 6l6 6-6 6"/>',
 };
 
 function icon(name, size = 18) {
@@ -200,7 +201,7 @@ function toast(text) {
 // ---------------------------------------------------------------- sidebar
 
 const NAV = [
-  ["dashboard", "/", "dashboard", "Dashboard"],
+  ["dashboard", "/dashboard", "dashboard", "Dashboard"],
   ["run", "/run", "run", "New run"],
   ["bulk", "/bulk", "folder", "Bulk run"],
   ["inbox", "/inbox", "mail", "Email inbox"],
@@ -327,12 +328,16 @@ function setTheme(next, origin, { cat: catReacts = true } = {}) {
   transition.finished.catch(() => {});
 }
 
+// Drifting clay blobs, and stars that twinkle at night.
+function renderBackdrop() {
+  if (document.querySelector(".bg")) return;
+  const stars = Array.from({ length: 30 }, () => `<i class="${Math.random() < 0.2 ? "big" : ""}" style="left:${
+    (Math.random() * 100).toFixed(1)}%;top:${(Math.random() * 100).toFixed(1)}%;animation-delay:${(Math.random() * 3.6).toFixed(2)}s"></i>`).join("");
+  document.body.insertAdjacentHTML("afterbegin", `<div class="bg"><span></span><span></span><span></span>${stars}</div>`);
+}
+
 async function renderSidebar(active) {
-  if (!document.querySelector(".bg")) {
-    const stars = Array.from({ length: 30 }, () => `<i class="${Math.random() < 0.2 ? "big" : ""}" style="left:${
-      (Math.random() * 100).toFixed(1)}%;top:${(Math.random() * 100).toFixed(1)}%;animation-delay:${(Math.random() * 3.6).toFixed(2)}s"></i>`).join("");
-    document.body.insertAdjacentHTML("afterbegin", `<div class="bg"><span></span><span></span><span></span>${stars}</div>`);
-  }
+  renderBackdrop();
   const aside = document.getElementById("sidebar");
   aside.innerHTML = `
     ${wordmark()}
