@@ -90,6 +90,7 @@ async function renderSidebar(active) {
         <span class="nav-badge" id="nav-reviews" hidden></span></a>
       <a href="/run" class="${active === "run" ? "active" : ""}">${icon("run")} New run</a>
       <a href="/bulk" class="${active === "bulk" ? "active" : ""}">${icon("folder")} Bulk run</a>
+      <a href="/inbox" class="${active === "inbox" ? "active" : ""}">${icon("mail")} Email inbox</a>
       <a href="/reference" class="${active === "reference" ? "active" : ""}">${icon("reference")} Reference data</a>
     </nav>
     <div class="sidebar-foot" id="env"></div>`;
@@ -97,7 +98,8 @@ async function renderSidebar(active) {
     const [cfg, m] = await Promise.all([api("/api/config"), api("/api/metrics")]);
     document.getElementById("env").innerHTML = `
       <div><b>Reader:</b> ${esc(cfg.llm_providers.join(" → ") || "no LLM key")}</div>
-      <div><b>Mode:</b> ${esc(cfg.extraction_mode)} · <b>Policy</b> v${esc(cfg.policy_version)}</div>`;
+      <div><b>Mode:</b> ${esc(cfg.extraction_mode)} · <b>Policy</b> v${esc(cfg.policy_version)}</div>
+      <div><b>Email:</b> ${cfg.email ? esc(cfg.email) : "not connected"}</div>`;
     const badge = document.getElementById("nav-reviews");
     if (m.open_reviews) { badge.hidden = false; badge.textContent = `${m.open_reviews} to review`; }
   } catch (e) { /* sidebar info is optional */ }

@@ -82,7 +82,7 @@ def run_invoice(pdf_path: Path, run_id: str | None = None, listener: Listener | 
         emit("extract", "pass", f"{len(invoice.lines)} line(s), total {invoice.total.value or 'missing'} "
                                 f"({result['extraction']['model']})", {"invoice": result["extracted"]})
 
-        ctx = Context(invoice, pages, file_hash)
+        ctx = Context(invoice, pages, file_hash, email_from=(db.run(run_id) or {}).get("email_from"))
         for key, check in CHECKS:
             emit(key, "running", "Checking")
             summary, found = check(ctx)

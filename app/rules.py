@@ -9,7 +9,7 @@ from datetime import date, timedelta
 
 from rapidfuzz import fuzz, utils
 
-from . import db
+from . import config, db
 from .config import POLICY
 from .extract import InvoiceData, LineItem, Sourced
 from .normalize import digits, invoice_key, money, parse_date, po_key, squash, to_float
@@ -40,6 +40,7 @@ class Context:
     po_candidates: list[dict] = field(default_factory=list)
     line_matches: list[dict] = field(default_factory=list)
     is_credit: bool = False         # a credit note: never paid, so payment matching does not apply
+    email_from: str | None = None   # sender address, when the invoice arrived by email
 
 
 def similarity(a: str | None, b: str | None) -> float:
@@ -214,6 +215,10 @@ def vendor_check(ctx: Context) -> tuple[str, list[Finding]]:
             owner="AP lead", severity="high",
             details={"printed_account": printed, "account_on_file": on_file, "invoice_note": inv.notes}))
 
+    sender = check_sender(ctx, v)
+    if sender:
+        found.append(sender)
+
     expected = (v["expected_tax_rate"] or 0) * 100
     subtotal = inv.subtotal or sum(l.amount for l in inv.lines)
     if inv.tax_included_in_prices:
@@ -226,6 +231,38 @@ def vendor_check(ctx: Context) -> tuple[str, list[Finding]]:
         else:
             found.append(Finding("V-04", PASS, f"Tax rate {actual:.2f}% matches the expected {expected:.2f}%."))
     return f"{v['name']} ({v['vendor_id']})", found
+
+
+def check_sender(ctx: Context, vendor: dict) -> Finding | None:
+    """VM-04: an emailed invoice should come from the vendor's own domain. A lookalike domain is a fraud signal."""
+    sender = (ctx.email_from or "").lower()
+    if not sender:
+        return None                     # not emailed: nothing to check
+    sender_domain = sender.rsplit("@", 1)[-1]
+    vendor_domain = (vendor.get("email") or "").lower().rsplit("@", 1)[-1]
+    details = {"sender": sender, "vendor_domain": vendor_domain}
+    if sender in config.EMAIL_TRUSTED_FORWARDERS:
+        return Finding("VM-04", NOTE, f"Forwarded by {sender}, a trusted internal address; the original sender "
+                                      "cannot be checked.", details=details)
+    if vendor_domain and (sender_domain == vendor_domain or sender_domain.endswith("." + vendor_domain)):
+        return Finding("VM-04", PASS, f"Emailed from {sender_domain}, {vendor['name']}'s domain on file.")
+    if any(sender_domain == d or sender_domain.endswith("." + d) for d in POLICY["sender_platform_domains"]):
+        return Finding("VM-04", PASS, f"Emailed via the invoicing platform {sender_domain}.")
+    if vendor_domain and _domain_similarity(sender_domain, vendor_domain) >= POLICY["sender_lookalike_min"]:
+        return Finding("VM-04", REVIEW, f"Lookalike sender domain: emailed from {sender_domain}, but {vendor['name']}'s "
+                                        f"domain on file is {vendor_domain}. This is a common impersonation pattern. "
+                                        f"Verify by calling {vendor['phone_on_file']} before any payment.",
+                       owner="AP lead", severity="high", details=details)
+    return Finding("VM-04", REVIEW, f"Emailed from {sender}, not from {vendor['name']}'s domain on file "
+                                    f"({vendor_domain or 'none'}). Confirm the vendor sent it.", owner="AP",
+                   details=details)
+
+
+def _domain_similarity(a: str, b: str) -> float:
+    """Compare the names without TLD or hyphens: 'apex-fasteners-billing.com' vs 'apexfasteners.example' -> 100."""
+    def base(domain: str) -> str:
+        return domain.rsplit(".", 1)[0].replace("-", "").replace(".", "")
+    return fuzz.partial_ratio(base(a), base(b))
 
 
 # ---------------------------------------------------------------- stage 5: duplicates

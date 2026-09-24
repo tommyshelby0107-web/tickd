@@ -26,9 +26,12 @@ CREATE TABLE runs (
   run_id TEXT PRIMARY KEY, file_name TEXT, file_hash TEXT, status TEXT, decision TEXT, owner TEXT,
   severity TEXT, vendor_name TEXT, invoice_number TEXT, total REAL, summary TEXT, queued_at TEXT, started_at TEXT,
   finished_at TEXT, seconds REAL, result_json TEXT,
-  batch_id TEXT, source TEXT, source_detail TEXT);
+  batch_id TEXT, source TEXT, source_detail TEXT, email_from TEXT);
 CREATE TABLE batches (
   batch_id TEXT PRIMARY KEY, name TEXT, source TEXT, created_at TEXT, total INTEGER, skipped_json TEXT);
+CREATE TABLE email_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, message_id TEXT, sender TEXT, sender_name TEXT, subject TEXT,
+  received_at TEXT, logged_at TEXT, run_ids_json TEXT, ignored_json TEXT);
 CREATE TABLE events (
   id INTEGER PRIMARY KEY AUTOINCREMENT, run_id TEXT, stage TEXT, status TEXT, summary TEXT, at TEXT,
   data_json TEXT);
@@ -78,7 +81,7 @@ def ensure() -> None:
     if config.DB_PATH.exists():
         with connect() as conn:
             columns = {row[1] for row in conn.execute("PRAGMA table_info(runs)")}
-        if "batch_id" in columns:
+        if "email_from" in columns:
             return
     reset()
 
@@ -159,13 +162,13 @@ def record_approval(run_id: str, vendor_id: str, invoice: dict, po_number: str |
 # ---------------------------------------------------------------- runs and events
 
 def create_run(run_id: str, file_name: str, file_hash: str, status: str = "running", batch_id: str | None = None,
-               source: str = "upload", source_detail: str | None = None) -> None:
+               source: str = "upload", source_detail: str | None = None, email_from: str | None = None) -> None:
     at = now()
     with connect() as conn:
         conn.execute("INSERT INTO runs (run_id, file_name, file_hash, status, queued_at, started_at, batch_id, source,"
-                     " source_detail) VALUES (?,?,?,?,?,?,?,?,?)",
+                     " source_detail, email_from) VALUES (?,?,?,?,?,?,?,?,?,?)",
                      (run_id, file_name, file_hash, status, at, at if status == "running" else None,
-                      batch_id, source, source_detail))
+                      batch_id, source, source_detail, email_from))
 
 
 def mark_running(run_id: str) -> None:
@@ -211,7 +214,7 @@ def run(run_id: str) -> dict | None:
 
 
 RUN_COLUMNS = ("run_id, file_name, status, decision, owner, severity, vendor_name, invoice_number, total, summary,"
-               " queued_at, started_at, seconds, batch_id, source, source_detail")
+               " queued_at, started_at, seconds, batch_id, source, source_detail, email_from")
 
 
 def runs(limit: int = 200) -> list[dict]:
@@ -248,6 +251,44 @@ def batch(batch_id: str) -> dict | None:
     out["skipped"] = json.loads(out.pop("skipped_json") or "[]")
     out["runs"] = items
     return out
+
+
+# ---------------------------------------------------------------- email log (every email received, even with no PDF)
+
+def log_email(message_id: str, sender: str, sender_name: str, subject: str, received_at: str | None,
+              run_ids: list[str], ignored: list[str]) -> None:
+    with connect() as conn:
+        conn.execute("INSERT INTO email_log (message_id, sender, sender_name, subject, received_at, logged_at,"
+                     " run_ids_json, ignored_json) VALUES (?,?,?,?,?,?,?,?)",
+                     (message_id, sender, sender_name, subject, received_at, now(), json.dumps(run_ids),
+                      json.dumps(ignored)))
+
+
+def email_seen(message_id: str) -> bool:
+    if not message_id:
+        return False
+    with connect() as conn:
+        return conn.execute("SELECT 1 FROM email_log WHERE message_id = ?", (message_id,)).fetchone() is not None
+
+
+def email_log(limit: int = 50) -> list[dict]:
+    with connect() as conn:
+        rows = conn.execute("SELECT * FROM email_log ORDER BY id DESC LIMIT ?", (limit,)).fetchall()
+    out = []
+    for r in rows:
+        item = dict(r)
+        item["runs"] = [run_summary for rid in json.loads(item.pop("run_ids_json"))
+                        if (run_summary := _short_run(rid))]
+        item["ignored"] = json.loads(item.pop("ignored_json"))
+        out.append(item)
+    return out
+
+
+def _short_run(run_id: str) -> dict | None:
+    with connect() as conn:
+        row = conn.execute("SELECT run_id, file_name, status, decision, severity FROM runs WHERE run_id = ?",
+                           (run_id,)).fetchone()
+    return dict(row) if row else None
 
 
 def batches(limit: int = 50) -> list[dict]:

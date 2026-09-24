@@ -28,6 +28,25 @@ GEMINI_MODELS = _models("GEMINI_MODELS", "gemini-3.6-flash,gemini-3.5-flash-lite
 _WINDOWS_TESSERACT = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 TESSERACT_CMD = os.getenv("TESSERACT_CMD") or (_WINDOWS_TESSERACT if os.name == "nt" else "tesseract")
 
+# Email intake: a dedicated inbox polled over IMAP (Gmail: 2-Step Verification + an App Password).
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS", "")
+EMAIL_APP_PASSWORD = os.getenv("EMAIL_APP_PASSWORD", "").replace(" ", "")   # Gmail shows it in groups of four
+EMAIL_IMAP_HOST = os.getenv("EMAIL_IMAP_HOST", "imap.gmail.com")
+EMAIL_FOLDER = os.getenv("EMAIL_FOLDER", "INBOX")
+EMAIL_POLL_SECONDS = int(os.getenv("EMAIL_POLL_SECONDS", "20"))
+# Staff addresses that forward vendor invoices into the inbox: the sender check cannot judge the original sender.
+EMAIL_TRUSTED_FORWARDERS = [a.strip().lower() for a in os.getenv("EMAIL_TRUSTED_FORWARDERS", "").split(",") if a.strip()]
+
+
+def email_enabled() -> bool:
+    return bool(EMAIL_ADDRESS and EMAIL_APP_PASSWORD)
+
+
+def uploads_dir() -> Path:
+    """Where every received PDF is kept, one folder per run."""
+    return STORAGE_DIR / "uploads"
+
+
 # Pause between rule stages so people watching the live view can follow it (0 in tests).
 STAGE_PAUSE_S = float(os.getenv("STAGE_PAUSE_S", "0.4"))
 # "live" calls the LLM; "cached" reuses samples/extracted/*.json for known sample files (clearly labelled).

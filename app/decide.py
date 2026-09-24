@@ -6,6 +6,7 @@ AP_EMAIL = "ap@meridian.example"
 
 NEXT_STEP = {
     "VM-03": "Do not pay. The AP lead must call the vendor on the number on file and log the result before release.",
+    "VM-04": "Do not pay yet. Confirm with the vendor, on the number on file, that they sent this invoice.",
     "P-02": "Do not pay. Ask the PO's real vendor, on the number on file, whether they sent this invoice. If not, "
             "reject it and alert IT security.",
     "V-06": "Do not pay. Apply the credit against the vendor's open invoices and file it with the original invoice.",
@@ -27,7 +28,7 @@ NEXT_STEP = {
 
 # When several issues fire, the one a reviewer should read first: fraud and duplicates, then whether the document
 # can be trusted at all (not an invoice, missing data, its own maths wrong), then over-billing, price, quantity...
-LEAD_PRIORITY = ["VM-03", "VM-02", "D-01", "D-02", "V-06", "D-03", "VM-01", "V-01", "V-02", "M-03", "M-01", "M-04",
+LEAD_PRIORITY = ["VM-03", "VM-04", "VM-02", "D-01", "D-02", "V-06", "D-03", "VM-01", "V-01", "V-02", "M-03", "M-01", "M-04",
                  "M-02", "M-05", "M-00", "P-01", "P-02", "P-03", "P-04", "V-04", "V-05", "V-03"]
 
 

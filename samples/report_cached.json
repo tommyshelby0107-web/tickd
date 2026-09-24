@@ -1,7 +1,7 @@
 {
   "set": "demo",
   "mode": "cached",
-  "at": "2026-09-23T17:52:16+00:00",
+  "at": "2026-09-24T11:50:52+00:00",
   "decisions_correct": 10,
   "total": 10,
   "field_accuracy": {
@@ -28,7 +28,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.11,
+      "seconds": 0.1,
       "summary": "Approved. Apex Fasteners Inc. invoice INV-2026-0457 for $2,588.06 passed every check against PO-4501."
     },
     {
@@ -60,7 +60,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.12,
+      "seconds": 0.09,
       "summary": "Rejected. Duplicate of invoice SUM-10388 from this vendor, already approved on 2026-09-08."
     },
     {
@@ -77,7 +77,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.1,
+      "seconds": 0.09,
       "summary": "Held for Buyer review. PO-4503 would be billed $45,000.00 of $40,000.00 (112.5%). Only $15,000.00 remains billable. Plus 1 other issue(s)."
     },
     {
@@ -96,7 +96,7 @@
       "field_misses": [],
       "model": "provided (no LLM call)",
       "seconds": 1.35,
-      "summary": "Rejected. Duplicate of invoice INV-2026-0457 from this vendor, already approved on 2026-09-23."
+      "summary": "Rejected. Duplicate of invoice INV-2026-0457 from this vendor, already approved on 2026-09-24."
     },
     {
       "scenario": "EC-3",
@@ -111,7 +111,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 1.79,
+      "seconds": 1.36,
       "summary": "Held for AP review. PO-4504 was inferred (match score 0.92, next best 0.21). Confirm it before approval - inferred matches are never auto-approved."
     },
     {
@@ -127,7 +127,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.11,
+      "seconds": 0.17,
       "summary": "Held for AP lead review. Bank account on the invoice (...5561, Crestline Federal Bank) does not match the vendor master (...0147, Harbor Point Bank). Hold payment and verify by calling (414) 555-0133 - the number on file, not one printed on the invoice."
     },
     {
@@ -143,7 +143,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.11,
+      "seconds": 0.14,
       "summary": "Returned to vendor. Missing invoice number, invoice date."
     },
     {
@@ -159,7 +159,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 1.63,
+      "seconds": 1.2,
       "summary": "Rejected. Redline Industrial Services is Blocked in the vendor master; its invoices cannot be paid."
     },
     {
@@ -176,7 +176,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.19,
+      "seconds": 0.09,
       "summary": "Held for Buyer review. Price above tolerance - Wedge anchor 1/2 x 4in, box of 25: $44.52 vs PO $42.00 (+6.0%). Plus 1 other issue(s)."
     }
   ]

@@ -115,7 +115,24 @@ gaps a real AP team would hit — tax-inclusive vendors, arithmetic errors and c
 regression tests so they can't come back. In production I'd keep doing this with real invoices: every human
 override becomes a new test case."
 
-## 9. Running the app
+## 9. Bulk and email intake
+
+- **One queue, one worker.** Uploads, folders and email all create a "queued" run and put it on the same queue.
+  One worker processes them in order. Why one? Free-tier LLM rate limits, and determinism: if a folder holds the
+  same invoice twice, the first (by filename) is the original and the second is caught by D-02.
+- **Folder picker in the browser**, not a folder the server watches: a watched folder only works on your laptop;
+  the browser picker also works when the app is hosted.
+- **Email = IMAP polling.** Every 20 s the app logs in to a dedicated Gmail (App Password), fetches unread emails,
+  saves each PDF attachment (also inside forwarded emails), queues it, and marks the email read. Every email is
+  logged by Message-ID, so even if it shows up unread again it is never processed twice.
+- **VM-04 sender check.** Vendor's own domain or a known invoicing platform: pass. A trusted internal forwarder:
+  note. A lookalike domain (apex-fasteners-billing.com vs apexfasteners.example): high-risk hold. Anything else:
+  review. Business email compromise often starts with exactly this.
+- **Alternatives you should be able to name:** inbound webhooks (Postmark/SendGrid: instant, needs a public URL),
+  Power Automate for Microsoft 365 ("When a new email arrives" → HTTP POST to our API), Gmail API / Graph with
+  OAuth (production-grade). Outlook no longer allows simple password IMAP, which is why Gmail was the quick path.
+
+## 10. Running the app
 
 ```powershell
 cd "C:\Users\Acer\OneDrive\Desktop\zamp ai\invoice-agent"
@@ -124,7 +141,7 @@ cd "C:\Users\Acer\OneDrive\Desktop\zamp ai\invoice-agent"
 # add  $env:EXTRACTION_MODE = "cached"  before the command to use saved extractions (no API calls)
 ```
 
-## 10. Exercises (do these — this is how you learn the code)
+## 11. Exercises (do these — this is how you learn the code)
 
 1. In `policy.yaml`, change `header_tolerance_abs` from `250.00` to `50.00`. Run `demo_offline.py`.
    HP-2 should flip from Approve to Review. Why? (Its +$96 variance now exceeds $50.) Change it back.

@@ -1,7 +1,8 @@
 // Dashboard: KPIs, decision mix, exception reasons, review queue and run history. Refreshes every 5 s.
 
 const RULE_NAMES = {
-  "VM-03": "Bank details changed", "VM-02": "Blocked vendor", "VM-01": "Unknown vendor",
+  "VM-03": "Bank details changed", "VM-04": "Sender not vendor's domain", "VM-02": "Blocked vendor",
+  "VM-01": "Unknown vendor",
   "D-01": "Same file again", "D-02": "Duplicate invoice", "D-03": "Possible duplicate",
   "M-03": "PO over-billed", "M-01": "Price over tolerance", "M-04": "Subtotal over tolerance",
   "M-02": "Qty not received", "M-05": "Unplanned charges", "M-00": "Line not on PO",

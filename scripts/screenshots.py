@@ -10,7 +10,7 @@ from playwright.sync_api import sync_playwright
 BASE = "http://127.0.0.1:8000"
 out = Path(sys.argv[1] if len(sys.argv) > 1 else "screenshots")
 out.mkdir(parents=True, exist_ok=True)
-pages = {"dashboard": "/", "new-run": "/run", "reference": "/reference"}
+pages = {"dashboard": "/", "new-run": "/run", "bulk": "/bulk", "inbox": "/inbox", "reference": "/reference"}
 pages.update({f"run-{rid}": f"/runs/{rid}" for rid in sys.argv[2:]})
 
 with sync_playwright() as p:

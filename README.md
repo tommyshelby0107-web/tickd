@@ -10,6 +10,17 @@ python -m venv C:\Users\Acer\.venvs\invoice-agent   # kept outside OneDrive on p
 C:\Users\Acer\.venvs\invoice-agent\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
+## Three ways in, one queue
+
+| Channel | How | Where |
+| --- | --- | --- |
+| Single invoice | Upload a PDF or pick a prepared scenario | New run |
+| Folder | Choose a folder in the browser; every PDF in it is processed in filename order | Bulk run |
+| Email | A dedicated Gmail inbox is polled every 20 s (IMAP + App Password); each PDF attachment is processed | Email inbox |
+
+All three feed one work queue with one worker, so free-tier LLM limits are respected and duplicates inside a batch
+are caught deterministically. Emailed invoices also get rule VM-04: the sender should be the vendor's own domain.
+
 ## Test data
 
 `data/` holds the reference data the rules match against (vendor master, PO register with receipts and

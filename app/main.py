@@ -19,7 +19,8 @@ from fastapi.responses import FileResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import config, db
+from . import config, db, email_intake
+from .config import uploads_dir
 from .pipeline import STAGES, new_run_id, run_invoice, sample_files
 from .text import page_png
 
@@ -27,12 +28,8 @@ STATIC = config.ROOT / "static"
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 
 
-def uploads_dir() -> Path:
-    return config.STORAGE_DIR / "uploads"
-
-
 # ---------------------------------------------------------------- one work queue for every intake channel
-# Uploads, folders (and later email) all put invoices on this queue; one worker processes them in order.
+# Uploads, folders and email all put invoices on this queue; one worker processes them in order.
 # One at a time respects free-tier LLM rate limits and makes duplicates within a batch deterministic.
 
 JOBS: "queue.Queue[tuple[Path, str]]" = queue.Queue()
@@ -51,10 +48,10 @@ def _worker() -> None:
 
 
 def enqueue(path: Path, source: str, source_detail: str | None = None, batch_id: str | None = None,
-            run_id: str | None = None) -> str:
+            run_id: str | None = None, email_from: str | None = None) -> str:
     run_id = run_id or new_run_id()
     db.create_run(run_id, path.name, hashlib.sha256(path.read_bytes()).hexdigest(), status="queued",
-                  batch_id=batch_id, source=source, source_detail=source_detail)
+                  batch_id=batch_id, source=source, source_detail=source_detail, email_from=email_from)
     JOBS.put((path, run_id))
     return run_id
 
@@ -64,6 +61,8 @@ async def lifespan(_: FastAPI):
     db.ensure()
     if not _worker_started.is_set():
         threading.Thread(target=_worker, daemon=True, name="invoice-worker").start()
+        if config.email_enabled():
+            email_intake.start_poller(enqueue)
         _worker_started.set()
     yield
 
@@ -96,13 +95,40 @@ def bulk_page(batch_id: str | None = None):
     return FileResponse(STATIC / "bulk.html")
 
 
+@app.get("/inbox", include_in_schema=False)
+def inbox_page():
+    return FileResponse(STATIC / "inbox.html")
+
+
+# ---------------------------------------------------------------- email
+
+@app.get("/api/email")
+def email_status():
+    return {"enabled": config.email_enabled(), "address": config.EMAIL_ADDRESS or None,
+            "poll_seconds": config.EMAIL_POLL_SECONDS, "trusted_forwarders": config.EMAIL_TRUSTED_FORWARDERS,
+            **email_intake.STATUS, "emails": db.email_log()}
+
+
+@app.post("/api/email/check")
+def email_check_now():
+    """The 'Check now' button: poll the inbox immediately instead of waiting for the next cycle."""
+    if not config.email_enabled():
+        raise HTTPException(409, "Email is not configured: set EMAIL_ADDRESS and EMAIL_APP_PASSWORD in .env")
+    try:
+        email_intake.poll_once(enqueue)
+    except Exception as exc:
+        raise HTTPException(502, f"Could not read the inbox: {exc}") from exc
+    return email_status()
+
+
 # ---------------------------------------------------------------- runs
 
 @app.get("/api/config")
 def app_config():
     providers = [name for name, key in (("Groq", config.GROQ_API_KEY), ("Gemini", config.GEMINI_API_KEY)) if key]
     return {"stages": [{"key": k, "label": label} for k, label in STAGES], "llm_providers": providers,
-            "extraction_mode": config.EXTRACTION_MODE, "policy_version": config.POLICY["version"]}
+            "extraction_mode": config.EXTRACTION_MODE, "policy_version": config.POLICY["version"],
+            "email": config.EMAIL_ADDRESS if config.email_enabled() else None}
 
 
 @app.get("/api/samples")

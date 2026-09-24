@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Email inbox · Invoice Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <aside id="sidebar"></aside>
+  <main>
+    <div class="page-head">
+      <div>
+        <div class="section-label">Invoices by email</div>
+        <h1>Email inbox</h1>
+        <p id="lead">Vendors email invoices to the AP inbox; every PDF attachment is picked up and processed.</p>
+      </div>
+      <button class="btn btn-primary" id="check">Check now</button>
+    </div>
+    <section class="card" style="margin-bottom:16px" id="status"></section>
+    <section class="card">
+      <div class="card-head"><h2>Received emails</h2><span class="muted" id="count"></span></div>
+      <table>
+        <thead><tr><th>Received</th><th>From</th><th>Subject</th><th>Invoices processed</th><th>Ignored</th></tr></thead>
+        <tbody id="emails"></tbody>
+      </table>
+    </section>
+  </main>
+  <script src="/static/app.js"></script>
+  <script src="/static/inbox.js"></script>
+</body>
+</html>
