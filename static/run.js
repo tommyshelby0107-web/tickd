@@ -51,7 +51,9 @@ async function start({ sample, file }) {
   if (sample) form.append("sample", sample);
   if (file) form.append("file", file);
   try {
-    const { run_id } = await api("/api/runs", { method: "POST", body: form });
+    // an uploaded file makes Coco happy: let her cheer while it uploads, then open the live run
+    const [{ run_id }] = await Promise.all([api("/api/runs", { method: "POST", body: form }),
+      file ? cocoParty("yay, an invoice!") : null]);
     location.href = `/runs/${run_id}`;
   } catch (e) {
     toast(e.message);
@@ -231,8 +233,11 @@ function renderDecision(run) {
     ${d.notes.length ? `<ul class="notes">${d.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : ""}
     ${candidates}${message}${resolved}${reviewForm}`;
   if (celebrate && d.outcome === "Approve") setTimeout(() => confetti(el.querySelector(".blob")), 350);
+  if (celebrate) setTimeout(() => coco.react(d.outcome), 500);          // Coco reacts to a decision made live
   celebrate = false;
 }
+
+const REVIEW_OUTCOME = { approve: "Approve", reject: "Reject", return: "Return to vendor" };
 
 function copyDraft() {
   navigator.clipboard.writeText(document.getElementById("draft").innerText).then(() => toast("Draft copied"));
@@ -251,6 +256,7 @@ async function review(action) {
     });
     renderDecision(run);
     if (action === "approve") confetti(document.querySelector("#decision .blob"));
+    coco.react(REVIEW_OUTCOME[action]);
     toast("Decision recorded");
   } catch (e) {
     toast(e.message);

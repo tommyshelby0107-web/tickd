@@ -252,6 +252,7 @@ function wireWordmark(el) {
     setTimeout(() => sparkle(el.querySelector(".tick-dot")), 600);     // at the top of the badge's leap
     setTimeout(() => { el.classList.remove("party"); busy = false; }, 1400);
   });
+  return firstVisit;
 }
 
 // A small radial burst of clay sparkles.
@@ -288,9 +289,10 @@ function themeSwitch() {
   </button>`;
 }
 
-// Night spreads out from the switch as a growing circle (View Transitions), and the cat reacts.
-function setTheme(next, origin) {
-  const cat = document.querySelector(".cat");
+// Night spreads out from the switch as a growing circle (View Transitions), and the cat reacts
+// (unless Coco herself pressed the switch: then she settles down in her own time).
+function setTheme(next, origin, { cat: catReacts = true } = {}) {
+  const cat = catReacts ? document.querySelector(".cat") : null;
   const mark = document.querySelector(".wordmark");
   if (mark && !reducedMotion) {            // letters lift off into the night, or land back in the day
     mark.classList.remove("to-night", "to-day", "intro");
@@ -325,216 +327,6 @@ function setTheme(next, origin) {
   transition.finished.catch(() => {});
 }
 
-// The tickd cat: a ginger clay cat, curled up. Awake by day (blinks, swishes its tail, twitches an ear);
-// at night its eyes close, its head droops onto its paws, its breathing slows and z's float up. Hover: a heart.
-const CAT = `<svg class="cat" viewBox="0 0 120 84" width="100" height="70" role="img" aria-label="The tickd cat">
-  <defs>
-    <radialGradient id="cat-fur" cx="0.35" cy="0.28" r="0.95">
-      <stop offset="0" stop-color="#ffdcae"/><stop offset="0.55" stop-color="#f6a458"/><stop offset="1" stop-color="#d9702c"/>
-    </radialGradient>
-    <linearGradient id="cat-tail-fur" x1="1" y1="0" x2="0" y2="0">
-      <stop offset="0" stop-color="#e3813a"/><stop offset="1" stop-color="#f8b673"/>
-    </linearGradient>
-  </defs>
-  <ellipse cx="64" cy="79.5" rx="46" ry="4.5" fill="#3a2230" opacity="0.14"/>
-  <g class="cat-tail">
-    <path d="M104 64 C118 76 98 82 74 81 C64 80.6 58 80 52 79" fill="none" stroke="url(#cat-tail-fur)" stroke-width="9" stroke-linecap="round"/>
-    <circle cx="52" cy="79" r="4.6" fill="#fff1de"/>
-  </g>
-  <g class="cat-body">
-    <path d="M28 70 C20 46 46 24 77 26 C103 28 117 46 111 64 C107 74 38 78 28 70 Z" fill="url(#cat-fur)"/>
-    <g fill="none" stroke="#c35f1e" stroke-opacity="0.45" stroke-width="4" stroke-linecap="round">
-      <path d="M73 29 q5 7 1 14"/><path d="M87 31 q5 7 0 14"/><path d="M100 38 q4 7 -1 13"/>
-    </g>
-    <ellipse cx="66" cy="36" rx="17" ry="5" fill="#fff" opacity="0.4" transform="rotate(-8 66 36)"/>
-  </g>
-  <ellipse cx="30" cy="74.5" rx="7" ry="4.5" fill="#fff1de"/>
-  <ellipse cx="43" cy="76.5" rx="7" ry="4.5" fill="#fff1de"/>
-  <g class="cat-head">
-    <g class="ear-l"><path d="M21 42 Q17 27 21 21 Q24 18 28 22 L37 32 Z" fill="url(#cat-fur)"/>
-      <path d="M23.5 37 Q21.5 29 24 25 L32 32 Z" fill="#ff9fb3" opacity="0.8"/></g>
-    <g class="ear-r"><path d="M39 32 L48 21 Q52 17 55 21 Q58 29 55 42 Z" fill="url(#cat-fur)"/>
-      <path d="M43.5 31.5 L50 24.5 Q52 23 52.5 26 L52.5 37 Z" fill="#ff9fb3" opacity="0.8"/></g>
-    <ellipse cx="38" cy="49" rx="20" ry="17" fill="url(#cat-fur)"/>
-    <g fill="none" stroke="#c35f1e" stroke-opacity="0.45" stroke-width="2.4" stroke-linecap="round">
-      <path d="M34 34.5 v5"/><path d="M39 33.5 v6"/><path d="M44 34.5 v5"/></g>
-    <ellipse cx="30" cy="39.5" rx="8" ry="3.4" fill="#fff" opacity="0.5"/>
-    <ellipse class="blush" cx="25" cy="54.5" rx="4" ry="2.4" fill="#ff8fa6" opacity="0.35"/>
-    <ellipse class="blush" cx="51" cy="54.5" rx="4" ry="2.4" fill="#ff8fa6" opacity="0.35"/>
-    <ellipse cx="38" cy="56.5" rx="9" ry="6" fill="#fff3e3"/>
-    <ellipse class="mouth-open" cx="38" cy="59.2" rx="3.2" ry="2.6" fill="#9b3a4f"/>
-    <path d="M35.4 52.6 h5.2 l-2.6 3 z" fill="#ff8fa6" stroke="#ff8fa6" stroke-width="1" stroke-linejoin="round"/>
-    <path d="M38 55.8 q-2 3 -4.5 1.6 M38 55.8 q2 3 4.5 1.6" fill="none" stroke="#6b4a3a" stroke-width="1.3" stroke-linecap="round"/>
-    <g stroke="#8a6a5a" stroke-opacity="0.45" stroke-width="1" stroke-linecap="round">
-      <path d="M29 57 l-12 -2.5"/><path d="M29 59 l-12 1.8"/><path d="M47 57 l12 -2.5"/><path d="M47 59 l12 1.8"/></g>
-    <g class="eyes-open"><ellipse cx="30" cy="47" rx="2.8" ry="3.6" fill="#3a2a35"/><ellipse cx="46" cy="47" rx="2.8" ry="3.6" fill="#3a2a35"/>
-      <circle cx="31" cy="45.6" r="1" fill="#fff"/><circle cx="47" cy="45.6" r="1" fill="#fff"/></g>
-    <g class="eyes-closed" fill="none" stroke="#3a2a35" stroke-width="2" stroke-linecap="round">
-      <path d="M26.5 47 q3.5 3 7 0"/><path d="M42.5 47 q3.5 3 7 0"/></g>
-    <g class="eyes-happy" fill="none" stroke="#3a2a35" stroke-width="2.2" stroke-linecap="round">
-      <path d="M26.5 48.5 q3.5 -4.5 7 0"/><path d="M42.5 48.5 q3.5 -4.5 7 0"/></g>
-  </g>
-  <g class="zzz" style="fill:var(--violet)" font-family="Nunito, sans-serif" font-weight="900">
-    <text x="58" y="30" font-size="10">z</text><text x="66" y="19" font-size="13">z</text><text x="75" y="7" font-size="16">z</text>
-  </g>
-  <path class="heart" d="M62 26 C54 20 54 13 59 13 C61 13 62 15 62 16 C62 15 63 13 65 13 C70 13 70 20 62 26 Z" fill="#ff7a9a"/>
-</svg>`;
-
-// ---------------------------------------------------------------- cat care: feed and pet
-
-const FISH = `<svg viewBox="0 0 40 24" width="36" height="22" aria-hidden="true">
-  <defs><radialGradient id="fish-fill" cx="0.35" cy="0.3" r="0.9">
-    <stop offset="0" stop-color="#cfe8ff"/><stop offset="0.6" stop-color="#5aa2f5"/><stop offset="1" stop-color="#2f6fd6"/></radialGradient></defs>
-  <path d="M27 12 L38 4.5 Q35.5 12 38 19.5 Z" fill="#4b8ff0"/>
-  <path d="M3 12 C8 3 22 2 29 12 C22 22 8 21 3 12 Z" fill="url(#fish-fill)"/>
-  <path d="M18 6.5 q2.4 5.5 0 11" fill="none" stroke="#2f6fd6" stroke-opacity="0.35" stroke-width="1.3"/>
-  <ellipse cx="14" cy="8" rx="5.5" ry="1.8" fill="#fff" opacity="0.55"/>
-  <circle cx="9.5" cy="11" r="1.9" fill="#1d2b4a"/><circle cx="10.1" cy="10.4" r="0.6" fill="#fff"/>
-</svg>`;
-const HAND = `<svg viewBox="0 0 48 46" width="50" height="48" aria-hidden="true">
-  <defs><radialGradient id="hand-fill" cx="0.4" cy="0.3" r="0.95">
-    <stop offset="0" stop-color="#ffe9dc"/><stop offset="0.6" stop-color="#f8c3a6"/><stop offset="1" stop-color="#e59b7c"/></radialGradient></defs>
-  <rect x="9" y="17" width="8" height="21" rx="4" fill="url(#hand-fill)"/>
-  <rect x="17" y="19" width="8" height="24" rx="4" fill="url(#hand-fill)"/>
-  <rect x="25" y="18" width="8" height="23" rx="4" fill="url(#hand-fill)"/>
-  <rect x="33" y="16" width="7.5" height="19" rx="3.75" fill="url(#hand-fill)"/>
-  <rect x="2" y="12" width="9" height="16" rx="4.5" transform="rotate(-28 6.5 20)" fill="url(#hand-fill)"/>
-  <rect x="8" y="5" width="33" height="23" rx="11" fill="url(#hand-fill)"/>
-  <rect x="10" y="0" width="29" height="8" rx="4" fill="#a391ff"/>
-  <ellipse cx="20" cy="12" rx="8" ry="3" fill="#fff" opacity="0.55"/>
-</svg>`;
-const HEART = '<svg viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21C4 15 1 11 1 7a5.5 5.5 0 0 1 11-1 5.5 5.5 0 0 1 11 1c0 4-3 8-11 14z"/></svg>';
-const FISH_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c3-5 10-6 14-2l5-4v12l-5-4c-4 4-11 3-14-2z"/><circle cx="7.5" cy="11" r="0.6" fill="currentColor"/></svg>';
-const HEART_ICON = '<svg viewBox="0 0 24 22" fill="currentColor"><path d="M12 21C4 15 1 11 1 7a5.5 5.5 0 0 1 11-1 5.5 5.5 0 0 1 11 1c0 4-3 8-11 14z"/></svg>';
-
-let catBusy = false;
-
-// A point in the cat's drawing (viewBox 120 x 84) in page coordinates.
-function catPoint(cat, x, y) {
-  const b = cat.getBoundingClientRect();
-  return [b.left + (x / 120) * b.width, b.top + (y / 84) * b.height];
-}
-
-function flyer(html) {
-  const el = document.createElement("div");
-  el.className = "flyer";
-  el.innerHTML = html;
-  document.body.appendChild(el);
-  return el;
-}
-
-function floatHearts(x, y, count = 3) {
-  for (let i = 0; i < count; i++) {
-    const h = document.createElement("span");
-    h.className = "love";
-    h.innerHTML = HEART;
-    h.style.left = `${x + (Math.random() - 0.5) * 22}px`;
-    h.style.top = `${y}px`;
-    h.style.setProperty("--dx", `${(Math.random() - 0.5) * 56}px`);
-    h.style.setProperty("--s", (0.7 + Math.random() * 0.6).toFixed(2));
-    h.style.animationDelay = `${i * 130}ms`;
-    document.body.appendChild(h);
-    setTimeout(() => h.remove(), 2000);
-  }
-}
-
-function floatWord(text, x, y) {
-  const w = document.createElement("span");
-  w.className = "cat-word";
-  w.textContent = text;
-  w.style.left = `${x}px`;
-  w.style.top = `${y - 30}px`;
-  document.body.appendChild(w);
-  setTimeout(() => w.remove(), 2000);
-}
-
-function crumbs(x, y) {
-  const colors = ["#ffd48a", "#f6a458", "#8cc0ff", "#fff1de", "#5aa2f5"];
-  for (let i = 0; i < 12; i++) {
-    const c = document.createElement("span");
-    c.className = "confetti round crumb";
-    c.style.left = `${x}px`;
-    c.style.top = `${y}px`;
-    c.style.background = colors[i % colors.length];
-    c.style.setProperty("--dx", `${(Math.random() - 0.5) * 80}px`);
-    c.style.setProperty("--up", `${-8 - Math.random() * 28}px`);
-    c.style.setProperty("--dy", `${24 + Math.random() * 40}px`);
-    c.style.setProperty("--rot", `${Math.random() * 360}deg`);
-    document.body.appendChild(c);
-    setTimeout(() => c.remove(), 1000);
-  }
-}
-
-function setCatBusy(busy) {
-  catBusy = busy;
-  document.querySelectorAll(".cat-btn").forEach((b) => { b.disabled = busy; });
-}
-
-// Feed: a fish is tossed in a spinning arc; the cat's eyes go wide, it catches it, chomps three times, gets a
-// happy face and a round belly. At night it wakes for a midnight snack, then dozes straight back off.
-function feedCat(button) {
-  const cat = document.querySelector(".cat");
-  if (!cat || catBusy) return;
-  setCatBusy(true);
-  const night = theme() === "night";
-  cat.classList.add("alert");
-  const [ex, ey] = catPoint(cat, 38, 57);
-  const [hx, hy] = catPoint(cat, 44, 28);
-  const eat = () => {
-    cat.classList.add("eating");
-    crumbs(ex, ey);
-    setTimeout(() => {
-      cat.classList.remove("eating");
-      cat.classList.add("happy", "full");
-      floatHearts(hx, hy, 4);
-      floatWord(night ? "midnight snack!" : "nom nom!", hx + 18, hy);
-    }, 950);
-    setTimeout(() => { cat.classList.remove("happy", "full", "alert"); setCatBusy(false); }, 2700);
-  };
-  if (reducedMotion) { eat(); return; }
-  const b = button.getBoundingClientRect();
-  const sx = b.left + 14, sy = b.top + b.height / 2;
-  const cx = (sx + ex) / 2 + 10, cy = Math.min(sy, ey) - 80;       // the top of the throw
-  const fish = flyer(FISH);
-  const frames = Array.from({ length: 21 }, (_, k) => {
-    const t = k / 20, u = 1 - t;
-    const x = u * u * sx + 2 * u * t * cx + t * t * ex;
-    const y = u * u * sy + 2 * u * t * cy + t * t * ey;
-    return { transform: `translate(${x - 18}px, ${y - 11}px) rotate(${-t * 400}deg) scale(${0.55 + Math.sin(t * Math.PI) * 0.55})`,
-             opacity: t < 0.08 ? t / 0.08 : 1 };
-  });
-  fish.animate(frames, { duration: 900, easing: "cubic-bezier(0.3, 0.1, 0.55, 1)", fill: "forwards" }).finished
-    .then(() => { fish.remove(); eat(); });
-}
-
-// Pet: a clay hand strokes the cat's back twice; it leans in, squints happily, purrs and its tail curls.
-// At night it is petted in its sleep: it smiles and keeps snoring.
-function petCat() {
-  const cat = document.querySelector(".cat");
-  if (!cat || catBusy) return;
-  setCatBusy(true);
-  const night = theme() === "night";
-  cat.classList.add("petted", "happy");
-  const [hx, hy] = catPoint(cat, 44, 28);
-  [350, 950, 1550].forEach((t) => setTimeout(() => floatHearts(hx, hy, 2), t));
-  setTimeout(() => floatWord(night ? "purrr… zzz" : "purrr~", hx + 22, hy), 550);
-  setTimeout(() => { cat.classList.remove("petted", "happy"); setCatBusy(false); }, 2400);
-  if (reducedMotion) return;
-  const [right, back] = catPoint(cat, 100, 33);
-  const [left] = catPoint(cat, 64, 33);
-  const at = (x, y, r = 0, s = 1) => `translate(${x - 25}px, ${y - 36}px) rotate(${r}deg) scale(${s})`;
-  const hand = flyer(HAND);
-  hand.animate([            // opacity on every frame: otherwise it would fade across the whole stroke
-    { transform: at(right + 24, back - 60, 16, 0.8), opacity: 0 },
-    { transform: at(right, back, 6), opacity: 1, offset: 0.16 },
-    { transform: at(left, back + 3, -8), opacity: 1, offset: 0.36 },
-    { transform: at(right, back, 6), opacity: 1, offset: 0.56 },
-    { transform: at(left, back + 3, -8), opacity: 1, offset: 0.76 },
-    { transform: at(left + 4, back - 6, -4), opacity: 1, offset: 0.84 },
-    { transform: at(left + 10, back - 46, 10, 0.85), opacity: 0 },
-  ], { duration: 2200, easing: "ease-in-out", fill: "forwards" }).finished.then(() => hand.remove());
-}
-
 async function renderSidebar(active) {
   if (!document.querySelector(".bg")) {
     const stars = Array.from({ length: 30 }, () => `<i class="${Math.random() < 0.2 ? "big" : ""}" style="left:${
@@ -548,21 +340,9 @@ async function renderSidebar(active) {
       <a href="${href}" class="${active === key ? "active" : ""}">${icon(ico, 20)} ${label}
         ${key === "dashboard" ? '<span class="nav-badge" id="nav-reviews" title="Open reviews" hidden></span>' : ""}</a>`).join("")}
     </nav>
-    <div class="sidebar-foot">
-      <div class="cat-corner">${CAT}
-        <div class="cat-actions">
-          <button class="cat-btn feed" title="Feed the cat">${FISH_ICON} Feed</button>
-          <button class="cat-btn pet" title="Pet the cat">${HEART_ICON} Pet</button>
-        </div>
-      </div>
-      ${themeSwitch()}
-    </div>`;
-  wireWordmark(aside.querySelector(".wordmark"));
-  const toggle = aside.querySelector(".theme-switch");
-  toggle.addEventListener("click", () => setTheme(theme() === "night" ? "day" : "night", toggle.querySelector(".knob")));
-  const feed = aside.querySelector(".cat-btn.feed");
-  feed.addEventListener("click", () => feedCat(feed));
-  aside.querySelector(".cat-btn.pet").addEventListener("click", petCat);
+    <div class="sidebar-foot">${cocoMarkup()}${themeSwitch()}</div>`;
+  const firstVisit = wireWordmark(aside.querySelector(".wordmark"));
+  wireCoco(aside, firstVisit);                 // coco.js: the switch, feed, pet, hello, moods
   try {
     const m = await api("/api/metrics");
     const badge = document.getElementById("nav-reviews");

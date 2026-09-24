@@ -44,6 +44,7 @@ function choose(files) {
   const start = document.getElementById("start");
   start.innerHTML = `${icon("bolt", 16)} Process ${pdfs.length}`;
   start.disabled = pdfs.length === 0;
+  if (pdfs.length) coco.celebrate(`ooh, ${pdfs.length} invoice${pdfs.length === 1 ? "" : "s"}!`);
   let n = 0;
   const rows = document.getElementById("preview-rows");
   rows.innerHTML = chosen.map((f) => `
@@ -61,7 +62,7 @@ async function startBatch() {
   chosen.filter(isPdf).forEach((f) => form.append("files", f, f.name));
   form.append("name", folderName);
   try {
-    const { batch_id } = await api("/api/batches", { method: "POST", body: form });
+    const [{ batch_id }] = await Promise.all([api("/api/batches", { method: "POST", body: form }), cocoParty("let's go!")]);
     location.href = `/bulk/${batch_id}`;
   } catch (e) {
     toast(e.message);
