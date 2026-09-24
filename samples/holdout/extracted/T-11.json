@@ -1,17 +1,21 @@
 {
   "scenario": "T-11",
-  "model": "openai/gpt-oss-120b",
-  "seconds": 20.46,
-  "input_tokens": 2239,
-  "output_tokens": 1005,
+  "model": "gemini-3.5-flash-lite",
+  "seconds": 31.44,
+  "input_tokens": 733,
+  "output_tokens": 773,
   "image_pages": [],
-  "fallbacks": [],
+  "fallbacks": [
+    "Python parser could not prove the reading: vendor not found in the vendor master",
+    "qwen/qwen3.8-27b: busy (429)",
+    "Qwen unavailable"
+  ],
   "data": {
     "document_type": "invoice",
     "vendor_name": {
       "value": "NORTHGATE INDUSTRIAL SOLUTIONS LLC",
       "page": 1,
-      "source_quote": "NORTHGATE INDUSTRIAL SOLUTIONS LLC INVOICE"
+      "source_quote": "NORTHGATE INDUSTRIAL SOLUTIONS LLC"
     },
     "vendor_tax_id": "47-8812053",
     "invoice_number": {
@@ -29,7 +33,7 @@
       "page": null,
       "source_quote": null
     },
-    "currency": null,
+    "currency": "USD",
     "po_number": {
       "value": "PO-9981",
       "page": 1,

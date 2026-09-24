@@ -16,7 +16,7 @@ from .normalize import to_float
 from .rules import PASS, Context, Finding, duplicate_check, line_match, po_match, validate, vendor_check
 from .text import read_pages
 
-STAGES = [("intake", "Intake"), ("extract", "Extract"), ("validate", "Validate"), ("vendor", "Vendor check"),
+STAGES = [("intake", "Read document"), ("extract", "Understand fields"), ("validate", "Validate"), ("vendor", "Vendor check"),
           ("duplicates", "Duplicate check"), ("po", "PO match"), ("lines", "Line match"), ("decide", "Decide")]
 CHECKS = [("validate", validate), ("vendor", vendor_check), ("duplicates", duplicate_check),
           ("po", po_match), ("lines", line_match)]
@@ -56,14 +56,14 @@ def run_invoice(pdf_path: Path, run_id: str | None = None, listener: Listener | 
         scanned = [p for p in pages if p.source == "ocr"]
         if scanned:
             confidence = min(p.ocr_confidence or 0 for p in scanned)
-            intake = f"Scanned PDF, {len(pages)} page(s), OCR confidence {confidence:.0f}%"
+            intake = f"Scanned PDF, {len(pages)} page(s): no text layer, so OCR read it ({confidence:.0f}% confidence)"
         else:
-            intake = f"Digital PDF, {len(pages)} page(s), text layer read"
+            intake = f"Digital PDF, {len(pages)} page(s): text read directly from the PDF, no OCR needed"
         result["document"] = {"pages": len(pages), "type": "scanned" if scanned else "digital",
                               "ocr_confidence": [p.ocr_confidence for p in pages]}
         emit("intake", "pass", intake, result["document"])
 
-        emit("extract", "running", "Reading invoice fields with the LLM")
+        emit("extract", "running", "Finding the invoice fields: Python first, AI only if it cannot prove them")
         if extraction is None and config.EXTRACTION_MODE == "cached":
             extraction = cached_extraction(file_hash)
             if extraction:

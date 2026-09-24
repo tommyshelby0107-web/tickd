@@ -1,13 +1,11 @@
 {
   "scenario": "EC-3",
-  "model": "qwen/qwen3.8-27b",
-  "seconds": 5.31,
-  "input_tokens": 684,
-  "output_tokens": 526,
+  "model": "Python parser (no AI)",
+  "seconds": 0.02,
+  "input_tokens": 0,
+  "output_tokens": 0,
   "image_pages": [],
-  "fallbacks": [
-    "openai/gpt-oss-120b: output did not match the schema"
-  ],
+  "fallbacks": [],
   "data": {
     "document_type": "invoice",
     "vendor_name": {
@@ -28,16 +26,16 @@
     },
     "due_date": {
       "value": null,
-      "page": 1,
-      "source_quote": "Kindly remit within 30 days"
+      "page": null,
+      "source_quote": null
     },
     "currency": "USD",
     "po_number": {
       "value": null,
-      "page": 1,
+      "page": null,
       "source_quote": null
     },
-    "po_hint": null,
+    "po_hint": "Re: Q3 safety equipment order",
     "lines": [
       {
         "sku": null,
@@ -71,17 +69,17 @@
       "page": 1,
       "source_quote": "TOTAL $5,565.00"
     },
-    "remit_bank_name": null,
+    "remit_bank_name": "North Shore Savings Bank",
     "remit_routing_number": {
       "value": "091017442",
-      "page": 1,
+      "page": null,
       "source_quote": "routing 091017442"
     },
     "remit_account_number": {
       "value": "771902458301",
-      "page": 1,
+      "page": null,
       "source_quote": "account 771902458301"
     },
-    "notes": "Sales tax not collected - purchaser to self-assess use tax."
+    "notes": null
   }
 }

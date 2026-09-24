@@ -56,6 +56,7 @@ def decision_ok(item: dict, extraction) -> bool:
 
 def run(model: str, pause: float) -> None:
     provider = "groq" if "/" in model else "gemini"
+    extract.parse_invoice = lambda pages: (None, ["benchmark measures the AI model only"])   # skip the fast path
     extract.GROQ_MODELS, extract.GEMINI_MODELS = [model], [model]
     if provider == "groq":
         extract.GEMINI_API_KEY = ""          # force this one model: no fallback to the other provider

@@ -1,9 +1,9 @@
 {
   "scenario": "EC-1A",
-  "model": "openai/gpt-oss-120b",
-  "seconds": 5.21,
-  "input_tokens": 2177,
-  "output_tokens": 813,
+  "model": "Python parser (no AI)",
+  "seconds": 0.01,
+  "input_tokens": 0,
+  "output_tokens": 0,
   "image_pages": [],
   "fallbacks": [],
   "data": {
@@ -33,7 +33,7 @@
     "po_number": {
       "value": "PO-4503",
       "page": 1,
-      "source_quote": "Customer PO: PO-4503"
+      "source_quote": "PO-4503"
     },
     "po_hint": null,
     "lines": [
@@ -51,21 +51,21 @@
     "tax_included_in_prices": false,
     "freight": null,
     "total": {
-      "value": "26875",
+      "value": "26875.00",
       "page": 1,
       "source_quote": "AMOUNT DUE (USD) $26,875.00"
     },
     "remit_bank_name": "Allegheny Trust Bank",
     "remit_routing_number": {
       "value": "043318072",
-      "page": 1,
+      "page": null,
       "source_quote": "ABA 043318072"
     },
     "remit_account_number": {
       "value": "640017723905",
-      "page": 1,
+      "page": null,
       "source_quote": "Acct 640017723905"
     },
-    "notes": "Please reference the invoice number with your payment."
+    "notes": null
   }
 }

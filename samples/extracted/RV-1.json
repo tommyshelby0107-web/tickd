@@ -1,12 +1,12 @@
 {
   "scenario": "RV-1",
   "model": "qwen/qwen3.8-27b",
-  "seconds": 19.51,
+  "seconds": 1.62,
   "input_tokens": 645,
   "output_tokens": 413,
   "image_pages": [],
   "fallbacks": [
-    "openai/gpt-oss-120b: rate limited"
+    "Python parser could not prove the reading: invoice number not found; invoice date not found"
   ],
   "data": {
     "document_type": "invoice",

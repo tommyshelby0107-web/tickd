@@ -1,9 +1,9 @@
 {
   "scenario": "T-10",
-  "model": "openai/gpt-oss-120b",
-  "seconds": 2.71,
-  "input_tokens": 2195,
-  "output_tokens": 766,
+  "model": "Python parser (no AI)",
+  "seconds": 0.01,
+  "input_tokens": 0,
+  "output_tokens": 0,
   "image_pages": [],
   "fallbacks": [],
   "data": {
@@ -17,7 +17,7 @@
     "invoice_number": {
       "value": "CN-2026-0031",
       "page": 1,
-      "source_quote": "Invoice No. CN-2026-0031"
+      "source_quote": "No. CN-2026-0031"
     },
     "invoice_date": {
       "value": "2026-09-20",
@@ -29,11 +29,11 @@
       "page": 1,
       "source_quote": "Due Date October 20, 2026"
     },
-    "currency": null,
+    "currency": "USD",
     "po_number": {
       "value": "PO-4501",
       "page": 1,
-      "source_quote": "PO Number PO-4501"
+      "source_quote": "PO-4501"
     },
     "po_hint": null,
     "lines": [
@@ -58,12 +58,12 @@
     "remit_bank_name": "Lone Star Commerce Bank",
     "remit_routing_number": {
       "value": "113004218",
-      "page": 1,
+      "page": null,
       "source_quote": "ABA Routing 113004218"
     },
     "remit_account_number": {
       "value": "582033194712",
-      "page": 1,
+      "page": null,
       "source_quote": "Account 582033194712"
     },
     "notes": "Credit against invoice INV-2026-0457 - 5 boxes returned damaged."

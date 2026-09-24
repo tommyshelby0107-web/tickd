@@ -1,11 +1,11 @@
 {
   "set": "demo",
   "mode": "live",
-  "at": "2026-09-24T13:05:26+00:00",
+  "at": "2026-09-24T15:20:59+00:00",
   "decisions_correct": 10,
   "total": 10,
   "field_accuracy": {
-    "number": 9,
+    "number": 10,
     "date": 10,
     "po": 10,
     "lines": 10,
@@ -27,8 +27,8 @@
       "correct": true,
       "why": "ok",
       "field_misses": [],
-      "model": "openai/gpt-oss-120b",
-      "seconds": 3.58,
+      "model": "Python parser (no AI)",
+      "seconds": 0.25,
       "summary": "Approved. Apex Fasteners Inc. invoice INV-2026-0457 for $2,588.06 passed every check against PO-4501."
     },
     {
@@ -41,8 +41,8 @@
       "correct": true,
       "why": "ok",
       "field_misses": [],
-      "model": "openai/gpt-oss-120b",
-      "seconds": 3.26,
+      "model": "Python parser (no AI)",
+      "seconds": 0.75,
       "summary": "Approved. Coastal Packaging Corp. invoice CPK-88214 for $13,650.20 passed every check against PO-4502. 3 variance note(s) within tolerance."
     },
     {
@@ -59,8 +59,8 @@
       "correct": true,
       "why": "ok",
       "field_misses": [],
-      "model": "openai/gpt-oss-120b",
-      "seconds": 5.38,
+      "model": "Python parser (no AI)",
+      "seconds": 0.39,
       "summary": "Rejected. Duplicate of invoice SUM-10388 from this vendor, already approved on 2026-09-08."
     },
     {
@@ -76,8 +76,8 @@
       "correct": true,
       "why": "ok",
       "field_misses": [],
-      "model": "qwen/qwen3.8-27b",
-      "seconds": 20.8,
+      "model": "Python parser (no AI)",
+      "seconds": 0.65,
       "summary": "Held for Buyer review. PO-4503 would be billed $45,000.00 of $40,000.00 (112.5%). Only $15,000.00 remains billable. Plus 1 other issue(s)."
     },
     {
@@ -94,8 +94,8 @@
       "correct": true,
       "why": "ok",
       "field_misses": [],
-      "model": "openai/gpt-oss-120b",
-      "seconds": 26.67,
+      "model": "Python parser (no AI)",
+      "seconds": 4.35,
       "summary": "Rejected. Duplicate of invoice INV-2026-0457 from this vendor, already approved on 2026-09-24."
     },
     {
@@ -109,11 +109,9 @@
       ],
       "correct": true,
       "why": "ok",
-      "field_misses": [
-        "number"
-      ],
-      "model": "openai/gpt-oss-20b",
-      "seconds": 10.77,
+      "field_misses": [],
+      "model": "Python parser (no AI)",
+      "seconds": 2.99,
       "summary": "Held for AP review. PO-4504 was inferred (match score 0.92, next best 0.21). Confirm it before approval - inferred matches are never auto-approved."
     },
     {
@@ -129,7 +127,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "qwen/qwen3.8-27b",
-      "seconds": 1.71,
+      "seconds": 2.95,
       "summary": "Held for AP lead review. Bank account on the invoice (...5561, unknown bank) does not match the vendor master (...0147, Harbor Point Bank). Hold payment and verify by calling (414) 555-0133 - the number on file, not one printed on the invoice."
     },
     {
@@ -145,7 +143,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "qwen/qwen3.8-27b",
-      "seconds": 19.62,
+      "seconds": 2.03,
       "summary": "Returned to vendor. Missing invoice number, invoice date."
     },
     {
@@ -160,8 +158,8 @@
       "correct": true,
       "why": "ok",
       "field_misses": [],
-      "model": "openai/gpt-oss-120b",
-      "seconds": 3.73,
+      "model": "Python parser (no AI)",
+      "seconds": 5.36,
       "summary": "Rejected. Redline Industrial Services is Blocked in the vendor master; its invoices cannot be paid."
     },
     {
@@ -177,8 +175,8 @@
       "correct": true,
       "why": "ok",
       "field_misses": [],
-      "model": "openai/gpt-oss-120b",
-      "seconds": 19.74,
+      "model": "Python parser (no AI)",
+      "seconds": 0.23,
       "summary": "Held for Buyer review. Price above tolerance - Wedge anchor 1/2 x 4in, box of 25: $44.52 vs PO $42.00 (+6.0%). Plus 1 other issue(s)."
     }
   ]

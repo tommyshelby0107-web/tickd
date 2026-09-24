@@ -1,9 +1,9 @@
 {
   "scenario": "T-02",
-  "model": "openai/gpt-oss-120b",
-  "seconds": 17.76,
-  "input_tokens": 2980,
-  "output_tokens": 2256,
+  "model": "Python parser (no AI)",
+  "seconds": 0.01,
+  "input_tokens": 0,
+  "output_tokens": 0,
   "image_pages": [],
   "fallbacks": [],
   "data": {
@@ -11,17 +11,17 @@
     "vendor_name": {
       "value": "HARBORLINE OFFICE PRODUCTS",
       "page": 1,
-      "source_quote": "HARBORLINE OFFICE PRODUCTS INVOICE"
+      "source_quote": "HARBORLINE OFFICE PRODUCTS"
     },
     "vendor_tax_id": "20-8834112",
     "invoice_number": {
       "value": "HOP-500931",
-      "page": 1,
+      "page": 2,
       "source_quote": "Invoice # HOP-500931"
     },
     "invoice_date": {
       "value": "2026-09-10",
-      "page": 1,
+      "page": 2,
       "source_quote": "Date 10-Sep-2026"
     },
     "due_date": {
@@ -29,11 +29,11 @@
       "page": null,
       "source_quote": null
     },
-    "currency": null,
+    "currency": "USD",
     "po_number": {
       "value": "PO-4511",
-      "page": 1,
-      "source_quote": "Customer PO PO-4511"
+      "page": 2,
+      "source_quote": "PO-4511"
     },
     "po_hint": null,
     "lines": [
@@ -247,14 +247,14 @@
     "remit_bank_name": "Chesapeake Commerce Bank",
     "remit_routing_number": {
       "value": "052001633",
-      "page": 2,
+      "page": null,
       "source_quote": "Routing 052001633"
     },
     "remit_account_number": {
       "value": "507712098834",
-      "page": 2,
+      "page": null,
       "source_quote": "Account 507712098834"
     },
-    "notes": "Terms Net 30. Please quote the invoice number with payment."
+    "notes": null
   }
 }

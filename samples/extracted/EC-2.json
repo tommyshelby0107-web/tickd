@@ -1,9 +1,9 @@
 {
   "scenario": "EC-2",
-  "model": "openai/gpt-oss-120b",
-  "seconds": 24.89,
-  "input_tokens": 2229,
-  "output_tokens": 1072,
+  "model": "Python parser (no AI)",
+  "seconds": 0.01,
+  "input_tokens": 0,
+  "output_tokens": 0,
   "image_pages": [],
   "fallbacks": [],
   "data": {
@@ -11,7 +11,7 @@
     "vendor_name": {
       "value": "Apex Fasteners Inc.",
       "page": 1,
-      "source_quote": "Apex Fasteners Inc. INVOICE"
+      "source_quote": "Apex Fasteners Inc."
     },
     "vendor_tax_id": "74-3829105",
     "invoice_number": {
@@ -29,11 +29,11 @@
       "page": 1,
       "source_quote": "Due Date October 14, 2026"
     },
-    "currency": null,
+    "currency": "USD",
     "po_number": {
       "value": "PO-4501",
       "page": 1,
-      "source_quote": "PO Number PO-4501"
+      "source_quote": "PO-4501"
     },
     "po_hint": null,
     "lines": [
@@ -72,14 +72,14 @@
     "remit_bank_name": "Lone Star Commerce Bank",
     "remit_routing_number": {
       "value": "113004218",
-      "page": 1,
+      "page": null,
       "source_quote": "ABA Routing 113004218"
     },
     "remit_account_number": {
       "value": "582033194712",
-      "page": 1,
+      "page": null,
       "source_quote": "Account 582033194712"
     },
-    "notes": "Thank you for your business."
+    "notes": null
   }
 }

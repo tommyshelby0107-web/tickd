@@ -22,10 +22,11 @@ def _models(name: str, default: str) -> list[str]:
     return [m.strip() for m in os.getenv(name, default).split(",") if m.strip()]
 
 
-# Defaults follow the head-to-head benchmark (scripts/compare_llms.py): accuracy first, then speed.
-PROVIDER_ORDER = _models("LLM_PROVIDER_ORDER", "gemini,groq")   # which provider is tried first
-GROQ_MODELS = _models("GROQ_MODELS", "qwen/qwen3.8-27b,openai/gpt-oss-120b")
-GEMINI_MODELS = _models("GEMINI_MODELS", "gemini-3.5-flash-lite,gemini-3.6-flash")
+# AI readers, used only when the Python parser cannot prove its reading. One model each, chosen by the benchmark
+# (scripts/compare_llms.py): Qwen - fast, 0 wrong decisions - then Gemini, which can also read page images.
+PROVIDER_ORDER = _models("LLM_PROVIDER_ORDER", "groq,gemini")
+GROQ_MODELS = _models("GROQ_MODELS", "qwen/qwen3.8-27b")
+GEMINI_MODELS = _models("GEMINI_MODELS", "gemini-3.5-flash-lite")
 
 _WINDOWS_TESSERACT = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 TESSERACT_CMD = os.getenv("TESSERACT_CMD") or (_WINDOWS_TESSERACT if os.name == "nt" else "tesseract")

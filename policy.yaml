@@ -12,9 +12,10 @@ arithmetic_tolerance: 0.01      # V-02: lines vs subtotal, subtotal + tax + frei
 tax_rate_tolerance_pp: 0.25     # V-04: percentage points from the vendor's expected rate
 max_invoice_age_days: 365       # V-03
 
-# Reading confidence
+# Reading: Python parser first, AI only when the parser cannot prove its reading
+parser_ocr_confidence_min: 85   # scans below this skip the Python parser and go straight to the AI
 ocr_confidence_min: 80          # V-05: OCR confidence needed on critical fields
-ocr_image_fallback_below: 70    # pages below this also go to the LLM as an image
+ocr_image_fallback_below: 70    # pages below this go to Gemini as an image (phone photos, fax-grade scans)
 
 # Vendor and duplicate matching
 vendor_name_match_min: 90       # VM-01: fuzzy name score 0-100

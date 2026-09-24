@@ -1,11 +1,13 @@
 {
   "scenario": "T-08",
-  "model": "openai/gpt-oss-120b",
-  "seconds": 18.72,
-  "input_tokens": 2163,
-  "output_tokens": 893,
+  "model": "qwen/qwen3.8-27b",
+  "seconds": 2.37,
+  "input_tokens": 636,
+  "output_tokens": 479,
   "image_pages": [],
-  "fallbacks": [],
+  "fallbacks": [
+    "Python parser could not prove the reading: vendor not found in the vendor master"
+  ],
   "data": {
     "document_type": "invoice",
     "vendor_name": {
@@ -62,7 +64,7 @@
       "page": 1,
       "source_quote": "Amount due $1,219.05"
     },
-    "remit_bank_name": "Gem City Bank",
+    "remit_bank_name": null,
     "remit_routing_number": {
       "value": "042000314",
       "page": 1,
@@ -73,6 +75,6 @@
       "page": 1,
       "source_quote": "Account 118830045529"
     },
-    "notes": "Pay by ACH or wire"
+    "notes": null
   }
 }

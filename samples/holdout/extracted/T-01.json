@@ -1,9 +1,9 @@
 {
   "scenario": "T-01",
-  "model": "openai/gpt-oss-120b",
-  "seconds": 20.72,
-  "input_tokens": 2175,
-  "output_tokens": 913,
+  "model": "Python parser (no AI)",
+  "seconds": 0.01,
+  "input_tokens": 0,
+  "output_tokens": 0,
   "image_pages": [],
   "fallbacks": [],
   "data": {
@@ -11,7 +11,7 @@
     "vendor_name": {
       "value": "Keystone Industrial Tools Inc.",
       "page": 1,
-      "source_quote": "Invoice Keystone Industrial Tools Inc."
+      "source_quote": "Keystone Industrial Tools Inc."
     },
     "vendor_tax_id": null,
     "invoice_number": {
@@ -27,13 +27,13 @@
     "due_date": {
       "value": "2026-10-15",
       "page": 1,
-      "source_quote": "Date due Oct 15, 2026"
+      "source_quote": "due Oct 15, 2026"
     },
     "currency": "USD",
     "po_number": {
       "value": "PO-4510",
       "page": 1,
-      "source_quote": "Purchase order PO-4510"
+      "source_quote": "PO-4510"
     },
     "po_hint": null,
     "lines": [
@@ -60,19 +60,19 @@
     "total": {
       "value": "1986.60",
       "page": 1,
-      "source_quote": "$1,986.60 USD due Oct 15, 2026"
+      "source_quote": "Total (includes 7.5% sales tax of $138.60) $1,986.60"
     },
     "remit_bank_name": "Lehigh Valley Bank",
     "remit_routing_number": {
       "value": "031319822",
-      "page": 1,
+      "page": null,
       "source_quote": "Routing 031319822"
     },
     "remit_account_number": {
       "value": "918230045716",
-      "page": 1,
+      "page": null,
       "source_quote": "Account 918230045716"
     },
-    "notes": "Pay by ACH or wire"
+    "notes": null
   }
 }
