@@ -55,13 +55,11 @@ def decision_ok(item: dict, extraction) -> bool:
 
 
 def run(model: str, pause: float) -> None:
-    provider = "groq" if "/" in model else "gemini"
+    provider = "groq" if "/" in model else "mistral" if model.startswith(("mistral", "ministral")) else "gemini"
     extract.parse_invoice = lambda pages: (None, ["benchmark measures the AI model only"])   # skip the fast path
-    extract.GROQ_MODELS, extract.GEMINI_MODELS = [model], [model]
-    if provider == "groq":
-        extract.GEMINI_API_KEY = ""          # force this one model: no fallback to the other provider
-    else:
-        extract.GROQ_API_KEY = ""
+    extract.GROQ_MODELS, extract.GEMINI_MODELS, extract.MISTRAL_MODELS = [model], [model], [model]
+    for other in {"groq", "gemini", "mistral"} - {provider}:     # force this one model: no fallback to another provider
+        setattr(extract, f"{other.upper()}_API_KEY", "")
     rows = []
     items = [i for i in sample_files() if "ground_truth" in i]
     for n, item in enumerate(items):

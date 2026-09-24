@@ -15,6 +15,7 @@ DB_PATH = STORAGE_DIR / "invoice_agent.db"
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY", "")
 
 
 def _models(name: str, default: str) -> list[str]:
@@ -23,10 +24,12 @@ def _models(name: str, default: str) -> list[str]:
 
 
 # AI readers, used only when the Python parser cannot prove its reading. One model each, chosen by the benchmark
-# (scripts/compare_llms.py): Qwen - fast, 0 wrong decisions - then Gemini, which can also read page images.
-PROVIDER_ORDER = _models("LLM_PROVIDER_ORDER", "groq,gemini")
+# (scripts/compare_llms.py): Qwen - fast, 0 wrong decisions - then Gemini, which can also read page images, then
+# Mistral: a second image reader from another company, so one provider's outage does not stop scanned invoices.
+PROVIDER_ORDER = _models("LLM_PROVIDER_ORDER", "groq,gemini,mistral")
 GROQ_MODELS = _models("GROQ_MODELS", "qwen/qwen3.8-27b")
 GEMINI_MODELS = _models("GEMINI_MODELS", "gemini-3.5-flash-lite")
+MISTRAL_MODELS = _models("MISTRAL_MODELS", "mistral-medium-2508")
 
 _WINDOWS_TESSERACT = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 TESSERACT_CMD = os.getenv("TESSERACT_CMD") or (_WINDOWS_TESSERACT if os.name == "nt" else "tesseract")

@@ -1,3 +1,22 @@
+# App
+fastapi>=0.141
+uvicorn>=0.53
+python-multipart>=0.0.32
+pydantic>=2.13
+python-dotenv>=1.2
+pyyaml>=6.0
+rapidfuzz>=3.14
+# Reading documents (Tesseract itself is a separate install)
+pdfplumber>=0.11
+pymupdf>=1.28
+pytesseract>=0.3.13
+pillow>=12.0
+# AI readers
+groq>=1.7
+google-genai>=2.25
+mistralai>=2.10
+httpx>=0.28
+# Sample generation, tests, screenshots
 reportlab>=4.2
-pymupdf>=1.24
-pillow>=10.4
+pytest>=9.0
+playwright>=1.63

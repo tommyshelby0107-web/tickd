@@ -1,7 +1,11 @@
+from pathlib import Path
+
 import pytest
 
-from app.extract import (PRINTED_PO, InvoiceData, LineItem, _infer_tax_included, _recover_printed_total,
-                         _strip_number_label)
+from app import extract
+from app.extract import (PRINTED_PO, ExtractionError, InvoiceData, LineItem, _infer_tax_included,
+                         _recover_printed_total, _strip_number_label)
+from app.text import PageText
 
 
 @pytest.mark.parametrize("text, expected", [
@@ -67,3 +71,42 @@ def test_tax_on_top_is_left_alone():
     data = invoice(lines=LINES, tax_amount=148.99, total="2135.59")      # 1986.60 + 148.99: tax added on top
     _infer_tax_included(data)
     assert not data.tax_included_in_prices
+
+
+# ---------------------------------------------------------------- which reader gets a phone photo
+
+PHOTO = [PageText(1, "blurry text", "ocr", 42.0)]        # OCR confidence far below 70: the page goes as an image
+
+
+def readers(monkeypatch, gemini, mistral):
+    calls = []
+
+    def fake(name, outcome):
+        def read(prompt, pdf_path, image_pages, skipped):
+            calls.append((name, image_pages))
+            if outcome == "busy":
+                skipped.append(f"{name}: busy (503)")
+                raise ExtractionError(f"{name} unavailable")
+            return invoice(), name, 0, 0
+        return read
+
+    monkeypatch.setattr(extract, "PROVIDER_ORDER", ["groq", "gemini", "mistral"])
+    for name, outcome in (("groq", "reads"), ("gemini", gemini), ("mistral", mistral)):
+        monkeypatch.setattr(extract, f"{name.upper()}_API_KEY", "key")
+        monkeypatch.setattr(extract, f"_{name}", fake(name, outcome))
+    return calls
+
+
+def test_a_photo_goes_to_mistral_when_gemini_is_busy(monkeypatch):
+    calls = readers(monkeypatch, gemini="busy", mistral="reads")
+    result = extract.extract_invoice(Path("photo.pdf"), PHOTO)
+    assert calls == [("gemini", [1]), ("mistral", [1])]           # never Qwen: it cannot see images
+    assert result.model == "mistral" and result.image_pages == [1]
+    assert "gemini: busy (503)" in result.fallbacks
+
+
+def test_every_reason_is_kept_when_no_reader_is_free(monkeypatch):
+    readers(monkeypatch, gemini="busy", mistral="busy")
+    with pytest.raises(ExtractionError) as failure:
+        extract.extract_invoice(Path("photo.pdf"), PHOTO)
+    assert "gemini: busy (503)" in str(failure.value) and "mistral: busy (503)" in str(failure.value)

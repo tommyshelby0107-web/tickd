@@ -1,9 +1,11 @@
 """Turn page text into structured invoice fields - with plain Python when it can prove the result, AI when it can't.
 
 Order: 1) Python parser (no AI): accepted only if every line and total reconciles.
-       2) Qwen on Groq (fast, text only).   3) Gemini (also reads page images).   4) a human.
+       2) Qwen on Groq (fast, text only).   3) Gemini (also reads page images).
+       4) Mistral (also reads page images; a different company, so a Gemini outage does not stop scans).   5) a human.
 Whichever reads the invoice, it only reads. Every decision is made by the rules in rules.py.
 """
+import base64
 import copy
 import re
 import time
@@ -11,11 +13,16 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import groq
+import httpx
 from google import genai
 from google.genai import errors, types
+from mistralai.client import Mistral
+from mistralai.client import errors as mistral_errors
+from mistralai.client.utils.retries import RetryConfig
 from pydantic import BaseModel, ValidationError
 
-from .config import GEMINI_API_KEY, GEMINI_MODELS, GROQ_API_KEY, GROQ_MODELS, POLICY, PROVIDER_ORDER
+from .config import (GEMINI_API_KEY, GEMINI_MODELS, GROQ_API_KEY, GROQ_MODELS, MISTRAL_API_KEY, MISTRAL_MODELS, POLICY,
+                     PROVIDER_ORDER)
 from .parser import parse_invoice
 from .schema import InvoiceData, LineItem, Sourced  # noqa: F401  (re-exported for the rest of the app)
 from .text import PageText, as_prompt_text, page_png
@@ -54,7 +61,7 @@ class Extraction:
     seconds: float
     input_tokens: int
     output_tokens: int
-    image_pages: list[int]      # pages sent to Gemini as images because OCR confidence was low
+    image_pages: list[int]      # pages sent to the AI as images because OCR confidence was low
     fallbacks: list[str]        # why earlier readers were not used (parser checks, busy models)
 
 
@@ -71,13 +78,14 @@ def extract_invoice(pdf_path: Path, pages: list[PageText]) -> Extraction:
     else:
         skipped.append(f"Python parser skipped: OCR confidence below {min_ocr}%")
 
-    # 2) and 3) AI. Pages OCR could barely read go to Gemini as images; everything else is text.
+    # 2) to 4) AI. Pages OCR could barely read are sent as images; everything else is text.
     prompt = f"Extract the invoice fields from this document.\n\n{as_prompt_text(pages)}"
     image_pages = [p.number for p in pages
                    if p.source == "ocr" and (p.ocr_confidence or 0) < POLICY["ocr_image_fallback_below"]]
     available = {
         "groq": _groq if GROQ_API_KEY and not image_pages else None,   # Qwen reads text only
         "gemini": _gemini if GEMINI_API_KEY else None,                  # Gemini also reads page images
+        "mistral": _mistral if MISTRAL_API_KEY else None,               # so does Mistral
     }
     providers = [available[name] for name in PROVIDER_ORDER if available.get(name)]
     if not providers:
@@ -127,7 +135,7 @@ def _groq(prompt: str, pdf_path: Path, image_pages: list[int], skipped: list[str
 
 
 def _strict_schema(model: type[BaseModel]) -> dict:
-    """Groq strict mode wants every object closed (additionalProperties false), every field required, no $refs."""
+    """Strict mode (Groq, Mistral) wants every object closed (additionalProperties false), every field required, no $refs."""
     schema = model.model_json_schema()
     defs = schema.pop("$defs", {})
 
@@ -181,6 +189,35 @@ def _gemini(prompt: str, pdf_path: Path, image_pages: list[int], skipped: list[s
         return (data, model, (usage.prompt_token_count or 0) if usage else 0,
                 (usage.candidates_token_count or 0) if usage else 0)
     raise ExtractionError("Gemini unavailable")
+
+
+# ---------------------------------------------------------------- Mistral (second image reader, another company)
+
+def _mistral(prompt: str, pdf_path: Path, image_pages: list[int], skipped: list[str]):
+    content: list = [{"type": "text", "text": prompt}] + [
+        {"type": "image_url",
+         "image_url": {"url": "data:image/png;base64," + base64.b64encode(page_png(pdf_path, n, dpi=200)).decode()}}
+        for n in image_pages]
+    client = Mistral(api_key=MISTRAL_API_KEY, timeout_ms=CALL_TIMEOUT_S * 1000)
+    for model in MISTRAL_MODELS:
+        try:
+            response = client.chat.complete(
+                model=model,
+                messages=[{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": content}],
+                response_format={"type": "json_schema",
+                                 "json_schema": {"name": "invoice", "schema": STRICT_SCHEMA, "strict": True}},
+                temperature=0,
+                retries=RetryConfig("none", None, False),          # no hidden waits: busy means next reader
+            )
+            data = InvoiceData.model_validate_json(response.choices[0].message.content)
+            return data, model, response.usage.prompt_tokens or 0, response.usage.completion_tokens or 0
+        except mistral_errors.MistralError as exc:
+            if exc.status_code not in BUSY:
+                raise ExtractionError(f"Mistral {model} failed ({exc.status_code}): {exc.message[:120]}") from exc
+            skipped.append(f"{model}: busy ({exc.status_code})")
+        except (httpx.HTTPError, mistral_errors.NoResponseError, ValidationError) as exc:   # timeouts, bad output
+            skipped.append(f"{model}: {type(exc).__name__}")
+    raise ExtractionError("Mistral unavailable")
 
 
 # ---------------------------------------------------------------- deterministic clean-up of AI readings

@@ -12,7 +12,7 @@ reason, its evidence and a drafted next step — and anything doubtful goes to a
 
 ```
 PDF ─► 1 Intake ─► 2 Extract ─► 3 Validate ─► 4 Vendor ─► 5 Duplicates ─► 6 PO match ─► 7 Line match ─► 8 Decide
-       text / OCR   Gemini→JSON  maths, dates   master,      3 layers        printed or     price, qty,       Approve / Review /
+       text / OCR   Python or AI maths, dates   master,      3 layers        printed or     price, qty,       Approve / Review /
                                  evidence       bank, tax                    inferred       cumulative        Return / Reject
 ```
 
@@ -24,7 +24,8 @@ Every check produces a **Finding**: `rule`, `outcome` (pass / note / review / re
 | File | What it does | The idea to remember |
 | --- | --- | --- |
 | `app/text.py` | Gets page text. pdfplumber for digital PDFs; Tesseract OCR for scans (with a confidence per word) | Use the cheapest tool that works: no OCR when the PDF already has text |
-| `app/extract.py` | Sends page text to Gemini with a **schema** (Pydantic). Gets back typed fields, each critical one with a `source_quote` | Structured output = no fragile JSON parsing. The quote lets code check the AI didn't invent a value |
+| `app/parser.py` | Reads the fields with plain Python (regex). Accepted only if it can *prove* the reading: known vendor, each key field found once, every line and total adds up | Most invoices never need AI: under 1 second, free, and exactly repeatable |
+| `app/extract.py` | Python parser first; if it can't prove its reading, AI readers in turn (Qwen, Gemini, Mistral) with a **schema** (Pydantic). Each critical field comes with a `source_quote` | Structured output = no fragile JSON parsing. The quote lets code check the AI didn't invent a value |
 | `app/rules.py` | All checks, stages 3–7. Pure Python, no AI | Deterministic: same invoice → same decision → auditable |
 | `app/decide.py` | Picks the outcome, lead reason, explanation, next action, draft email | Severity order: Reject > Return > Review (high) > Review > Approve |
 | `app/pipeline.py` | Runs stages in order, records an event per stage, never crashes into an Approve | Any error ends in human review |
@@ -46,9 +47,13 @@ Every check produces a **Finding**: `rule`, `outcome` (pass / note / review / re
   system does the work (finds PO-4504, score 0.92 vs 0.21) and a human confirms in one click.
 - **How are split invoices caught (EC-1)?** Each PO line tracks `qty_invoiced`. Approval adds to it. The next
   invoice is judged against what is left, not against the whole PO.
-- **Why Tesseract + Gemini, not just one?** Tesseract is free and gives confidence scores (evidence), but only
-  produces raw text. The LLM turns text from *any* layout into fields. Regex templates would break on every
-  new vendor format.
+- **Why Python first, then AI?** Plain Python is instant, free and repeatable, but only safe when it can prove
+  its reading (everything adds up). When it can't (a new layout, an unknown vendor, a maths error on the
+  invoice), an AI reads it, because the AI copes with *any* layout. Regex alone would break on every new vendor format.
+- **Why two AI readers that can see images (Gemini and Mistral)?** A phone photo is too blurry for Tesseract;
+  only an AI that looks at the image can read it. With one such reader, its outage stops every photo. We saw it
+  happen: the free Gemini tier was overloaded on all 8 models at once. Mistral is a different company, so the
+  two rarely fail together.
 - **Why templates, not an LLM, for explanations?** One fewer API call per invoice, and the explanation can
   never say something the rules did not find.
 - **What would you do for a real client?** Paid LLM tier (free tiers may train on data), ERP API instead of
@@ -75,7 +80,8 @@ Every check produces a **Finding**: `rule`, `outcome` (pass / note / review / re
 $py = "C:\Users\Acer\.venvs\invoice-agent\Scripts\python.exe"
 & $py -m pytest -q                      # all scenario tests (no API calls)
 & $py scripts\demo_offline.py           # every scenario's decision and explanation, no API
-& $py scripts\check_extraction.py       # real Gemini extraction scored against ground truth (needs key)
+& $py scripts\check_extraction.py       # real AI extraction scored against ground truth (needs keys)
+& $py scripts\parser_coverage.py        # which invoices the Python parser reads without AI, and are they right
 & $py scripts\generate_invoices.py      # rebuild the sample PDFs
 ```
 
@@ -83,7 +89,7 @@ $py = "C:\Users\Acer\.venvs\invoice-agent\Scripts\python.exe"
 
 | Topic | What we did | Why (say this in the interview) |
 | --- | --- | --- |
-| Two LLM providers | Groq first (fast), Gemini as backup (also reads page images) | Free tiers get overloaded. We measured 13–113 s per invoice on free Gemini alone. Graceful degradation beats a stuck demo |
+| Several AI readers | Qwen on Groq first (fast, text only), then Gemini, then Mistral (both also read page images) | Free tiers get overloaded. We measured 13–113 s per invoice on free Gemini alone, and one day every Gemini model was down. Graceful degradation beats a stuck demo |
 | Model fallback chain | Each provider tries a list of models; a busy one (429/503) is skipped immediately | Waiting on an overloaded model wastes the user's time; the run records which model answered, so it's transparent |
 | Strict JSON schema | The same Pydantic model becomes Groq's strict schema (constrained decoding) and Gemini's response schema | The model *cannot* return malformed or extra fields, so there is no fragile JSON parsing |
 | Deterministic clean-up | If the model quotes "Your PO PO-4507" but leaves the PO field empty, code fills it from the quote | Code double-checks the AI. We found this with the accuracy checker (89/90 → 90/90) |
@@ -154,8 +160,26 @@ same 21 invoices, same prompt, same clean-up code, one model at a time, twice (4
 | GPT-OSS 20B (Groq) | 1 of 35 | 35/42 (schema failures) | no | ~2 s |
 | Gemini 3.6 Flash | 0 of 4 | 4/42 (free daily quota used up) | yes | ~26 s |
 
-**Decision (accuracy first):** Gemini 3.5 Flash-Lite → Gemini 3.6 Flash → Qwen → GPT-OSS 120B → human.
-GPT-OSS 20B dropped (a wrong decision). One line in `.env` (`LLM_PROVIDER_ORDER=groq,gemini`) flips to speed-first.
+**First decision (accuracy first):** Gemini 3.5 Flash-Lite → Gemini 3.6 Flash → Qwen → GPT-OSS 120B → human.
+GPT-OSS 20B dropped (a wrong decision).
+
+**Current order, after two rounds of feedback ("too slow, too many fallbacks" and "a digital PDF needs no AI"):**
+
+| Step | Reader | Used when |
+| --- | --- | --- |
+| 1 | Python parser (no AI) | Digital PDFs, and scans that OCR read with 85%+ confidence. Accepted only if it proves its reading |
+| 2 | Qwen 3.8 27B on Groq | The parser could not prove it. Text only, ~2–4 s. Skipped for pages OCR could barely read |
+| 3 | Gemini 3.5 Flash-Lite | Qwen busy or failed, or a page OCR read below 70%: Gemini gets the page image |
+| 4 | Mistral | Gemini busy. Also reads page images; a different company, so it is up when Google is overloaded |
+| 5 | A human (X-00) | Every reader busy or failed. Never a guess |
+
+One model per provider and no waiting: a busy reader is skipped at once.
+
+**The photo that showed the gap:** a WhatsApp photo of a receipt (720×1280 pixels). Tesseract read it at 42%,
+and shadow removal plus enlarging only reached ~60% while misreading the invoice number. So only an AI that
+sees the image can read it, and Gemini was the only one we had. The free Gemini tier then failed on all 8 of
+its models, and every attempt went to a human. Lesson: a single point of failure is found by testing the
+ugly input, not the clean one.
 
 **Two lessons from benchmarking itself:** (1) my first scorer was wrong — it expected a due date on layouts that
 don't print one, so it punished models for correctly answering "not printed"; always sanity-check the scorer

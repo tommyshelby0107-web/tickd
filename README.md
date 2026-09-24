@@ -10,6 +10,21 @@ python -m venv C:\Users\Acer\.venvs\invoice-agent   # kept outside OneDrive on p
 C:\Users\Acer\.venvs\invoice-agent\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
+Install [Tesseract](https://github.com/UB-Mannheim/tesseract/wiki) for scanned PDFs, then copy `.env.example` to
+`.env` and add the free API keys (Groq, Gemini, Mistral). Keys stay in `.env`, which git ignores.
+
+## Who reads the invoice
+
+| Step | Reader | Used when |
+| --- | --- | --- |
+| 1 | Python parser (no AI) | Digital PDFs and clean scans; accepted only if every line and total adds up |
+| 2 | Qwen on Groq | The parser could not prove its reading (text only, fast) |
+| 3 | Gemini | Qwen unavailable, or a page OCR could barely read (Gemini sees the image) |
+| 4 | Mistral | Gemini busy; also sees images, from a different company |
+| 5 | A human | Every reader busy or failed: never a guess |
+
+Whoever reads it, only the rules decide.
+
 ## Three ways in, one queue
 
 | Channel | How | Where |

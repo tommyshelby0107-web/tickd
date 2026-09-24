@@ -1,4 +1,4 @@
-"""The invoice fields every reader must produce: the Python parser, Qwen (Groq) and Gemini all fill this schema."""
+"""The invoice fields every reader must produce: the Python parser, Qwen (Groq), Gemini and Mistral all fill this schema."""
 from pydantic import BaseModel, Field, model_validator
 
 
