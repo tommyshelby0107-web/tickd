@@ -132,7 +132,36 @@ override becomes a new test case."
   Power Automate for Microsoft 365 ("When a new email arrives" → HTTP POST to our API), Gmail API / Graph with
   OAuth (production-grade). Outlook no longer allows simple password IMAP, which is why Gmail was the quick path.
 
-## 10. Running the app
+## 10. Switching LLM providers: what broke and what it taught
+
+| What happened | Lesson |
+| --- | --- |
+| Groq rejected every answer: the model returned `due_date` as an object, copying the field above it | Schema design matters to the model. Consistent structure (every date an evidence object) beats clever structure |
+| Qwen quoted "TOTAL $5,565.00" but left the value empty | Don't trust the model to fill every slot. A deterministic clean-up takes the amount from the quote, and V-05 then verifies the quote is on the page |
+| A model missed "Bill Number" as the invoice number | Prompts should name the real-world label variants |
+| A model missed that tax was included | Back the prompt with arithmetic: if the lines already add up to the total, tax must be inside them |
+| OCR merged two columns: "Accounts Payable No. NLS-7781" became the invoice number | Clean-up strips label words; polluted keys would break duplicate detection |
+| 20 invoices back to back hit every free tier's rate limit | Honour "retry after N seconds" when N is short; otherwise fail over; if everything is down, send to a human (never guess) |
+
+**Measure before you choose.** The order of models is decided by a head-to-head benchmark (`scripts/compare_llms.py`):
+same 21 invoices, same prompt, same clean-up code, one model at a time, twice (42 attempts each).
+
+| Model | Wrong decisions when it answered | Answered | Reads images | Speed |
+| --- | --- | --- | --- | --- |
+| Gemini 3.5 Flash-Lite | 0 of 41 | 41/42 | yes | ~23 s |
+| Qwen 3.8 27B (Groq) | 0 of 32 | 32/42 (rate limits, no images) | no | ~2–4 s |
+| GPT-OSS 120B (Groq) | 1 of 33 | 33/42 (schema failures) | no | ~3 s |
+| GPT-OSS 20B (Groq) | 1 of 35 | 35/42 (schema failures) | no | ~2 s |
+| Gemini 3.6 Flash | 0 of 4 | 4/42 (free daily quota used up) | yes | ~26 s |
+
+**Decision (accuracy first):** Gemini 3.5 Flash-Lite → Gemini 3.6 Flash → Qwen → GPT-OSS 120B → human.
+GPT-OSS 20B dropped (a wrong decision). One line in `.env` (`LLM_PROVIDER_ORDER=groq,gemini`) flips to speed-first.
+
+**Two lessons from benchmarking itself:** (1) my first scorer was wrong — it expected a due date on layouts that
+don't print one, so it punished models for correctly answering "not printed"; always sanity-check the scorer
+before trusting a ranking. (2) One run is not enough: each GPT-OSS model was right in one run and wrong in the other.
+
+## 11. Running the app
 
 ```powershell
 cd "C:\Users\Acer\OneDrive\Desktop\zamp ai\invoice-agent"
@@ -141,7 +170,7 @@ cd "C:\Users\Acer\OneDrive\Desktop\zamp ai\invoice-agent"
 # add  $env:EXTRACTION_MODE = "cached"  before the command to use saved extractions (no API calls)
 ```
 
-## 11. Exercises (do these — this is how you learn the code)
+## 12. Exercises (do these — this is how you learn the code)
 
 1. In `policy.yaml`, change `header_tolerance_abs` from `250.00` to `50.00`. Run `demo_offline.py`.
    HP-2 should flip from Approve to Review. Why? (Its +$96 variance now exceeds $50.) Change it back.

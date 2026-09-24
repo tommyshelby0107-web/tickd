@@ -14,7 +14,7 @@ from google import genai
 from google.genai import errors, types
 from pydantic import BaseModel, Field, ValidationError, model_validator
 
-from .config import GEMINI_API_KEY, GEMINI_MODELS, GROQ_API_KEY, GROQ_MODELS, POLICY
+from .config import GEMINI_API_KEY, GEMINI_MODELS, GROQ_API_KEY, GROQ_MODELS, POLICY, PROVIDER_ORDER
 from .text import PageText, as_prompt_text, page_png
 
 
@@ -107,12 +107,15 @@ def extract_invoice(pdf_path: Path, pages: list[PageText]) -> Extraction:
     prompt = f"Extract the invoice fields from this document.\n\n{as_prompt_text(pages)}"
     image_pages = [p.number for p in pages
                    if p.source == "ocr" and (p.ocr_confidence or 0) < POLICY["ocr_image_fallback_below"]]
-    providers = []
-    if GROQ_API_KEY and not image_pages:     # the Groq models we use read text only; image pages need Gemini
-        providers.append(_groq)
-    if GEMINI_API_KEY:
-        providers.append(_gemini)
+    available = {
+        "groq": _groq if GROQ_API_KEY and not image_pages else None,   # Groq's models read text only
+        "gemini": _gemini if GEMINI_API_KEY else None,                  # Gemini also reads page images
+    }
+    providers = [available[name] for name in PROVIDER_ORDER if available.get(name)]
     if not providers:
+        if image_pages and GROQ_API_KEY:
+            raise ExtractionError("This scan is too poor for OCR and needs an image-reading model (Gemini), "
+                                  "which is not configured")
         raise ExtractionError("No LLM key configured: set GROQ_API_KEY or GEMINI_API_KEY in .env")
 
     started, skipped = time.perf_counter(), []
@@ -164,7 +167,9 @@ def _groq(prompt: str, pdf_path: Path, image_pages: list[int], skipped: list[str
                 schema_miss = exc.status_code == 400 and "json_validate_failed" in str(exc.body)
                 if exc.status_code not in BUSY and not schema_miss:
                     raise ExtractionError(f"Groq {model} failed ({exc.status_code}): {exc.message}") from exc
-                skipped.append(f"{model}: {'output did not match the schema' if schema_miss else f'busy ({exc.status_code})'}")
+                where = re.search(r"jsonschema: '([^']*)'", str(exc.body))      # which field broke the schema
+                skipped.append(f"{model}: " + (f"output did not match the schema at {where.group(1) if where else '?'}"
+                                               if schema_miss else f"busy ({exc.status_code})"))
             except (groq.APIConnectionError, ValidationError) as exc:     # timeouts, network, malformed output
                 skipped.append(f"{model}: {type(exc).__name__}")
             break                                        # next model

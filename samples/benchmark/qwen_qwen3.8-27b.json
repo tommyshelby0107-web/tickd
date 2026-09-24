@@ -1,0 +1,1504 @@
+{
+  "model": "qwen/qwen3.8-27b",
+  "provider": "groq",
+  "rows": [
+    {
+      "scenario": "HP-1",
+      "ok": true,
+      "seconds": 2.55,
+      "fields": {
+        "number": true,
+        "date": true,
+        "po": true,
+        "lines": true,
+        "subtotal": true,
+        "tax": true,
+        "freight": true,
+        "total": true,
+        "account": true,
+        "vendor": true,
+        "due_date": true,
+        "routing": true,
+        "tax_included": true,
+        "doc_type": true
+      },
+      "decision_ok": true,
+      "waits": [],
+      "data": {
+        "document_type": "invoice",
+        "vendor_name": {
+          "value": "Apex Fasteners Inc.",
+          "page": 1,
+          "source_quote": "Apex Fasteners Inc."
+        },
+        "vendor_tax_id": null,
+        "invoice_number": {
+          "value": "INV-2026-0457",
+          "page": 1,
+          "source_quote": "Invoice No. INV-2026-0457"
+        },
+        "invoice_date": {
+          "value": "2026-09-14",
+          "page": 1,
+          "source_quote": "Invoice Date September 14, 2026"
+        },
+        "due_date": {
+          "value": "2026-10-14",
+          "page": 1,
+          "source_quote": "Due Date October 14, 2026"
+        },
+        "currency": "USD",
+        "po_number": {
+          "value": "PO-4501",
+          "page": 1,
+          "source_quote": "PO Number PO-4501"
+        },
+        "po_hint": null,
+        "lines": [
+          {
+            "sku": "AF-HB-M10",
+            "description": "Hex bolt M10 x 50 zinc, box of 100",
+            "quantity": 40.0,
+            "unit_price": 38.5,
+            "amount": 1540.0
+          },
+          {
+            "sku": "AF-NUT-M10",
+            "description": "Hex nut M10 zinc, box of 200",
+            "quantity": 25.0,
+            "unit_price": 22.0,
+            "amount": 550.0
+          },
+          {
+            "sku": "AF-WSH-M10",
+            "description": "Flat washer M10, box of 500",
+            "quantity": 10.0,
+            "unit_price": 31.75,
+            "amount": 317.5
+          }
+        ],
+        "subtotal": 2407.5,
+        "tax_amount": 180.56,
+        "tax_rate_pct": 7.5,
+        "tax_included_in_prices": false,
+        "freight": null,
+        "total": {
+          "value": "2588.06",
+          "page": 1,
+          "source_quote": "Total Due $2,588.06"
+        },
+        "remit_bank_name": null,
+        "remit_routing_number": {
+          "value": "113004218",
+          "page": 1,
+          "source_quote": "ABA Routing 113004218"
+        },
+        "remit_account_number": {
+          "value": "582033194712",
+          "page": 1,
+          "source_quote": "Account 582033194712"
+        },
+        "notes": null
+      }
+    },
+    {
+      "scenario": "HP-2",
+      "ok": true,
+      "seconds": 2.15,
+      "fields": {
+        "number": true,
+        "date": true,
+        "po": true,
+        "lines": true,
+        "subtotal": true,
+        "tax": true,
+        "freight": true,
+        "total": true,
+        "account": true,
+        "vendor": true,
+        "due_date": true,
+        "routing": true,
+        "tax_included": true,
+        "doc_type": true
+      },
+      "decision_ok": true,
+      "waits": [],
+      "data": {
+        "document_type": "invoice",
+        "vendor_name": {
+          "value": "Coastal Packaging Corp.",
+          "page": 1,
+          "source_quote": "Coastal Packaging Corp."
+        },
+        "vendor_tax_id": null,
+        "invoice_number": {
+          "value": "CPK-88214",
+          "page": 1,
+          "source_quote": "Bill Number CPK-88214"
+        },
+        "invoice_date": {
+          "value": "2026-09-16",
+          "page": 1,
+          "source_quote": "Date 09/16/2026"
+        },
+        "due_date": {
+          "value": null,
+          "page": 1,
+          "source_quote": "Terms Net 30"
+        },
+        "currency": "USD",
+        "po_number": {
+          "value": "PO-4502",
+          "page": 1,
+          "source_quote": "Your PO PO-4502"
+        },
+        "po_hint": null,
+        "lines": [
+          {
+            "sku": "CP-BOX-18",
+            "description": "Corrugated box 18x12x12, bundle of 25",
+            "quantity": 80.0,
+            "unit_price": 41.0,
+            "amount": 3280.0
+          },
+          {
+            "sku": "CP-TAPE-48",
+            "description": "Packing tape 48mm, case of 36",
+            "quantity": 20.0,
+            "unit_price": 64.0,
+            "amount": 1280.0
+          },
+          {
+            "sku": "CP-WRAP-20",
+            "description": "Stretch wrap 20in x 1500ft, case of 4",
+            "quantity": 100.0,
+            "unit_price": 80.96,
+            "amount": 8096.0
+          }
+        ],
+        "subtotal": 12656.0,
+        "tax_amount": 949.2,
+        "tax_rate_pct": 7.5,
+        "tax_included_in_prices": false,
+        "freight": 45.0,
+        "total": {
+          "value": "13650.20",
+          "page": 1,
+          "source_quote": "Balance Due $13,650.20"
+        },
+        "remit_bank_name": "Puget Mercantile Bank",
+        "remit_routing_number": {
+          "value": "125008211",
+          "page": 1,
+          "source_quote": "Routing 125008211"
+        },
+        "remit_account_number": {
+          "value": "219930067418",
+          "page": 1,
+          "source_quote": "Account 219930067418"
+        },
+        "notes": null
+      }
+    },
+    {
+      "scenario": "EC-1A",
+      "ok": true,
+      "seconds": 3.6,
+      "fields": {
+        "number": true,
+        "date": true,
+        "po": true,
+        "lines": true,
+        "subtotal": true,
+        "tax": true,
+        "freight": true,
+        "total": true,
+        "account": true,
+        "vendor": true,
+        "due_date": true,
+        "routing": true,
+        "tax_included": true,
+        "doc_type": true
+      },
+      "decision_ok": true,
+      "waits": [],
+      "data": {
+        "document_type": "invoice",
+        "vendor_name": {
+          "value": "SUMMIT ELECTRICAL SUPPLY LLC",
+          "page": 1,
+          "source_quote": "SUMMIT ELECTRICAL SUPPLY LLC"
+        },
+        "vendor_tax_id": null,
+        "invoice_number": {
+          "value": "SUM-10388",
+          "page": 1,
+          "source_quote": "Invoice #: SUM-10388"
+        },
+        "invoice_date": {
+          "value": "2026-09-05",
+          "page": 1,
+          "source_quote": "Issued: 2026-09-05"
+        },
+        "due_date": {
+          "value": "2026-10-20",
+          "page": 1,
+          "source_quote": "Due: 2026-10-20"
+        },
+        "currency": "USD",
+        "po_number": {
+          "value": "PO-4503",
+          "page": 1,
+          "source_quote": "Customer PO: PO-4503"
+        },
+        "po_hint": null,
+        "lines": [
+          {
+            "sku": "SE-LED-24",
+            "description": "LED flat panel 2x4ft 50W",
+            "quantity": 250.0,
+            "unit_price": 100.0,
+            "amount": 25000.0
+          }
+        ],
+        "subtotal": 25000.0,
+        "tax_amount": 1875.0,
+        "tax_rate_pct": 7.5,
+        "tax_included_in_prices": false,
+        "freight": null,
+        "total": {
+          "value": "26875.00",
+          "page": 1,
+          "source_quote": "AMOUNT DUE (USD) $26,875.00"
+        },
+        "remit_bank_name": null,
+        "remit_routing_number": {
+          "value": "043318072",
+          "page": 1,
+          "source_quote": "ABA 043318072"
+        },
+        "remit_account_number": {
+          "value": "640017723905",
+          "page": 1,
+          "source_quote": "Acct 640017723905"
+        },
+        "notes": null
+      }
+    },
+    {
+      "scenario": "EC-1B",
+      "ok": true,
+      "seconds": 8.56,
+      "fields": {
+        "number": true,
+        "date": true,
+        "po": true,
+        "lines": true,
+        "subtotal": true,
+        "tax": true,
+        "freight": true,
+        "total": true,
+        "account": true,
+        "vendor": true,
+        "due_date": true,
+        "routing": true,
+        "tax_included": true,
+        "doc_type": true
+      },
+      "decision_ok": true,
+      "waits": [],
+      "data": {
+        "document_type": "invoice",
+        "vendor_name": {
+          "value": "SUMMIT ELECTRICAL SUPPLY LLC",
+          "page": 1,
+          "source_quote": "SUMMIT ELECTRICAL SUPPLY LLC"
+        },
+        "vendor_tax_id": null,
+        "invoice_number": {
+          "value": "SUM-10421",
+          "page": 1,
+          "source_quote": "Invoice #: SUM-10421"
+        },
+        "invoice_date": {
+          "value": "2026-09-18",
+          "page": 1,
+          "source_quote": "Issued: 2026-09-18"
+        },
+        "due_date": {
+          "value": "2026-11-02",
+          "page": 1,
+          "source_quote": "Due: 2026-11-02"
+        },
+        "currency": "USD",
+        "po_number": {
+          "value": "PO-4503",
+          "page": 1,
+          "source_quote": "Customer PO: PO-4503"
+        },
+        "po_hint": null,
+        "lines": [
+          {
+            "sku": "SE-LED-24",
+            "description": "LED flat panel 2x4ft 50W",
+            "quantity": 200.0,
+            "unit_price": 100.0,
+            "amount": 20000.0
+          }
+        ],
+        "subtotal": 20000.0,
+        "tax_amount": 1500.0,
+        "tax_rate_pct": 7.5,
+        "tax_included_in_prices": false,
+        "freight": null,
+        "total": {
+          "value": "21500.00",
+          "page": 1,
+          "source_quote": "AMOUNT DUE (USD) $21,500.00"
+        },
+        "remit_bank_name": null,
+        "remit_routing_number": {
+          "value": "043318072",
+          "page": 1,
+          "source_quote": "ABA 043318072"
+        },
+        "remit_account_number": {
+          "value": "640017723905",
+          "page": 1,
+          "source_quote": "Acct 640017723905"
+        },
+        "notes": null
+      }
+    },
+    {
+      "scenario": "EC-2",
+      "ok": true,
+      "seconds": 1.96,
+      "fields": {
+        "number": true,
+        "date": true,
+        "po": true,
+        "lines": true,
+        "subtotal": true,
+        "tax": true,
+        "freight": true,
+        "total": true,
+        "account": true,
+        "vendor": true,
+        "due_date": true,
+        "routing": true,
+        "tax_included": true,
+        "doc_type": true
+      },
+      "decision_ok": true,
+      "waits": [],
+      "data": {
+        "document_type": "invoice",
+        "vendor_name": {
+          "value": "Apex Fasteners Inc.",
+          "page": 1,
+          "source_quote": "Apex Fasteners Inc."
+        },
+        "vendor_tax_id": null,
+        "invoice_number": {
+          "value": "INV 2026 0457",
+          "page": 1,
+          "source_quote": "Invoice No. INV 2026 0457"
+        },
+        "invoice_date": {
+          "value": "2026-09-14",
+          "page": 1,
+          "source_quote": "Invoice Date September 14, 2026"
+        },
+        "due_date": {
+          "value": "2026-10-14",
+          "page": 1,
+          "source_quote": "Due Date October 14, 2026"
+        },
+        "currency": "USD",
+        "po_number": {
+          "value": "PO-4501",
+          "page": 1,
+          "source_quote": "PO Number PO-4501"
+        },
+        "po_hint": null,
+        "lines": [
+          {
+            "sku": "AF-HB-M10",
+            "description": "Hex bolt M10 x 50 zinc, box of 100",
+            "quantity": 40.0,
+            "unit_price": 38.5,
+            "amount": 1540.0
+          },
+          {
+            "sku": "AF-NUT-M10",
+            "description": "Hex nut M10 zinc, box of 200",
+            "quantity": 25.0,
+            "unit_price": 22.0,
+            "amount": 550.0
+          },
+          {
+            "sku": "AF-WSH-M10",
+            "description": "Flat washer M10, box of 500",
+            "quantity": 10.0,
+            "unit_price": 31.75,
+            "amount": 317.5
+          }
+        ],
+        "subtotal": 2407.5,
+        "tax_amount": 180.56,
+        "tax_rate_pct": 7.5,
+        "tax_included_in_prices": false,
+        "freight": null,
+        "total": {
+          "value": "2588.06",
+          "page": 1,
+          "source_quote": "Total Due $2,588.06"
+        },
+        "remit_bank_name": null,
+        "remit_routing_number": {
+          "value": "113004218",
+          "page": 1,
+          "source_quote": "ABA Routing 113004218"
+        },
+        "remit_account_number": {
+          "value": "582033194712",
+          "page": 1,
+          "source_quote": "Account 582033194712"
+        },
+        "notes": null
+      }
+    },
+    {
+      "scenario": "EC-3",
+      "ok": true,
+      "seconds": 13.77,
+      "fields": {
+        "number": true,
+        "date": true,
+        "po": true,
+        "lines": true,
+        "subtotal": true,
+        "tax": true,
+        "freight": true,
+        "total": true,
+        "account": true,
+        "vendor": true,
+        "due_date": true,
+        "routing": true,
+        "tax_included": true,
+        "doc_type": true
+      },
+      "decision_ok": true,
+      "waits": [],
+      "data": {
+        "document_type": "invoice",
+        "vendor_name": {
+          "value": "NORTHLINE SAFETY CO.",
+          "page": 1,
+          "source_quote": "NORTHLINE SAFETY CO."
+        },
+        "vendor_tax_id": null,
+        "invoice_number": {
+          "value": "NLS-7781",
+          "page": 1,
+          "source_quote": "No. NLS-7781"
+        },
+        "invoice_date": {
+          "value": "2026-09-15",
+          "page": 1,
+          "source_quote": "Dated 15 Sep 2026"
+        },
+        "due_date": {
+          "value": null,
+          "page": 1,
+          "source_quote": "Kindly remit within 30 days"
+        },
+        "currency": "USD",
+        "po_number": {
+          "value": null,
+          "page": 1,
+          "source_quote": null
+        },
+        "po_hint": null,
+        "lines": [
+          {
+            "sku": null,
+            "description": "Safety helmet - Class E, white",
+            "quantity": 120.0,
+            "unit_price": 18.5,
+            "amount": 2220.0
+          },
+          {
+            "sku": null,
+            "description": "Cut-resistant work gloves, large (pairs)",
+            "quantity": 300.0,
+            "unit_price": 6.25,
+            "amount": 1875.0
+          },
+          {
+            "sku": null,
+            "description": "High-visibility vest, Class 2, size XL",
+            "quantity": 150.0,
+            "unit_price": 9.8,
+            "amount": 1470.0
+          }
+        ],
+        "subtotal": 5565.0,
+        "tax_amount": 0.0,
+        "tax_rate_pct": null,
+        "tax_included_in_prices": false,
+        "freight": null,
+        "total": {
+          "value": "5565.00",
+          "page": 1,
+          "source_quote": "TOTAL $5,565.00"
+        },
+        "remit_bank_name": null,
+        "remit_routing_number": {
+          "value": "091017442",
+          "page": 1,
+          "source_quote": "routing 091017442"
+        },
+        "remit_account_number": {
+          "value": "771902458301",
+          "page": 1,
+          "source_quote": "account 771902458301"
+        },
+        "notes": "Sales tax not collected - purchaser to self-assess use tax."
+      }
+    },
+    {
+      "scenario": "EC-4",
+      "ok": true,
+      "seconds": 9.81,
+      "fields": {
+        "number": true,
+        "date": true,
+        "po": true,
+        "lines": true,
+        "subtotal": true,
+        "tax": true,
+        "freight": true,
+        "total": true,
+        "account": true,
+        "vendor": true,
+        "due_date": true,
+        "routing": true,
+        "tax_included": true,
+        "doc_type": true
+      },
+      "decision_ok": true,
+      "waits": [],
+      "data": {
+        "document_type": "invoice",
+        "vendor_name": {
+          "value": "Brightpath Tools & Supply",
+          "page": 1,
+          "source_quote": "Brightpath Tools & Supply"
+        },
+        "vendor_tax_id": null,
+        "invoice_number": {
+          "value": "BTS-2291",
+          "page": 1,
+          "source_quote": "BTS-2291"
+        },
+        "invoice_date": {
+          "value": "2026-09-17",
+          "page": 1,
+          "source_quote": "Sep 17, 2026"
+        },
+        "due_date": {
+          "value": "2026-10-17",
+          "page": 1,
+          "source_quote": "Oct 17, 2026"
+        },
+        "currency": "USD",
+        "po_number": {
+          "value": "PO-4506",
+          "page": 1,
+          "source_quote": "PO-4506"
+        },
+        "po_hint": null,
+        "lines": [
+          {
+            "sku": "BT-DRL-18V",
+            "description": "Cordless drill 18V kit",
+            "quantity": 10.0,
+            "unit_price": 149.0,
+            "amount": 1490.0
+          },
+          {
+            "sku": "BT-BIT-SET",
+            "description": "Drill bit set, 29-piece",
+            "quantity": 20.0,
+            "unit_price": 34.5,
+            "amount": 690.0
+          }
+        ],
+        "subtotal": 2180.0,
+        "tax_amount": 163.5,
+        "tax_rate_pct": 7.5,
+        "tax_included_in_prices": false,
+        "freight": null,
+        "total": {
+          "value": "2343.50",
+          "page": 1,
+          "source_quote": "TOTAL DUE $2,343.50"
+        },
+        "remit_bank_name": null,
+        "remit_routing_number": {
+          "value": "322274135",
+          "page": 1,
+          "source_quote": "Routing (ABA): 322274135"
+        },
+        "remit_account_number": {
+          "value": "773001925561",
+          "page": 1,
+          "source_quote": "Account: 773001925561"
+        },
+        "notes": null
+      }
+    },
+    {
+      "scenario": "RV-1",
+      "ok": false,
+      "seconds": 5.47,
+      "error": "qwen/qwen3.8-27b: rate limited | All Groq models unavailable"
+    },
+    {
+      "scenario": "X-1",
+      "ok": true,
+      "seconds": 1.36,
+      "fields": {
+        "number": true,
+        "date": true,
+        "po": true,
+        "lines": true,
+        "subtotal": true,
+        "tax": true,
+        "freight": true,
+        "total": true,
+        "account": true,
+        "vendor": true,
+        "due_date": true,
+        "routing": true,
+        "tax_included": true,
+        "doc_type": true
+      },
+      "decision_ok": true,
+      "waits": [],
+      "data": {
+        "document_type": "invoice",
+        "vendor_name": {
+          "value": "Redline Industrial Services",
+          "page": 1,
+          "source_quote": "Redline Industrial Services"
+        },
+        "vendor_tax_id": null,
+        "invoice_number": {
+          "value": "RIS-5520",
+          "page": 1,
+          "source_quote": "Invoice No. RIS-5520"
+        },
+        "invoice_date": {
+          "value": "2026-09-12",
+          "page": 1,
+          "source_quote": "Invoice Date September 12, 2026"
+        },
+        "due_date": {
+          "value": "2026-10-12",
+          "page": 1,
+          "source_quote": "Due Date October 12, 2026"
+        },
+        "currency": "USD",
+        "po_number": {
+          "value": "PO-4509",
+          "page": 1,
+          "source_quote": "PO Number PO-4509"
+        },
+        "po_hint": null,
+        "lines": [
+          {
+            "sku": "RL-SVC-01",
+            "description": "Forklift preventive maintenance visit",
+            "quantity": 1.0,
+            "unit_price": 1850.0,
+            "amount": 1850.0
+          }
+        ],
+        "subtotal": 1850.0,
+        "tax_amount": 138.75,
+        "tax_rate_pct": 7.5,
+        "tax_included_in_prices": false,
+        "freight": null,
+        "total": {
+          "value": "1988.75",
+          "page": 1,
+          "source_quote": "Total Due $1,988.75"
+        },
+        "remit_bank_name": null,
+        "remit_routing_number": {
+          "value": "042209871",
+          "page": 1,
+          "source_quote": "ABA Routing 042209871"
+        },
+        "remit_account_number": {
+          "value": "410028837165",
+          "page": 1,
+          "source_quote": "Account 410028837165"
+        },
+        "notes": null
+      }
+    },
+    {
+      "scenario": "X-2",
+      "ok": true,
+      "seconds": 1.53,
+      "fields": {
+        "number": true,
+        "date": true,
+        "po": true,
+        "lines": true,
+        "subtotal": true,
+        "tax": true,
+        "freight": true,
+        "total": true,
+        "account": true,
+        "vendor": true,
+        "due_date": true,
+        "routing": true,
+        "tax_included": true,
+        "doc_type": true
+      },
+      "decision_ok": true,
+      "waits": [],
+      "data": {
+        "document_type": "invoice",
+        "vendor_name": {
+          "value": "Apex Fasteners Inc.",
+          "page": 1,
+          "source_quote": "Apex Fasteners Inc."
+        },
+        "vendor_tax_id": null,
+        "invoice_number": {
+          "value": "INV-2026-0463",
+          "page": 1,
+          "source_quote": "Invoice No. INV-2026-0463"
+        },
+        "invoice_date": {
+          "value": "2026-09-19",
+          "page": 1,
+          "source_quote": "Invoice Date September 19, 2026"
+        },
+        "due_date": {
+          "value": "2026-10-19",
+          "page": 1,
+          "source_quote": "Due Date October 19, 2026"
+        },
+        "currency": "USD",
+        "po_number": {
+          "value": "PO-4508",
+          "page": 1,
+          "source_quote": "PO Number PO-4508"
+        },
+        "po_hint": null,
+        "lines": [
+          {
+            "sku": "AF-ANC-12",
+            "description": "Wedge anchor 1/2 x 4in, box of 25",
+            "quantity": 60.0,
+            "unit_price": 44.52,
+            "amount": 2671.2
+          }
+        ],
+        "subtotal": 2671.2,
+        "tax_amount": 200.34,
+        "tax_rate_pct": 7.5,
+        "tax_included_in_prices": false,
+        "freight": null,
+        "total": {
+          "value": "2871.54",
+          "page": 1,
+          "source_quote": "Total Due $2,871.54"
+        },
+        "remit_bank_name": null,
+        "remit_routing_number": {
+          "value": "113004218",
+          "page": 1,
+          "source_quote": "ABA Routing 113004218"
+        },
+        "remit_account_number": {
+          "value": "582033194712",
+          "page": 1,
+          "source_quote": "Account 582033194712"
+        },
+        "notes": null
+      }
+    },
+    {
+      "scenario": "T-01",
+      "ok": true,
+      "seconds": 1.57,
+      "fields": {
+        "number": true,
+        "date": true,
+        "po": true,
+        "lines": true,
+        "subtotal": true,
+        "tax": true,
+        "freight": true,
+        "total": true,
+        "account": true,
+        "vendor": true,
+        "due_date": true,
+        "routing": true,
+        "tax_included": true,
+        "doc_type": true
+      },
+      "decision_ok": true,
+      "waits": [],
+      "data": {
+        "document_type": "invoice",
+        "vendor_name": {
+          "value": "Keystone Industrial Tools Inc.",
+          "page": 1,
+          "source_quote": "Keystone Industrial Tools Inc."
+        },
+        "vendor_tax_id": null,
+        "invoice_number": {
+          "value": "KIT-22817",
+          "page": 1,
+          "source_quote": "Invoice number KIT-22817"
+        },
+        "invoice_date": {
+          "value": "2026-09-15",
+          "page": 1,
+          "source_quote": "Date of issue Sep 15, 2026"
+        },
+        "due_date": {
+          "value": "2026-10-15",
+          "page": 1,
+          "source_quote": "Date due Oct 15, 2026"
+        },
+        "currency": "USD",
+        "po_number": {
+          "value": "PO-4510",
+          "page": 1,
+          "source_quote": "Purchase order PO-4510"
+        },
+        "po_hint": null,
+        "lines": [
+          {
+            "sku": "KT-IMP-12",
+            "description": "Impact wrench 1/2in drive, cordless",
+            "quantity": 6.0,
+            "unit_price": 202.1,
+            "amount": 1212.6
+          },
+          {
+            "sku": "KT-SOC-40",
+            "description": "Socket set metric, 40 piece",
+            "quantity": 10.0,
+            "unit_price": 77.4,
+            "amount": 774.0
+          }
+        ],
+        "subtotal": null,
+        "tax_amount": 138.6,
+        "tax_rate_pct": 7.5,
+        "tax_included_in_prices": true,
+        "freight": null,
+        "total": {
+          "value": "1986.60",
+          "page": 1,
+          "source_quote": "Total (includes 7.5% sales tax of $138.60) $1,986.60"
+        },
+        "remit_bank_name": null,
+        "remit_routing_number": {
+          "value": "031319822",
+          "page": 1,
+          "source_quote": "Routing 031319822"
+        },
+        "remit_account_number": {
+          "value": "918230045716",
+          "page": 1,
+          "source_quote": "Account 918230045716"
+        },
+        "notes": null
+      }
+    },
+    {
+      "scenario": "T-02",
+      "ok": true,
+      "seconds": 4.58,
+      "fields": {
+        "number": true,
+        "date": true,
+        "po": true,
+        "lines": true,
+        "subtotal": true,
+        "tax": true,
+        "freight": true,
+        "total": true,
+        "account": true,
+        "vendor": true,
+        "due_date": true,
+        "routing": true,
+        "tax_included": true,
+        "doc_type": true
+      },
+      "decision_ok": true,
+      "waits": [],
+      "data": {
+        "document_type": "invoice",
+        "vendor_name": {
+          "value": "HARBORLINE OFFICE PRODUCTS",
+          "page": 1,
+          "source_quote": "HARBORLINE OFFICE PRODUCTS"
+        },
+        "vendor_tax_id": null,
+        "invoice_number": {
+          "value": "HOP-500931",
+          "page": 1,
+          "source_quote": "Invoice # HOP-500931"
+        },
+        "invoice_date": {
+          "value": "2026-09-10",
+          "page": 1,
+          "source_quote": "Date 10-Sep-2026"
+        },
+        "due_date": {
+          "value": null,
+          "page": 2,
+          "source_quote": "Terms Net 30"
+        },
+        "currency": "USD",
+        "po_number": {
+          "value": "PO-4511",
+          "page": 1,
+          "source_quote": "Customer PO PO-4511"
+        },
+        "po_hint": null,
+        "lines": [
+          {
+            "sku": "HL-PAP-LTR",
+            "description": "HL-PAP-LTR Copy paper 8.5x11, case of 10 reams",
+            "quantity": 30.0,
+            "unit_price": 42.5,
+            "amount": 1275.0
+          },
+          {
+            "sku": "HL-PEN-BLK",
+            "description": "HL-PEN-BLK Ballpoint pens, black, box of 12",
+            "quantity": 40.0,
+            "unit_price": 6.2,
+            "amount": 248.0
+          },
+          {
+            "sku": "HL-PEN-BLU",
+            "description": "HL-PEN-BLU Ballpoint pens, blue, box of 12",
+            "quantity": 25.0,
+            "unit_price": 6.2,
+            "amount": 155.0
+          },
+          {
+            "sku": "HL-HLT-4",
+            "description": "HL-HLT-4 Highlighters, assorted, pack of 4",
+            "quantity": 30.0,
+            "unit_price": 5.1,
+            "amount": 153.0
+          },
+          {
+            "sku": "HL-STP-STD",
+            "description": "HL-STP-STD Staples, standard, box of 5000",
+            "quantity": 20.0,
+            "unit_price": 3.4,
+            "amount": 68.0
+          },
+          {
+            "sku": "HL-STPL",
+            "description": "HL-STPL Desktop stapler, full strip",
+            "quantity": 10.0,
+            "unit_price": 14.75,
+            "amount": 147.5
+          },
+          {
+            "sku": "HL-CLP-LG",
+            "description": "HL-CLP-LG Binder clips, large, box of 12",
+            "quantity": 25.0,
+            "unit_price": 4.6,
+            "amount": 115.0
+          },
+          {
+            "sku": "HL-NTE-3X3",
+            "description": "HL-NTE-3X3 Sticky notes 3x3, pack of 12",
+            "quantity": 30.0,
+            "unit_price": 9.8,
+            "amount": 294.0
+          },
+          {
+            "sku": "HL-FLD-LTR",
+            "description": "HL-FLD-LTR File folders, letter, box of 100",
+            "quantity": 15.0,
+            "unit_price": 18.9,
+            "amount": 283.5
+          },
+          {
+            "sku": "HL-BND-1IN",
+            "description": "HL-BND-1IN Ring binder 1in, white",
+            "quantity": 60.0,
+            "unit_price": 3.95,
+            "amount": 237.0
+          },
+          {
+            "sku": "HL-BND-2IN",
+            "description": "HL-BND-2IN Ring binder 2in, white",
+            "quantity": 40.0,
+            "unit_price": 5.6,
+            "amount": 224.0
+          },
+          {
+            "sku": "HL-ENV-10",
+            "description": "HL-ENV-10 Envelopes #10, box of 500",
+            "quantity": 12.0,
+            "unit_price": 21.4,
+            "amount": 256.8
+          },
+          {
+            "sku": "HL-LBL-ADR",
+            "description": "HL-LBL-ADR Address labels, 30 per sheet, 100 sheets",
+            "quantity": 10.0,
+            "unit_price": 24.3,
+            "amount": 243.0
+          },
+          {
+            "sku": "HL-TNR-26A",
+            "description": "HL-TNR-26A Toner cartridge 26A, black",
+            "quantity": 8.0,
+            "unit_price": 89.0,
+            "amount": 712.0
+          },
+          {
+            "sku": "HL-MRK-DRY",
+            "description": "HL-MRK-DRY Dry-erase markers, pack of 8",
+            "quantity": 20.0,
+            "unit_price": 11.25,
+            "amount": 225.0
+          },
+          {
+            "sku": "HL-ERS-BRD",
+            "description": "HL-ERS-BRD Whiteboard eraser",
+            "quantity": 10.0,
+            "unit_price": 4.2,
+            "amount": 42.0
+          },
+          {
+            "sku": "HL-CLP-PPR",
+            "description": "HL-CLP-PPR Paper clips, box of 1000",
+            "quantity": 15.0,
+            "unit_price": 3.1,
+            "amount": 46.5
+          },
+          {
+            "sku": "HL-TAPE-INV",
+            "description": "HL-TAPE-INV Invisible tape with dispenser, 6 pack",
+            "quantity": 20.0,
+            "unit_price": 12.4,
+            "amount": 248.0
+          },
+          {
+            "sku": "HL-SCS-8",
+            "description": "HL-SCS-8 Scissors 8in, stainless",
+            "quantity": 12.0,
+            "unit_price": 5.35,
+            "amount": 64.2
+          },
+          {
+            "sku": "HL-CAL-DSK",
+            "description": "HL-CAL-DSK Desktop calculator, 12 digit",
+            "quantity": 6.0,
+            "unit_price": 16.8,
+            "amount": 100.8
+          },
+          {
+            "sku": "HL-PAD-LGL",
+            "description": "HL-PAD-LGL Legal pads, yellow, pack of 12",
+            "quantity": 25.0,
+            "unit_price": 13.6,
+            "amount": 340.0
+          },
+          {
+            "sku": "HL-PNC-2",
+            "description": "HL-PNC-2 Pencils #2, box of 24",
+            "quantity": 20.0,
+            "unit_price": 4.9,
+            "amount": 98.0
+          },
+          {
+            "sku": "HL-SHR-OIL",
+            "description": "HL-SHR-OIL Shredder oil, 12 oz",
+            "quantity": 6.0,
+            "unit_price": 7.25,
+            "amount": 43.5
+          },
+          {
+            "sku": "HL-CUP-12",
+            "description": "HL-CUP-12 Paper cups 12 oz, sleeve of 50",
+            "quantity": 30.0,
+            "unit_price": 4.75,
+            "amount": 142.5
+          },
+          {
+            "sku": "HL-TWL-PPR",
+            "description": "HL-TWL-PPR Paper towels, case of 12 rolls",
+            "quantity": 18.0,
+            "unit_price": 26.4,
+            "amount": 475.2
+          },
+          {
+            "sku": "HL-SAN-GEL",
+            "description": "HL-SAN-GEL Hand sanitizer gel, 16 oz",
+            "quantity": 24.0,
+            "unit_price": 4.95,
+            "amount": 118.8
+          },
+          {
+            "sku": "HL-BAT-AA",
+            "description": "HL-BAT-AA Batteries AA, pack of 24",
+            "quantity": 15.0,
+            "unit_price": 15.6,
+            "amount": 234.0
+          },
+          {
+            "sku": "HL-DSK-ORG",
+            "description": "HL-DSK-ORG Desk organizer, mesh",
+            "quantity": 10.0,
+            "unit_price": 11.9,
+            "amount": 119.0
+          }
+        ],
+        "subtotal": 6709.3,
+        "tax_amount": 503.2,
+        "tax_rate_pct": 7.5,
+        "tax_included_in_prices": false,
+        "freight": null,
+        "total": {
+          "value": "7212.50",
+          "page": 2,
+          "source_quote": "INVOICE TOTAL $7,212.50"
+        },
+        "remit_bank_name": null,
+        "remit_routing_number": {
+          "value": "052001633",
+          "page": 2,
+          "source_quote": "Routing 052001633"
+        },
+        "remit_account_number": {
+          "value": "507712098834",
+          "page": 2,
+          "source_quote": "Account 507712098834"
+        },
+        "notes": null
+      }
+    },
+    {
+      "scenario": "T-03",
+      "ok": false,
+      "seconds": 0.44,
+      "error": "qwen/qwen3.8-27b: rate limited | All Groq models unavailable"
+    },
+    {
+      "scenario": "T-04",
+      "ok": false,
+      "seconds": 0.43,
+      "error": "qwen/qwen3.8-27b: rate limited | All Groq models unavailable"
+    },
+    {
+      "scenario": "T-05",
+      "ok": true,
+      "seconds": 1.57,
+      "fields": {
+        "number": true,
+        "date": true,
+        "po": true,
+        "lines": true,
+        "subtotal": true,
+        "tax": true,
+        "freight": true,
+        "total": true,
+        "account": true,
+        "vendor": true,
+        "due_date": true,
+        "routing": true,
+        "tax_included": true,
+        "doc_type": true
+      },
+      "decision_ok": true,
+      "waits": [],
+      "data": {
+        "document_type": "invoice",
+        "vendor_name": {
+          "value": "Delta Pallet & Crate Co.",
+          "page": 1,
+          "source_quote": "Invoice Delta Pallet & Crate Co."
+        },
+        "vendor_tax_id": null,
+        "invoice_number": {
+          "value": "DPC-77120",
+          "page": 1,
+          "source_quote": "Invoice number DPC-77120"
+        },
+        "invoice_date": {
+          "value": "2026-09-17",
+          "page": 1,
+          "source_quote": "Date of issue Sep 17, 2026"
+        },
+        "due_date": {
+          "value": "2026-10-17",
+          "page": 1,
+          "source_quote": "Date due Oct 17, 2026"
+        },
+        "currency": "USD",
+        "po_number": {
+          "value": "PO-4513",
+          "page": 1,
+          "source_quote": "Purchase order PO-4513"
+        },
+        "po_hint": null,
+        "lines": [
+          {
+            "sku": "DP-PAL-4840",
+            "description": "Wooden pallet 48x40, heat treated",
+            "quantity": 300.0,
+            "unit_price": 14.5,
+            "amount": 4350.0
+          }
+        ],
+        "subtotal": 4350.0,
+        "tax_amount": 326.25,
+        "tax_rate_pct": 7.5,
+        "tax_included_in_prices": false,
+        "freight": null,
+        "total": {
+          "value": "4676.25",
+          "page": 1,
+          "source_quote": "Amount due $4,676.25"
+        },
+        "remit_bank_name": null,
+        "remit_routing_number": {
+          "value": "084008191",
+          "page": 1,
+          "source_quote": "Routing 084008191"
+        },
+        "remit_account_number": {
+          "value": "330158892071",
+          "page": 1,
+          "source_quote": "Account 330158892071"
+        },
+        "notes": null
+      }
+    },
+    {
+      "scenario": "T-06",
+      "ok": true,
+      "seconds": 1.59,
+      "fields": {
+        "number": true,
+        "date": true,
+        "po": true,
+        "lines": true,
+        "subtotal": true,
+        "tax": true,
+        "freight": true,
+        "total": true,
+        "account": true,
+        "vendor": true,
+        "due_date": true,
+        "routing": true,
+        "tax_included": true,
+        "doc_type": true
+      },
+      "decision_ok": true,
+      "waits": [],
+      "data": {
+        "document_type": "invoice",
+        "vendor_name": {
+          "value": "EVERGREEN CHEMICAL SUPPLY",
+          "page": 1,
+          "source_quote": "EVERGREEN CHEMICAL SUPPLY"
+        },
+        "vendor_tax_id": null,
+        "invoice_number": {
+          "value": "ECS-40218",
+          "page": 1,
+          "source_quote": "Invoice # ECS-40218"
+        },
+        "invoice_date": {
+          "value": "2026-09-11",
+          "page": 1,
+          "source_quote": "Date 11-Sep-2026"
+        },
+        "due_date": {
+          "value": null,
+          "page": 1,
+          "source_quote": "Terms Net 30"
+        },
+        "currency": "USD",
+        "po_number": {
+          "value": "PO-4514",
+          "page": 1,
+          "source_quote": "Customer PO PO-4514"
+        },
+        "po_hint": null,
+        "lines": [
+          {
+            "sku": "EG-DEG-5",
+            "description": "Industrial degreaser, 5 gal pail",
+            "quantity": 24.0,
+            "unit_price": 64.0,
+            "amount": 1536.0
+          },
+          {
+            "sku": "EG-ABS-25",
+            "description": "Absorbent granules, 25 lb bag",
+            "quantity": 40.0,
+            "unit_price": 17.25,
+            "amount": 609.0
+          }
+        ],
+        "subtotal": 2145.0,
+        "tax_amount": 160.88,
+        "tax_rate_pct": 7.5,
+        "tax_included_in_prices": false,
+        "freight": null,
+        "total": {
+          "value": "2305.88",
+          "page": 1,
+          "source_quote": "INVOICE TOTAL $2,305.88"
+        },
+        "remit_bank_name": null,
+        "remit_routing_number": {
+          "value": "123006965",
+          "page": 1,
+          "source_quote": "Routing 123006965"
+        },
+        "remit_account_number": {
+          "value": "771430092258",
+          "page": 1,
+          "source_quote": "Account 771430092258"
+        },
+        "notes": null
+      }
+    },
+    {
+      "scenario": "T-07",
+      "ok": true,
+      "seconds": 1.45,
+      "fields": {
+        "number": true,
+        "date": true,
+        "po": true,
+        "lines": true,
+        "subtotal": true,
+        "tax": true,
+        "freight": true,
+        "total": true,
+        "account": true,
+        "vendor": true,
+        "due_date": true,
+        "routing": true,
+        "tax_included": true,
+        "doc_type": true
+      },
+      "decision_ok": true,
+      "waits": [],
+      "data": {
+        "document_type": "invoice",
+        "vendor_name": {
+          "value": "Coastal Packaging Corp.",
+          "page": 1,
+          "source_quote": "Coastal Packaging Corp."
+        },
+        "vendor_tax_id": null,
+        "invoice_number": {
+          "value": "CPK-88302",
+          "page": 1,
+          "source_quote": "Bill Number CPK-88302"
+        },
+        "invoice_date": {
+          "value": "2026-09-02",
+          "page": 1,
+          "source_quote": "Date 09/02/2026"
+        },
+        "due_date": {
+          "value": null,
+          "page": 1,
+          "source_quote": "Terms Net 30"
+        },
+        "currency": "USD",
+        "po_number": {
+          "value": "PO-4515",
+          "page": 1,
+          "source_quote": "Your PO PO-4515"
+        },
+        "po_hint": null,
+        "lines": [
+          {
+            "sku": "CP-BOX-18",
+            "description": "Corrugated box 18x12x12, bundle of 25",
+            "quantity": 88.0,
+            "unit_price": 41.0,
+            "amount": 3608.0
+          }
+        ],
+        "subtotal": 3608.0,
+        "tax_amount": 270.6,
+        "tax_rate_pct": 7.5,
+        "tax_included_in_prices": false,
+        "freight": null,
+        "total": {
+          "value": "3878.60",
+          "page": 1,
+          "source_quote": "Balance Due $3,878.60"
+        },
+        "remit_bank_name": null,
+        "remit_routing_number": {
+          "value": "125008211",
+          "page": 1,
+          "source_quote": "Routing 125008211"
+        },
+        "remit_account_number": {
+          "value": "219930067418",
+          "page": 1,
+          "source_quote": "Account 219930067418"
+        },
+        "notes": null
+      }
+    },
+    {
+      "scenario": "T-08",
+      "ok": false,
+      "seconds": 0.43,
+      "error": "qwen/qwen3.8-27b: rate limited | All Groq models unavailable"
+    },
+    {
+      "scenario": "T-09",
+      "ok": false,
+      "seconds": 0.0,
+      "error": "This scan is too poor for OCR and needs an image-reading model (Gemini), which is not configured"
+    },
+    {
+      "scenario": "T-10",
+      "ok": false,
+      "seconds": 0.37,
+      "error": "qwen/qwen3.8-27b: rate limited | All Groq models unavailable"
+    },
+    {
+      "scenario": "T-11",
+      "ok": false,
+      "seconds": 0.4,
+      "error": "qwen/qwen3.8-27b: rate limited | All Groq models unavailable"
+    }
+  ]
+}

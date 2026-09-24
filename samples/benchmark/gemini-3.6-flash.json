@@ -1,0 +1,170 @@
+{
+  "model": "gemini-3.6-flash",
+  "provider": "gemini",
+  "rows": [
+    {
+      "scenario": "HP-1",
+      "ok": true,
+      "seconds": 26.04,
+      "fields": {
+        "number": true,
+        "date": true,
+        "po": true,
+        "lines": true,
+        "subtotal": true,
+        "tax": true,
+        "freight": true,
+        "total": true,
+        "account": true,
+        "vendor": true,
+        "due_date": true,
+        "routing": true,
+        "tax_included": true,
+        "doc_type": true
+      },
+      "decision_ok": true,
+      "waits": [
+        "gemini-3.6-flash: busy (503)"
+      ]
+    },
+    {
+      "scenario": "HP-2",
+      "ok": false,
+      "seconds": 48.1,
+      "error": "gemini-3.6-flash: busy (503) | gemini-3.6-flash: busy (503) | All Gemini models busy"
+    },
+    {
+      "scenario": "EC-1A",
+      "ok": true,
+      "seconds": 25.32,
+      "fields": {
+        "number": true,
+        "date": true,
+        "po": true,
+        "lines": true,
+        "subtotal": true,
+        "tax": true,
+        "freight": true,
+        "total": true,
+        "account": true,
+        "vendor": true,
+        "due_date": true,
+        "routing": true,
+        "tax_included": true,
+        "doc_type": true
+      },
+      "decision_ok": true,
+      "waits": [
+        "gemini-3.6-flash: busy (503)"
+      ]
+    },
+    {
+      "scenario": "EC-1B",
+      "ok": false,
+      "seconds": 18.66,
+      "error": "gemini-3.6-flash: busy (503) | gemini-3.6-flash: busy (503) | All Gemini models busy"
+    },
+    {
+      "scenario": "EC-2",
+      "ok": false,
+      "seconds": 26.05,
+      "error": "gemini-3.6-flash: busy (503) | gemini-3.6-flash: busy (503) | All Gemini models busy"
+    },
+    {
+      "scenario": "EC-3",
+      "ok": false,
+      "seconds": 11.64,
+      "error": "gemini-3.6-flash: busy (503) | gemini-3.6-flash: busy (503) | All Gemini models busy"
+    },
+    {
+      "scenario": "EC-4",
+      "ok": false,
+      "seconds": 9.32,
+      "error": "gemini-3.6-flash: busy (429) | gemini-3.6-flash: busy (429) | All Gemini models busy"
+    },
+    {
+      "scenario": "RV-1",
+      "ok": false,
+      "seconds": 9.56,
+      "error": "gemini-3.6-flash: busy (429) | gemini-3.6-flash: busy (429) | All Gemini models busy"
+    },
+    {
+      "scenario": "X-1",
+      "ok": false,
+      "seconds": 9.4,
+      "error": "gemini-3.6-flash: busy (429) | gemini-3.6-flash: busy (429) | All Gemini models busy"
+    },
+    {
+      "scenario": "X-2",
+      "ok": false,
+      "seconds": 9.39,
+      "error": "gemini-3.6-flash: busy (429) | gemini-3.6-flash: busy (429) | All Gemini models busy"
+    },
+    {
+      "scenario": "T-01",
+      "ok": false,
+      "seconds": 9.33,
+      "error": "gemini-3.6-flash: busy (429) | gemini-3.6-flash: busy (429) | All Gemini models busy"
+    },
+    {
+      "scenario": "T-02",
+      "ok": false,
+      "seconds": 9.51,
+      "error": "gemini-3.6-flash: busy (429) | gemini-3.6-flash: busy (429) | All Gemini models busy"
+    },
+    {
+      "scenario": "T-03",
+      "ok": false,
+      "seconds": 9.4,
+      "error": "gemini-3.6-flash: busy (429) | gemini-3.6-flash: busy (429) | All Gemini models busy"
+    },
+    {
+      "scenario": "T-04",
+      "ok": false,
+      "seconds": 9.3,
+      "error": "gemini-3.6-flash: busy (429) | gemini-3.6-flash: busy (429) | All Gemini models busy"
+    },
+    {
+      "scenario": "T-05",
+      "ok": false,
+      "seconds": 9.33,
+      "error": "gemini-3.6-flash: busy (429) | gemini-3.6-flash: busy (429) | All Gemini models busy"
+    },
+    {
+      "scenario": "T-06",
+      "ok": false,
+      "seconds": 9.24,
+      "error": "gemini-3.6-flash: busy (429) | gemini-3.6-flash: busy (429) | All Gemini models busy"
+    },
+    {
+      "scenario": "T-07",
+      "ok": false,
+      "seconds": 9.61,
+      "error": "gemini-3.6-flash: busy (429) | gemini-3.6-flash: busy (429) | All Gemini models busy"
+    },
+    {
+      "scenario": "T-08",
+      "ok": false,
+      "seconds": 9.45,
+      "error": "gemini-3.6-flash: busy (429) | gemini-3.6-flash: busy (429) | All Gemini models busy"
+    },
+    {
+      "scenario": "T-09",
+      "ok": false,
+      "seconds": 11.21,
+      "error": "gemini-3.6-flash: busy (429) | gemini-3.6-flash: busy (429) | All Gemini models busy"
+    },
+    {
+      "scenario": "T-10",
+      "ok": false,
+      "seconds": 9.26,
+      "error": "gemini-3.6-flash: busy (429) | gemini-3.6-flash: busy (429) | All Gemini models busy"
+    },
+    {
+      "scenario": "T-11",
+      "ok": false,
+      "seconds": 9.35,
+      "error": "gemini-3.6-flash: busy (429) | gemini-3.6-flash: busy (429) | All Gemini models busy"
+    }
+  ]
+}

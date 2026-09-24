@@ -125,7 +125,8 @@ def email_check_now():
 
 @app.get("/api/config")
 def app_config():
-    providers = [name for name, key in (("Groq", config.GROQ_API_KEY), ("Gemini", config.GEMINI_API_KEY)) if key]
+    keys = {"groq": config.GROQ_API_KEY, "gemini": config.GEMINI_API_KEY}
+    providers = [name.title() for name in config.PROVIDER_ORDER if keys.get(name)]
     return {"stages": [{"key": k, "label": label} for k, label in STAGES], "llm_providers": providers,
             "extraction_mode": config.EXTRACTION_MODE, "policy_version": config.POLICY["version"],
             "email": config.EMAIL_ADDRESS if config.email_enabled() else None}
