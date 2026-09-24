@@ -1,6 +1,8 @@
-# Invoice Agent — PS-1
+# tickd — every invoice, ticked (PS-1)
 
-Takes a vendor invoice PDF and returns an explained decision: Approve, Review, Return to vendor, or Reject.
+**tickd** (said "ticked") takes a vendor invoice PDF and returns an explained decision: Approve, Review, Return to
+vendor, or Reject. The name comes from the auditor's tick mark: the ✓ placed next to every figure that has been
+checked against evidence.
 Design: see the PS-1 Solution Design Pack.
 
 ## Setup

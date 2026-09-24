@@ -67,7 +67,7 @@ async def lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(title="Invoice Agent", lifespan=lifespan)
+app = FastAPI(title="tickd", lifespan=lifespan)
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
 
 

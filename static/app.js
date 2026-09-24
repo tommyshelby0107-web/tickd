@@ -207,17 +207,77 @@ const NAV = [
   ["reference", "/reference", "reference", "Reference data"],
 ];
 
+// ---------------------------------------------------------------- brand: the tickd wordmark
+
+const BRAND = "tickd";
+const TICK_DOT = `<svg viewBox="0 0 24 24" aria-hidden="true">
+  <defs><radialGradient id="tick-dot-fill" cx="0.35" cy="0.3" r="0.85">
+    <stop offset="0" stop-color="#8fe8bf"/><stop offset="1" stop-color="#1f9d63"/></radialGradient></defs>
+  <circle cx="12" cy="12" r="11" fill="url(#tick-dot-fill)"/>
+  <ellipse cx="8.5" cy="7" rx="4.2" ry="2.3" fill="#fff" opacity="0.5"/>
+  <path pathLength="100" d="M7 12.5l3.3 3.3L17 9" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+
+// Each letter is its own element so it can drop in, hop and change colour on its own beat.
+// The i is a dotless ı: its dot is the tick badge, the logo inside the name.
+function wordmark() {
+  const letters = [...BRAND].map((ch, i) => `
+    <span class="l" style="--i:${i}">${ch === "i" ? `<span class="in">ı</span><span class="tick-dot">${TICK_DOT}</span>` : `<span class="in">${ch}</span>`}</span>`).join("");
+  return `<a class="wordmark" href="/" aria-label="${BRAND} home">${letters}
+    <span class="tagline">every invoice, <b>ticked</b></span></a>`;
+}
+
+function wireWordmark(el) {
+  let firstVisit = true;
+  try { firstVisit = !sessionStorage.getItem("tickd-intro"); sessionStorage.setItem("tickd-intro", "1"); } catch { /* private mode */ }
+  if (firstVisit && !reducedMotion) {          // the drop-in plays once per visit, not on every page change
+    el.classList.add("intro");
+    setTimeout(() => el.classList.remove("intro"), 2200);
+  }
+  let busy = false;
+  el.addEventListener("mouseenter", () => {
+    if (busy || reducedMotion) return;
+    busy = true;
+    el.classList.remove("party");
+    void el.offsetWidth;
+    el.classList.add("party");
+    setTimeout(() => sparkle(el.querySelector(".tick-dot")), 600);     // at the top of the badge's leap
+    setTimeout(() => { el.classList.remove("party"); busy = false; }, 1400);
+  });
+}
+
+// A small radial burst of clay sparkles.
+function sparkle(fromEl, pieces = 14) {
+  if (reducedMotion || !fromEl) return;
+  const box = fromEl.getBoundingClientRect();
+  const colors = ["#6fdcaa", "#a397ff", "#ffc766", "#8cc0ff", "#ff9a9a", "#cfa8ff"];
+  for (let i = 0; i < pieces; i++) {
+    const s = document.createElement("span");
+    s.className = `spark${i % 2 ? " round" : ""}`;
+    const angle = (i / pieces) * Math.PI * 2 + Math.random() * 0.45;
+    const distance = 28 + Math.random() * 36;
+    s.style.left = `${box.left + box.width / 2}px`;
+    s.style.top = `${box.top + box.height / 2}px`;
+    s.style.background = colors[i % colors.length];
+    s.style.setProperty("--dx", `${Math.cos(angle) * distance}px`);
+    s.style.setProperty("--dy", `${Math.sin(angle) * distance}px`);
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 850);
+  }
+}
+
 async function renderSidebar(active) {
   if (!document.querySelector(".bg")) {
     document.body.insertAdjacentHTML("afterbegin", '<div class="bg"><span></span><span></span><span></span></div>');
   }
   const aside = document.getElementById("sidebar");
   aside.innerHTML = `
-    <div class="brand">${clayArt("doc", 54)}<div class="brand-name">Invoice<br><span>Agent</span></div></div>
+    ${wordmark()}
     <nav>${NAV.map(([key, href, ico, label]) => `
       <a href="${href}" class="${active === key ? "active" : ""}">${icon(ico, 20)} ${label}
         ${key === "dashboard" ? '<span class="nav-badge" id="nav-reviews" title="Open reviews" hidden></span>' : ""}</a>`).join("")}
     </nav>`;
+  wireWordmark(aside.querySelector(".wordmark"));
   try {
     const m = await api("/api/metrics");
     const badge = document.getElementById("nav-reviews");

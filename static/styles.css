@@ -68,10 +68,59 @@ aside {
   padding: 22px 16px; display: flex; flex-direction: column; gap: 28px;
   animation: slide-in 0.7s var(--ease) both;
 }
-.brand { display: flex; align-items: center; gap: 10px; padding: 0 4px; }
-.brand .clay-art { flex: none; }
-.brand-name { font-weight: 900; font-size: 18px; letter-spacing: -0.02em; line-height: 1.1; }
-.brand-name span { color: var(--violet); }
+/* ---------- the tickd wordmark ----------
+   Each letter is clay: a light-to-deep gradient fill, a white rim top-left and a soft shade bottom-right.
+   The dot of the i is the logo itself, a green clay tick. .intro plays once on load, .party on hover. */
+.wordmark {
+  position: relative; display: inline-flex; align-items: flex-end; align-self: flex-start;
+  padding: 10px 10px 22px 8px; font-size: 44px; font-weight: 900; line-height: 1; letter-spacing: -0.035em;
+  text-decoration: none !important; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+}
+.wordmark .l { position: relative; display: inline-block; }
+/* Two clays stacked in one tall gradient: violet on top, the letter's own colour below. Hover slides the window
+   down, so the new colour rises through the letter like liquid filling it; leaving drains it back. */
+.wordmark .in {
+  --t0: #cbc3ff; --t1: #7b6bf2; --t2: #4a39d4;
+  display: inline-block; padding: 0 0.015em; transform-origin: 50% 100%;
+  background-image: linear-gradient(180deg, #cbc3ff 0%, #7b6bf2 24%, #4a39d4 47%, var(--t0) 53%, var(--t1) 77%, var(--t2) 100%);
+  background-size: 100% 200%; background-position: 0 0;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(-1px -1px 0 rgba(255, 255, 255, 0.95)) drop-shadow(3px 5px 5px rgba(70, 60, 160, 0.3));
+  transition: background-position 0.65s var(--ease) calc(var(--i) * 65ms);
+  animation: idle-bob 9s ease-in-out infinite; animation-delay: calc(4s + var(--i) * 120ms);
+}
+.wordmark .l:nth-child(1) .in { --t0: #b8f5d8; --t1: #3fc98a; --t2: #13875a; }   /* mint */
+.wordmark .l:nth-child(2) .in { --t0: #ffe4a8; --t1: #ffb52e; --t2: #e57a00; }   /* amber */
+.wordmark .l:nth-child(3) .in { --t0: #ffc6c6; --t1: #ff6b6b; --t2: #d8343f; }   /* coral */
+.wordmark .l:nth-child(4) .in { --t0: #c2e0ff; --t1: #4d9bff; --t2: #2362d6; }   /* sky */
+.wordmark .l:nth-child(5) .in { --t0: #e8d6ff; --t1: #b27cff; --t2: #7a3ddf; }   /* lilac */
+.wordmark:hover .in { background-position: 0 100%; }
+.wordmark .tick-dot {
+  position: absolute; left: 50%; top: -0.1em; width: 0.4em; height: 0.4em; margin-left: -0.2em;
+  filter: drop-shadow(2px 3px 3px rgba(31, 157, 99, 0.4));
+  animation: wink 9s var(--ease) 6s infinite;
+}
+.wordmark .tick-dot svg { display: block; width: 100%; height: 100%; }
+.wordmark .tick-dot path { stroke-dasharray: 100; }
+.wordmark .tagline {
+  position: absolute; left: 10px; bottom: 2px; font-size: 12px; font-weight: 800; letter-spacing: 0.02em;
+  color: var(--muted); white-space: nowrap; opacity: 0; transform: translateY(8px);
+  transition: opacity 0.3s, transform 0.5s var(--spring);
+}
+.wordmark:hover .tagline { opacity: 1; transform: none; transition-delay: 0.3s; }
+.wordmark .tagline b { color: var(--mint); }
+
+.wordmark.intro .l { animation: clay-drop 0.9s var(--spring) backwards; animation-delay: calc(0.15s + var(--i) * 95ms); }
+.wordmark.intro .tick-dot { animation: dot-in 0.9s var(--spring) 0.75s backwards; }
+.wordmark.intro .tick-dot path { animation: draw 0.5s var(--ease) 1.35s backwards; }
+.wordmark.party .in { animation: hop 0.8s var(--ease) both; animation-delay: calc(var(--i) * 70ms); }
+.wordmark.party .tick-dot { animation: dot-flip 1.05s var(--ease) 0.12s; }
+.wordmark.party .tick-dot path { animation: redraw 0.45s var(--ease) 0.75s backwards; }
+.spark {
+  position: fixed; z-index: 60; pointer-events: none; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px;
+  border-radius: 2px; animation: spark 0.75s var(--ease) forwards;
+}
+.spark.round { border-radius: 50%; }
 nav { display: flex; flex-direction: column; gap: 6px; }
 nav a {
   display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 16px;
@@ -422,6 +471,42 @@ textarea:focus { outline: none; box-shadow: var(--clay-inset), 0 0 0 3px var(--v
   0% { box-shadow: 0 0 0 0 rgba(47, 127, 234, 0.45), var(--clay-shadow-sm); }
   100% { box-shadow: 0 0 0 14px rgba(47, 127, 234, 0), var(--clay-shadow-sm); }
 }
+@keyframes clay-drop {
+  0% { opacity: 0; transform: translateY(-46px) scale(0.85, 1.2); }
+  45% { opacity: 1; transform: translateY(0) scale(1.22, 0.78); }
+  65% { transform: translateY(-6px) scale(0.94, 1.08); }
+  82% { transform: translateY(0) scale(1.05, 0.95); }
+  100% { transform: none; }
+}
+@keyframes dot-in {
+  0% { opacity: 0; transform: translateY(-34px) scale(0) rotate(-200deg); }
+  60% { opacity: 1; transform: translateY(3px) scale(1.3, 1.1) rotate(12deg); }
+  80% { transform: translateY(0) scale(0.92) rotate(-4deg); }
+  100% { transform: none; }
+}
+@keyframes hop {
+  0% { transform: none; }
+  16% { transform: scale(1.16, 0.8); }
+  44% { transform: translateY(-18px) scale(0.88, 1.14) rotate(-5deg); }
+  68% { transform: translateY(0) scale(1.16, 0.84); }
+  84% { transform: scale(0.96, 1.05); }
+  100% { transform: none; }
+}
+@keyframes dot-flip {
+  0% { transform: none; }
+  14% { transform: translateY(4px) scale(1.25, 0.75); }
+  45% { transform: translateY(-34px) rotate(200deg) scale(1.25); }
+  62% { transform: translateY(-38px) rotate(360deg) scale(1.35); }
+  82% { transform: translateY(3px) rotate(360deg) scale(1.25, 0.8); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes redraw { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+@keyframes idle-bob { 0%, 6%, 100% { transform: none; } 3% { transform: translateY(-4px) scale(0.97, 1.04); } }
+@keyframes wink { 0%, 90%, 100% { transform: none; } 93% { transform: rotate(-24deg) scale(1.18); } 96% { transform: rotate(12deg) scale(0.96); } }
+@keyframes spark {
+  0% { transform: translate(0, 0) rotate(45deg) scale(1.3); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) rotate(225deg) scale(0); opacity: 0; }
+}
 @keyframes confetti {
   0% { transform: translate(0, 0) rotate(0) scale(1); opacity: 1; }
   40% { transform: translate(calc(var(--dx) * 0.75), var(--up)) rotate(calc(var(--rot) * 0.5)); opacity: 1; }
@@ -439,7 +524,8 @@ textarea:focus { outline: none; box-shadow: var(--clay-inset), 0 0 0 3px var(--v
   aside { position: static; height: auto; margin: 12px 12px 0; padding: 12px; flex-direction: row; align-items: center; gap: 12px; overflow-x: auto; }
   nav { flex-direction: row; }
   nav a { padding: 9px 12px; white-space: nowrap; }
-  .brand-name { display: none; }
+  .wordmark { font-size: 30px; padding: 6px 6px 6px 4px; }
+  .wordmark .tagline { display: none; }
   main { padding: 18px 16px 40px; }
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .card { padding: 18px; overflow-x: auto; }
