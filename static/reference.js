@@ -42,7 +42,7 @@ async function load() {
     </tr>`).join("");
 
   document.getElementById("policy").innerHTML = Object.entries(data.policy).map(([k, v]) => `
-    <tr><td class="mono">${esc(k)}</td><td class="num"><b>${esc(v)}</b></td></tr>`).join("");
+    <tr><td class="mono">${esc(k)}</td><td class="num wrap"><b>${esc(Array.isArray(v) ? v.join(", ") : v)}</b></td></tr>`).join("");
 
   ["pos", "vendors", "registry", "policy"].forEach((id) => stagger(document.getElementById(id), "tr"));
   nextFrame(() => document.querySelectorAll("[data-w]").forEach((bar) => { bar.style.width = `${bar.dataset.w}%`; }));
