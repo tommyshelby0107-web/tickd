@@ -15,8 +15,13 @@
   <main>
     <div class="page-head enter">
       <h1>Reference data</h1>
-      <button class="btn btn-danger" id="reset"></button>
+      <div class="actions" style="margin:0">
+        <button class="btn btn-primary" id="add-vendor"></button>
+        <button class="btn btn-primary" id="add-po"></button>
+        <button class="btn btn-danger" id="reset"></button>
+      </div>
     </div>
+    <dialog class="modal" id="modal" aria-labelledby="modal-title"></dialog>
 
     <section class="card enter" style="--i:1;margin-bottom:20px">
       <div class="card-head"><h2>Purchase orders</h2><span class="tag" id="po-count">0</span></div>

@@ -127,6 +127,43 @@ def purchase_orders(vendor_id: str | None = None, open_only: bool = False) -> li
     return [purchase_order(n) for n in numbers]
 
 
+VENDOR_COLUMNS = ("vendor_id", "name", "aliases", "tax_id", "status", "address", "phone_on_file", "email", "bank_name",
+                  "bank_account", "bank_routing", "expected_tax_rate", "payment_terms")
+
+
+def add_vendor(vendor: dict) -> dict:
+    """Add a vendor from the app. The next free ID is taken inside one locked transaction, so two people adding
+    vendors at the same moment cannot get the same ID."""
+    with connect() as conn:
+        conn.execute("BEGIN IMMEDIATE")
+        ids = [r[0] for r in conn.execute("SELECT vendor_id FROM vendors")]
+        number = max((int(i[1:]) for i in ids if i[1:].isdigit()), default=0) + 1
+        vendor = {**vendor, "vendor_id": f"V{number:03d}"}
+        conn.execute(f"INSERT INTO vendors ({','.join(VENDOR_COLUMNS)}) VALUES ({','.join('?' * len(VENDOR_COLUMNS))})",
+                     [vendor[c] for c in VENDOR_COLUMNS])
+    return vendor
+
+
+def next_po_number() -> str:
+    with connect() as conn:
+        numbers = [r[0] for r in conn.execute("SELECT po_number FROM purchase_orders")]
+    return f"PO-{max((int(n[3:]) for n in numbers if n[3:].isdigit()), default=4500) + 1}"
+
+
+def add_purchase_order(po: dict, lines: list[dict]) -> dict:
+    """Add a purchase order and its lines from the app. Nothing has been invoiced against it yet."""
+    with connect() as conn:
+        conn.execute("BEGIN IMMEDIATE")
+        conn.execute("INSERT INTO purchase_orders (po_number, vendor_id, status, created_date, buyer, description)"
+                     " VALUES (?,?,?,?,?,?)", (po["po_number"], po["vendor_id"], po["status"], po["created_date"],
+                                               po["buyer"], po["description"]))
+        conn.executemany("INSERT INTO po_lines (po_number, line_no, sku, description, qty_ordered, unit_price,"
+                         " qty_received, qty_invoiced) VALUES (?,?,?,?,?,?,?,0)",
+                         [(po["po_number"], i, l["sku"], l["description"], l["qty_ordered"], l["unit_price"],
+                           l["qty_received"]) for i, l in enumerate(lines, 1)])
+    return purchase_order(po["po_number"])
+
+
 # ---------------------------------------------------------------- invoice registry (approved / paid invoices)
 
 def registry(vendor_id: str | None = None) -> list[dict]:

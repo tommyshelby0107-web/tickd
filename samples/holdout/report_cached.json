@@ -1,7 +1,7 @@
 {
   "set": "holdout",
   "mode": "cached",
-  "at": "2026-09-24T13:09:35+00:00",
+  "at": "2026-09-25T10:15:42+00:00",
   "decisions_correct": 11,
   "total": 11,
   "field_accuracy": {
@@ -42,7 +42,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.23,
+      "seconds": 0.2,
       "summary": "Approved. Harborline Office Products invoice HOP-500931 for $7,212.50 passed every check against PO-4511."
     },
     {
@@ -58,7 +58,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.14,
+      "seconds": 0.11,
       "summary": "Held for Buyer review. 1 line(s) are not on PO-4512: Quarterly HVAC service - labour, filters and disposal (lump sum)."
     },
     {
@@ -76,7 +76,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.12,
+      "seconds": 0.11,
       "summary": "Held for Buyer review. PO-4480 would be billed $2,388.80 of $1,194.40 (200.0%). Only $0.00 remains billable. Plus 2 other issue(s)."
     },
     {
@@ -92,7 +92,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.1,
+      "seconds": 0.12,
       "summary": "Held for Warehouse review. Wooden pallet 48x40, heat treated: invoiced 300, but only 180 received and not yet billed (0 of 300 already invoiced)."
     },
     {
@@ -109,7 +109,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.11,
+      "seconds": 0.12,
       "summary": "Held for AP review. Arithmetic does not reconcile: 'Absorbent granules, 25 lb bag' amount $609.00 is not qty x price. Plus 1 other issue(s)."
     },
     {
@@ -142,7 +142,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 1.31,
+      "seconds": 1.18,
       "summary": "Held for Procurement review. Vendor 'Pinnacle Office Supply' is not in the vendor master. Plus 1 other issue(s)."
     },
     {
@@ -158,7 +158,7 @@
       "why": "safe alternative",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.82,
+      "seconds": 1.01,
       "summary": "Held for AP review. Could not verify against the document: invoice number (quote not found in page text); invoice date (quote not found in page text); PO number (OCR confidence 68); bank account (OCR confidence 71)."
     },
     {
@@ -174,7 +174,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.11,
+      "seconds": 0.12,
       "summary": "Held for AP review. This is a credit note for $206.94, not a bill to pay. Apply it against the vendor's open invoices instead."
     },
     {
@@ -191,7 +191,7 @@
       "why": "ok",
       "field_misses": [],
       "model": "provided (no LLM call)",
-      "seconds": 0.11,
+      "seconds": 0.12,
       "summary": "Held for Procurement review. Vendor 'NORTHGATE INDUSTRIAL SOLUTIONS LLC' is not in the vendor master. Plus 1 other issue(s)."
     }
   ]

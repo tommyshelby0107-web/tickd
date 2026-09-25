@@ -14,12 +14,13 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse, Response, StreamingResponse
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import config, db, email_intake
+from . import config, db, email_intake, refdata
 from .config import uploads_dir
 from .pipeline import STAGES, new_run_id, run_invoice, sample_files
 from .text import page_png
@@ -68,6 +69,16 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="tickd by Sid", lifespan=lifespan)
+
+
+@app.exception_handler(RequestValidationError)
+async def readable_validation_error(_: Request, exc: RequestValidationError):
+    """Form mistakes come back as one readable sentence the page can show, not a list of objects."""
+    parts = []
+    for error in exc.errors():
+        where = " ".join(str(p).replace("_", " ") for p in error["loc"][1:] if not isinstance(p, int))
+        parts.append(f"{where}: {error['msg'].lower()}" if where else error["msg"])
+    return JSONResponse(status_code=422, content={"detail": "; ".join(dict.fromkeys(parts)) + "."})
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
 
 
@@ -330,7 +341,25 @@ def reference():
         value = sum(l["qty_ordered"] * l["unit_price"] for l in po["lines"])
         billed = sum(l["qty_invoiced"] * l["unit_price"] for l in po["lines"])
         pos.append({**po, "value": value, "billed": billed, "billed_pct": round(100 * billed / value, 1) if value else 0})
-    return {"vendors": vendors, "purchase_orders": pos, "registry": db.registry(), "policy": config.POLICY}
+    return {"vendors": vendors, "purchase_orders": pos, "registry": db.registry(), "policy": config.POLICY,
+            "next_po_number": db.next_po_number()}
+
+
+@app.post("/api/vendors", status_code=201)
+def add_vendor(body: refdata.VendorIn):
+    try:
+        vendor = refdata.add_vendor(body)
+    except refdata.RefDataError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    return {**vendor, "bank_account": f"...{vendor['bank_account'][-4:]}"}
+
+
+@app.post("/api/purchase_orders", status_code=201)
+def add_purchase_order(body: refdata.PurchaseOrderIn):
+    try:
+        return refdata.add_purchase_order(body)
+    except refdata.RefDataError as exc:
+        raise HTTPException(422, str(exc)) from exc
 
 
 @app.post("/api/admin/reset")

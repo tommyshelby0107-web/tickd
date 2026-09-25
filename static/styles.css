@@ -799,6 +799,45 @@ textarea:focus { outline: none; box-shadow: var(--clay-inset), 0 0 0 3px var(--v
   color: var(--ink-2); box-shadow: var(--pill-shadow);
 }
 .resolve-title { font-weight: 900; margin: 18px 0 8px; }
+
+/* ---------- add-data forms: a clay sheet in a native <dialog> (Escape and focus handling come free) ---------- */
+.modal { border: none; padding: 0; background: transparent; width: min(780px, calc(100vw - 32px)); max-width: none; overflow: visible; color: var(--ink); }
+.modal::backdrop { background: rgba(20, 16, 40, 0.42); }
+.modal[open] .sheet { animation: pop-in 0.45s var(--spring); }
+.sheet {
+  background: var(--clay); border-radius: var(--r-lg); box-shadow: var(--clay-lift); padding: 26px 28px;
+  max-height: calc(100vh - 48px); overflow-y: auto;
+}
+.sheet-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.sheet h2 { font-size: 23px; font-weight: 900; margin: 0; }
+.form-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 16px; margin-top: 20px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field.span-2 { grid-column: span 2; }
+.field label { font-size: 12.5px; font-weight: 800; color: var(--muted); }
+.field label b, .lines-table th b { color: var(--coral); }
+.hint { font-size: 12px; color: var(--muted); font-weight: 600; }
+.input {
+  width: 100%; font: inherit; font-weight: 700; color: var(--ink); border: none; border-radius: 14px; padding: 10px 13px;
+  background: var(--clay-2); box-shadow: var(--clay-inset); transition: box-shadow 0.2s;
+}
+.input::placeholder { color: var(--faint); font-weight: 600; }
+.input:focus { outline: none; box-shadow: var(--clay-inset), 0 0 0 3px var(--violet-2); }
+select.input { cursor: pointer; }
+.input.num { text-align: right; }
+.lines-head { display: flex; align-items: baseline; justify-content: space-between; margin: 22px 0 8px; }
+.lines-head h3 { margin: 0; font-size: 16px; font-weight: 900; }
+.lines-wrap { overflow-x: auto; }
+.lines-table { min-width: 620px; }
+.lines-table th { padding: 4px 6px 8px; white-space: nowrap; }
+.lines-table td { padding: 5px 4px; border-top: none; }
+.lines-table td:nth-child(1) { width: 18%; }
+.lines-table td:nth-child(2) { width: 38%; }
+.lines-table td:nth-child(3), .lines-table td:nth-child(4), .lines-table td:nth-child(5) { width: 13%; }
+.form-error { margin-top: 16px; padding: 11px 15px; border-radius: 14px; background: var(--coral-soft); color: var(--coral); font-weight: 800; }
+.sheet-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+tr.flash td { animation: row-flash 2s ease; }
+@keyframes row-flash { 0%, 45% { background: var(--mint-soft); } 100% { background: transparent; } }
+@media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } .field.span-2 { grid-column: auto; } }
 .shake-once { animation: shake 0.45s ease; }
 
 .toast {

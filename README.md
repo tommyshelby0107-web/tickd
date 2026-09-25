@@ -44,6 +44,12 @@ are caught deterministically. Emailed invoices also get rule VM-04: the sender s
 quantities already invoiced, invoice history). `samples/invoices/` holds the generated PDFs and
 `samples/manifest.json` the ground truth and expected decision for each one.
 
+New vendors and purchase orders can be added in the app (Reference data → **Add vendor** / **Add PO**). They are
+checked first: a vendor needs bank details and cannot duplicate an existing name, alias or tax ID; a PO must belong
+to a known vendor, have a new number, and cannot record more received than ordered. Example: T-11 is held for
+Procurement until its vendor (Northgate Industrial Solutions LLC) and PO-9981 are added, then the same PDF approves.
+**Reset demo data** removes anything added.
+
 Regenerate the PDFs:
 
 ```powershell
