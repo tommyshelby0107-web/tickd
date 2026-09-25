@@ -139,6 +139,12 @@ def email_check_now():
 
 # ---------------------------------------------------------------- runs
 
+@app.get("/api/health")
+def health():
+    """For the host's health check and the uptime monitor that keeps the free instance awake."""
+    return {"ok": True, "queue": JOBS.qsize()}
+
+
 @app.get("/api/config")
 def app_config():
     keys = {"groq": config.GROQ_API_KEY, "gemini": config.GEMINI_API_KEY, "mistral": config.MISTRAL_API_KEY}
@@ -246,19 +252,24 @@ def get_run(run_id: str):
 async def run_events(run_id: str):
     """Server-Sent Events: replay what is stored, then keep sending new stage events until the decision."""
     async def stream():
-        last_id, idle = 0, 0.0
+        last_id, idle, quiet = 0, 0.0, 0.0
         while idle < 300:          # give up only after 5 minutes with no new event (a queued run just waits)
             for event in db.events(run_id, last_id):
-                last_id, idle = event["id"], 0.0
+                last_id, idle, quiet = event["id"], 0.0, 0.0
                 yield f"data: {json.dumps(event)}\n\n"
                 if event["stage"] == "decide" and event["status"] != "running":
                     yield "event: end\ndata: {}\n\n"
                     return
             await asyncio.sleep(0.3)
             idle += 0.3
+            quiet += 0.3
+            if quiet >= 15:        # a comment line the browser ignores, so hosting proxies keep the stream open
+                quiet = 0.0
+                yield ": keep-alive\n\n"
         yield "event: end\ndata: {}\n\n"
 
-    return StreamingResponse(stream(), media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
+    return StreamingResponse(stream(), media_type="text/event-stream",
+                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
 def _run_file(run_id: str) -> Path:

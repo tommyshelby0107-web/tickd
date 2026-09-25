@@ -1,0 +1,30 @@
+# Render blueprint: New > Blueprint > pick this repo. Secrets marked "sync: false" are typed into Render's
+# dashboard during setup and never live in this file or the repo.
+services:
+  - type: web
+    name: tickd
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: MISTRAL_API_KEY
+        sync: false
+      - key: LLM_PROVIDER_ORDER
+        value: groq,gemini,mistral
+      - key: GROQ_MODELS
+        value: qwen/qwen3.8-27b
+      - key: GEMINI_MODELS
+        value: gemini-3.5-flash-lite
+      - key: MISTRAL_MODELS
+        value: mistral-medium-2604
+      - key: EMAIL_ADDRESS
+        sync: false
+      - key: EMAIL_APP_PASSWORD
+        sync: false
+      - key: EMAIL_TRUSTED_FORWARDERS
+        sync: false
