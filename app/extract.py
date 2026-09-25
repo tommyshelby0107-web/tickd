@@ -26,7 +26,7 @@ from .config import (GEMINI_API_KEY, GEMINI_MODELS, GROQ_API_KEY, GROQ_MODELS, M
 from .normalize import currency_code, detect_currency
 from .parser import parse_invoice
 from .schema import InvoiceData, LineItem, Sourced  # noqa: F401  (re-exported for the rest of the app)
-from .text import PageText, as_prompt_text, page_png
+from .text import PageText, as_prompt_text, page_jpeg
 
 SYSTEM_PROMPT = """You extract data from vendor invoices for an accounts payable team.
 
@@ -169,7 +169,7 @@ STRICT_SCHEMA = _strict_schema(InvoiceData)
 # ---------------------------------------------------------------- Gemini (backup; also reads page images)
 
 def _gemini(prompt: str, pdf_path: Path, image_pages: list[int], skipped: list[str]):
-    contents: list = [prompt] + [types.Part.from_bytes(data=page_png(pdf_path, n, dpi=200), mime_type="image/png")
+    contents: list = [prompt] + [types.Part.from_bytes(data=page_jpeg(pdf_path, n), mime_type="image/jpeg")
                                  for n in image_pages]
     config = types.GenerateContentConfig(
         system_instruction=SYSTEM_PROMPT,
@@ -200,7 +200,7 @@ def _gemini(prompt: str, pdf_path: Path, image_pages: list[int], skipped: list[s
 def _mistral(prompt: str, pdf_path: Path, image_pages: list[int], skipped: list[str]):
     content: list = [{"type": "text", "text": prompt}] + [
         {"type": "image_url",
-         "image_url": {"url": "data:image/png;base64," + base64.b64encode(page_png(pdf_path, n, dpi=200)).decode()}}
+         "image_url": {"url": "data:image/jpeg;base64," + base64.b64encode(page_jpeg(pdf_path, n)).decode()}}
         for n in image_pages]
     client = Mistral(api_key=MISTRAL_API_KEY, timeout_ms=CALL_TIMEOUT_S * 1000)
     for model in MISTRAL_MODELS:

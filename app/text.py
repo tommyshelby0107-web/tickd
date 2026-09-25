@@ -57,9 +57,16 @@ def ocr_page(page: pymupdf.Page, number: int) -> PageText:
 
 
 def page_png(pdf_path: Path, number: int, dpi: int = 150) -> bytes:
-    """Render one page as PNG, for the UI preview and the LLM image fallback."""
+    """Render one page as PNG, for the UI preview."""
     with pymupdf.open(pdf_path) as doc:
         return doc[number - 1].get_pixmap(dpi=dpi).tobytes("png")
+
+
+def page_jpeg(pdf_path: Path, number: int, dpi: int = 200) -> bytes:
+    """Render one page as JPEG for the AI image readers. A phone photo is about 6x smaller than as PNG, so it
+    encodes and uploads much faster on a small server, and the AI reads it the same."""
+    with pymupdf.open(pdf_path) as doc:
+        return doc[number - 1].get_pixmap(dpi=dpi).tobytes("jpg", jpg_quality=85)
 
 
 def as_prompt_text(pages: list[PageText]) -> str:

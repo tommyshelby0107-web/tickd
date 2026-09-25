@@ -325,7 +325,8 @@ def review_run(run_id: str, body: ReviewAction):
 @app.get("/api/metrics")
 def metrics():
     finished = db.results()
-    automated = Counter(r["result"]["decision"]["outcome"] for r in finished)
+    automated = Counter(r["result"]["decision"]["outcome"] for r in finished)    # what tickd decided on its own
+    final = Counter(r["decision"] for r in finished)                            # after people resolved the holds
     reasons = Counter(rule for r in finished for rule in r["result"]["decision"]["reasons"])
     open_reviews = [r for r in finished if r["status"] == "done" and r["decision"] == "Review"]
     seconds = [r["seconds"] for r in finished if r["seconds"]]
@@ -339,7 +340,7 @@ def metrics():
         "open_reviews": len(open_reviews),
         "high_risk_open": sum(r["result"]["decision"]["severity"] == "high" for r in open_reviews),
         "resolved_by_people": sum(r["status"] == "resolved" for r in finished),
-        "by_outcome": {k: automated[k] for k in ("Approve", "Review", "Return to vendor", "Reject")},
+        "by_outcome": {k: final[k] for k in ("Approve", "Review", "Return to vendor", "Reject")},
         "by_reason": reasons.most_common(8),
     }
 

@@ -181,9 +181,13 @@ const DECISION_LOOK = {
 function renderDecision(run) {
   const r = run.result;
   const d = r.decision;
-  const cls = d.severity === "high" ? "high" : (OUTCOME[d.outcome] || [""])[0];
+  // Once a person resolves a hold, the card shows their decision; tickd's reasons stay below as the why.
+  const person = run.status === "resolved" ? run.review_actions[run.review_actions.length - 1] : null;
+  const outcome = person ? run.decision : d.outcome;
+  const heldAs = d.severity === "high" ? "High-risk hold" : (OUTCOME[d.outcome] || ["", d.outcome])[1];
+  const cls = d.severity === "high" && !person ? "high" : (OUTCOME[outcome] || [""])[0];
   const [color, ico] = DECISION_LOOK[cls] || ["", "info"];
-  const title = cls === "high" ? "High-risk hold" : (OUTCOME[d.outcome] || ["", d.outcome])[1];
+  const title = person ? (OUTCOME[outcome] || ["", outcome])[1] : heldAs;
   const el = document.getElementById("decision");
   el.className = `card decision ${cls}`;
   void el.offsetWidth;                      // restart the pop-in when the card is re-rendered
@@ -193,7 +197,7 @@ function renderDecision(run) {
   const candidates = r.po_inferred && r.po_candidates.length ? `
     <div class="callout" style="margin-top:12px">Suggested <b>${esc(r.po)}</b> ·
       ${r.po_candidates.map((c) => `${esc(c.po_number)} ${c.score.toFixed(2)}`).join(" · ")}</div>` : "";
-  const message = d.message ? `
+  const message = d.message && (!person || outcome === "Return to vendor") ? `
     <details class="draft" style="margin-top:14px">
       <summary>${icon("mail", 16)} Draft to ${esc(d.message.to)}</summary>
       <div class="message-box" id="draft">Subject: ${esc(d.message.subject)}\n\n${esc(d.message.body)}</div>
@@ -213,9 +217,9 @@ function renderDecision(run) {
       <button class="btn btn-danger" onclick="review('reject')">${icon("x", 16)} Reject</button>
     </div>
     ${blocker ? `<div class="sub" style="margin-top:8px">Approve unavailable: ${esc(blocker)}.</div>` : ""}` : "";
-  const resolved = run.review_actions.length ? `
-    <div class="callout" style="margin-top:14px">${run.review_actions.map((a) =>
-      `${icon("user", 14)} <b>${esc(a.action)}</b> by ${esc(a.actor)}: “${esc(a.reason)}” · ${esc(new Date(a.at).toLocaleString())}`).join("<br>")}</div>` : "";
+  const next = person
+    ? `${icon("user")}<span><b>${esc(person.actor)}</b> · “${esc(person.reason)}” · ${esc(new Date(person.at).toLocaleString())}</span>`
+    : `${icon("bolt")}<span>${esc(d.next_action)}</span>`;
 
   el.innerHTML = `
     <div class="d-top">
@@ -223,15 +227,16 @@ function renderDecision(run) {
       <div>
         <div class="d-title">${esc(title)}</div>
         <div class="d-tags">
-          ${d.owner ? `<span class="pill plain">${icon("user", 14)}${esc(d.owner)}</span>` : ""}
+          ${person ? `<span class="pill plain">was ${esc(heldAs)}</span>` : ""}
+          ${d.owner && !person ? `<span class="pill plain">${icon("user", 14)}${esc(d.owner)}</span>` : ""}
           ${d.reasons.map((x) => `<span class="chip">${esc(x)}</span>`).join("")}
         </div>
       </div>
     </div>
     <div class="d-summary">${esc(summary)}</div>
-    <div class="d-next">${icon("bolt")}<span>${esc(d.next_action)}</span></div>
+    <div class="d-next">${next}</div>
     ${d.notes.length ? `<ul class="notes">${d.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : ""}
-    ${candidates}${message}${resolved}${reviewForm}`;
+    ${candidates}${message}${reviewForm}`;
   if (celebrate && d.outcome === "Approve") setTimeout(() => confetti(el.querySelector(".blob")), 350);
   if (celebrate) setTimeout(() => coco.react(d.outcome), 500);          // Coco reacts to a decision made live
   celebrate = false;

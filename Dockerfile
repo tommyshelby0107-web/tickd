@@ -8,6 +8,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     STORAGE_DIR=/app/storage
 
+# Tesseract on one thread: on a small CPU share (Render free: 0.1 CPU) its extra threads only wait on each other.
+ENV OMP_THREAD_LIMIT=1
+
 # Tesseract OCR (English) for scans; the Python packages ship their own PDF libraries.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng \
